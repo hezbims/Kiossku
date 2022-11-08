@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "999981571675",
+    "project_id": "kiossku",
+    "storage_bucket": "kiossku.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:999981571675:android:6563f0bbb2068da7a5297e",
+        "android_client_info": {
+          "package_name": "com.sbfirebase.kiossku"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "999981571675-qa50448j8bu3om5tagjpp9n3n0mjnjjq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sbfirebase.kiossku",
+            "certificate_hash": "105ade8cc71e1bb593fe7a30ed10016e494fab29"
+          }
+        },
+        {
+          "client_id": "999981571675-cemhucap0usg2hrec0m9mm1pje1e3cpd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaHiDNZo7xUYfYlLZVOLJRumYjVk61fzI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "999981571675-cemhucap0usg2hrec0m9mm1pje1e3cpd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
