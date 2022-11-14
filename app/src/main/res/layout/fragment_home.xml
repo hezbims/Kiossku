@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.sbfirebase.kiossku.home.HomeViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".home.HomeFragment">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/appCompatImageView"
+            style="@style/kiosskuHeader"
+            android:layout_margin="24dp"
+            android:src="@drawable/kiossku_header"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/banner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/banner_kiossku"
+            android:layout_marginTop="24dp"
+            android:tint="#99231E1E"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/appCompatImageView" />
+
+        <TextView
+            android:id="@+id/temukan_kios_label"
+            android:layout_width="132dp"
+            android:layout_height="wrap_content"
+            android:text="Temukan kios terbaikmu di kiossku.com"
+            app:layout_constraintTop_toTopOf="@id/banner"
+            app:layout_constraintStart_toStartOf="@id/banner"
+            android:layout_marginTop="11dp"
+            android:layout_marginStart="16dp"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="#RealProperty"
+            android:textColor="#FFFFFF"
+            app:layout_constraintStart_toStartOf="@id/temukan_kios_label"
+            app:layout_constraintTop_toBottomOf="@id/temukan_kios_label"
+            android:textSize="10sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="@+id/banner"
+            app:layout_constraintStart_toStartOf="@+id/banner"
+            app:layout_constraintTop_toBottomOf="@+id/banner"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:paddingTop="24dp"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="2"
+            tools:itemCount="6"
+            recyclerViewData="@{viewModel.data}"
+            navigateToDetail="@{viewModel.navigateToDetail}"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

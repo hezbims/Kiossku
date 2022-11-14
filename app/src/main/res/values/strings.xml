@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Kiossku</string>
+    <string name="linkDownloadGambar">https://drive.google.com/uc?%1$s&amp;export=download</string>
+    <string name="lihat_detail">Lihat Detail</string>
+    <string name="harga">Rp%1$s</string>
+    <string name="luas_bangunan">Luas Bangunan : %1$s</string>
+    <string name="luas_lahan">Luas Lahan : %1$s</string>
+    <string name="kapasitas_listrik">Kapasitas Listrik : %1$s</string>
+    <string name="email">Email : %1$s</string>
+    <string name="phone">Phone : %1$s</string>
+</resources>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.google.android.material.card.MaterialCardView
+    android:id="@+id/card_view"
+    android:layout_marginVertical="6dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="6dp">
+
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/gambar_kios"
+            android:layout_width="139dp"
+            android:layout_height="119dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/kioss_home_placeholder"
+            android:scaleType="centerCrop"
+            app:shapeAppearance="@style/roundedGambarKioss"/>
+
+        <TextView
+            android:id="@+id/lama_kios"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textSize="10sp"
+            tools:text="Kios baru"
+            android:textColor="#1A8B4C"
+            app:layout_constraintStart_toStartOf="@id/gambar_kios"
+            app:layout_constraintTop_toBottomOf="@id/gambar_kios" />
+
+        <TextView
+            android:id="@+id/judul_kios"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            tools:text="Mega Kuningan"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@+id/gambar_kios"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/lama_kios"
+            app:layout_constraintTop_toBottomOf="@+id/lama_kios"
+            android:ellipsize="marquee"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/location_icon"
+            android:layout_width="13dp"
+            android:layout_height="13dp"
+            android:src="@drawable/ic_baseline_alamat_icon"
+            app:layout_constraintStart_toEndOf="@+id/alamat"
+            app:layout_constraintTop_toTopOf="@id/alamat"
+            android:layout_marginStart="6dp"/>
+
+        <TextView
+            android:id="@+id/alamat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            tools:text="Jl Soekarno Hatta"
+            android:textSize="10sp"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintEnd_toEndOf="@+id/gambar_kios"
+            app:layout_constraintStart_toStartOf="@+id/judul_kios"
+            app:layout_constraintTop_toBottomOf="@+id/judul_kios" />
+
+        <TextView
+            android:id="@+id/harga"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/primary_color"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/alamat"
+            app:layout_constraintStart_toStartOf="@+id/alamat"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintVertical_bias="1.0"
+
+            android:layout_marginEnd="12dp"
+            android:layout_marginVertical="6dp"
+            tools:text="Rp300.000/bln" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
