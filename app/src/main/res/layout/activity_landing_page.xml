@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         tools:context=".ladingpage.LandingPageActivity">
 
-        <androidx.appcompat.widget.AppCompatImageButton
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/appCompatImageButton"
             android:layout_width="171dp"
             android:layout_height="44dp"
