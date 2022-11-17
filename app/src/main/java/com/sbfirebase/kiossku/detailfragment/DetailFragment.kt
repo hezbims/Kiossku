@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.sbfirebase.kiossku.R
 import com.sbfirebase.kiossku.databinding.FragmentDetailBinding
 
 class DetailFragment : Fragment() {
@@ -27,6 +28,9 @@ class DetailFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.backButton.setOnClickListener {
             findNavController().navigateUp()
+        }
+        binding.recyclerView.adapter = DetailAdapter().apply{
+            submitList(List(5){R.drawable.kioss_home_placeholder})
         }
 
         return binding.root
