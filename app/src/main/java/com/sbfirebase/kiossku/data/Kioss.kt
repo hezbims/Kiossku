@@ -16,5 +16,6 @@ data class Kioss(
     val luasLahan : String,
     val kapasitasListrik : String,
     val email : String,
-    val phone : String
+    val phone : String,
+    val kiosHeader : String
 ) : Parcelable

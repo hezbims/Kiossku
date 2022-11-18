@@ -8,9 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.sbfirebase.kiossku.R
 import com.sbfirebase.kiossku.databinding.FragmentDetailBinding
 
@@ -52,6 +54,15 @@ class DetailFragment : Fragment() {
         binding.hubungiSekarang.setOnClickListener {
             openWhatsapp.launch(viewModel.currentKioss.phone)
         }
+
+        binding.recyclerView.addItemDecoration(
+            DividerItemDecoration(requireContext() , DividerItemDecoration.HORIZONTAL).apply {
+                setDrawable(
+                    ResourcesCompat
+                        .getDrawable(resources , R.drawable.spacer_detail_images , null)!!
+                )
+            }
+        )
     }
 }
 

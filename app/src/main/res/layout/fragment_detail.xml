@@ -9,6 +9,7 @@
             type="com.sbfirebase.kiossku.data.Kioss" />
     </data>
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -31,6 +32,18 @@
             app:layout_constraintTop_toBottomOf="@+id/kiossku_header"
             android:layout_marginTop="24dp"/>
 
+        <TextView
+            android:id="@+id/header_kios"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/back_button"
+            app:layout_constraintStart_toEndOf="@+id/back_button"
+            app:layout_constraintTop_toTopOf="@+id/back_button"
+            android:layout_marginStart="22dp"
+            android:textColor="#666666"
+            android:text="@{currentKioss.kiosHeader}"
+            tools:text="Kios5" />
+
         <View
             android:id="@+id/app_bar"
             android:background="#6666"
@@ -39,63 +52,62 @@
             app:layout_constraintTop_toTopOf="@id/back_button"
             app:layout_constraintBottom_toBottomOf="@id/back_button"/>
 
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="289dp"
-            app:layout_constraintTop_toBottomOf="@id/app_bar"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            android:orientation="horizontal"
-            android:padding="24dp"
-            android:clipToPadding="false"/>
-
-        <ScrollView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/recycler_view"
+            app:layout_constraintTop_toBottomOf="@id/app_bar"
             app:layout_constraintBottom_toBottomOf="parent">
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="24dp"
-                android:paddingBottom="24dp">
+                android:layout_height="wrap_content">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="289dp"
+                    android:clipToPadding="false"
+                    android:orientation="horizontal"
+                    android:padding="24dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/tipe_properti"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{currentKioss.tipeProperti}"
-                    tools:text="Kios"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
                     android:textColor="@color/primary_color"
                     android:textSize="14sp"
-                    />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/recycler_view"
+                    android:layout_marginStart="24dp"
+                    tools:text="Kios" />
 
                 <TextView
                     android:id="@+id/judul"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@id/tipe_properti"
-                    app:layout_constraintStart_toStartOf="@id/tipe_properti"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
+                    android:layout_marginTop="4dp"
                     android:text="@{currentKioss.judul}"
-                    tools:text="Dijual / Disewakan kost dekat kuburan"/>
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="@id/tipe_properti"
+                    app:layout_constraintTop_toBottomOf="@id/tipe_properti"
+                    tools:text="Dijual / Disewakan kost dekat kuburan"
+                    android:layout_marginEnd="24dp"/>
 
                 <TextView
                     android:id="@+id/harga"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@id/judul"
-                    app:layout_constraintStart_toStartOf="@id/judul"
                     android:layout_marginTop="8dp"
                     android:text="@{@string/harga(currentKioss.harga)}"
-                    tools:text="Rp250.000.000"
+                    android:textColor="@color/primary_color"
                     android:textStyle="bold"
-                    android:textColor="@color/primary_color"/>
+                    app:layout_constraintStart_toStartOf="@id/judul"
+                    app:layout_constraintTop_toBottomOf="@id/judul"
+                    tools:text="Rp250.000.000" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/bisa_ditawar"
@@ -104,22 +116,23 @@
                     android:backgroundTint="@color/primary_color"
                     android:padding="0dp"
                     android:text="@{currentKioss.fixAtauNego}"
-                    tools:text="Fix/Nego"
                     android:textSize="10sp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/harga" />
+                    app:layout_constraintTop_toTopOf="@id/harga"
+                    android:layout_marginEnd="24dp"
+                    tools:text="Fix/Nego" />
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_view"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@id/bisa_ditawar"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
                     android:layout_marginTop="24dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/bisa_ditawar"
                     app:strokeColor="@color/black"
                     app:strokeWidth="0.5dp"
-                    >
+                    android:layout_marginHorizontal="24dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -139,139 +152,144 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="18dp"
-                            android:textSize="14sp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintBottom_toBottomOf="@id/luas_bangunan_icon"
-                            app:layout_constraintStart_toEndOf="@id/luas_bangunan_icon"
                             android:text="@{@string/luas_bangunan(currentKioss.luasBangunan)}"
+                            android:textSize="14sp"
+                            app:layout_constraintBottom_toBottomOf="@id/luas_bangunan_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@id/luas_bangunan_icon"
                             tools:text="Luas bangunan : 10m" />
 
                         <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/luas_lahan_icon"
                             android:layout_width="16dp"
                             android:layout_height="16dp"
+                            android:layout_marginTop="16dp"
                             android:src="@drawable/luas_lahan_icon"
                             app:layout_constraintStart_toStartOf="@id/luas_bangunan_icon"
-                            app:layout_constraintTop_toBottomOf="@id/luas_bangunan"
-                            android:layout_marginTop="16dp"
-                            />
+                            app:layout_constraintTop_toBottomOf="@id/luas_bangunan" />
 
                         <TextView
                             android:id="@+id/luas_lahan"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintBottom_toBottomOf="@id/luas_lahan_icon"
-                            app:layout_constraintStart_toEndOf="@id/luas_lahan_icon"
                             android:layout_marginStart="18dp"
                             android:text="@{@string/luas_lahan(currentKioss.luasLahan)}"
-                            tools:text="Luas Lahan : 12.83m"/>
+                            app:layout_constraintBottom_toBottomOf="@id/luas_lahan_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@id/luas_lahan_icon"
+                            tools:text="Luas Lahan : 12.83m" />
 
                         <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/kapasitas_listrik_icon"
                             android:layout_width="16dp"
                             android:layout_height="16dp"
+                            android:layout_marginTop="16dp"
                             android:src="@drawable/kapasitas_listrik_icon"
                             app:layout_constraintStart_toStartOf="@id/luas_lahan_icon"
-                            app:layout_constraintTop_toBottomOf="@id/luas_lahan"
-                            android:layout_marginTop="16dp"/>
-                        
+                            app:layout_constraintTop_toBottomOf="@id/luas_lahan" />
+
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@id/kapasitas_listrik_icon"
-                            app:layout_constraintBottom_toBottomOf="@id/kapasitas_listrik_icon"
                             android:layout_marginStart="18dp"
                             android:text="@{@string/kapasitas_listrik(currentKioss.kapasitasListrik)}"
-                            tools:text="kapasitas Listrik : 900 Watt"/>
+                            app:layout_constraintBottom_toBottomOf="@id/kapasitas_listrik_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@id/kapasitas_listrik_icon"
+                            tools:text="kapasitas Listrik : 900 Watt" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </com.google.android.material.card.MaterialCardView>
-                
+
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/location_icon"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:layout_marginTop="24dp"
+                    android:src="@drawable/ic_baseline_alamat_icon"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/card_view"
-                    android:src="@drawable/ic_baseline_alamat_icon"
-                    />
+                    android:layout_marginStart="24dp"/>
 
                 <TextView
                     android:id="@+id/alamat"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    app:layout_constraintStart_toEndOf="@id/location_icon"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/location_icon"
                     android:layout_marginStart="18dp"
+                    android:layout_marginEnd="24dp"
                     android:text="@{currentKioss.alamat}"
-                    tools:text="Jl. Sudirman No.67"/>
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/location_icon"
+                    app:layout_constraintTop_toTopOf="@id/location_icon"
+                    tools:text="Jl. Sudirman No.67" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/keterangan_icon"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
+                    android:layout_marginTop="16dp"
                     android:src="@drawable/ic_outline_check_box"
-                    app:layout_constraintTop_toBottomOf="@id/alamat"
                     app:layout_constraintStart_toStartOf="@id/location_icon"
-                    android:layout_marginTop="16dp"/>
+                    app:layout_constraintTop_toBottomOf="@id/alamat" />
 
                 <TextView
                     android:id="@+id/keterangan"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/keterangan_icon"
                     app:layout_constraintTop_toTopOf="@id/keterangan_icon"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    tools:text="Lokasi mantap dan berhantu" />
+                    tools:text="Lokasi mantap dan berhantu"
+                    android:layout_marginEnd="24dp"/>
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/contact_icon"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
+                    android:layout_marginTop="16dp"
                     android:src="@drawable/ic_baseline_contacts"
-                    app:layout_constraintTop_toBottomOf="@id/keterangan"
                     app:layout_constraintStart_toStartOf="@id/keterangan_icon"
-                    android:layout_marginTop="16dp"/>
+                    app:layout_constraintTop_toBottomOf="@id/keterangan" />
 
                 <TextView
                     android:id="@+id/email"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:text="@{@string/email(currentKioss.email)}"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/contact_icon"
                     app:layout_constraintTop_toTopOf="@id/contact_icon"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:text="@{@string/email(currentKioss.email)}"
                     tools:text="Email : hezbisulaiman@gmail.com"
-                    android:layout_marginStart="18dp"/>
+                    android:layout_marginEnd="24dp"/>
 
                 <TextView
                     android:id="@+id/phone"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@id/email"
-                    app:layout_constraintStart_toStartOf="@id/email"
-                    app:layout_constraintEnd_toEndOf="parent"
                     android:text="@{@string/phone(currentKioss.phone)}"
-                    tools:text="Phone : 087876884620"/>
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/email"
+                    app:layout_constraintTop_toBottomOf="@id/email"
+                    tools:text="Phone : 087876884620"
+                    android:layout_marginEnd="24dp"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/hubungi_sekarang"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/phone"
+                    android:layout_marginTop="36dp"
                     android:backgroundTint="@color/primary_color"
                     android:text="Hubungi Sekarang"
-                    android:layout_marginTop="36dp"/>
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/phone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginBottom="24dp"
+                    android:layout_marginHorizontal="24dp"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </ScrollView>
-
+        </androidx.core.widget.NestedScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

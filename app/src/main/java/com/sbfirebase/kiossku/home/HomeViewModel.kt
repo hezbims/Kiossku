@@ -40,7 +40,8 @@ class HomeViewModel(val app : Application) : AndroidViewModel(app) {
                         luasLahan = itemList[11],
                         kapasitasListrik = itemList[13],
                         phone = itemList[3],
-                        email = itemList[2]
+                        email = itemList[2],
+                        kiosHeader = itemList[1]
                     )
                 )
             }
