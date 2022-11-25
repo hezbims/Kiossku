@@ -25,7 +25,7 @@
             android:id="@+id/foto_keren"
             android:layout_width="266dp"
             android:layout_height="297dp"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="36dp"
             android:src="@drawable/welcome"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -44,7 +44,7 @@
             app:layout_constraintTop_toBottomOf="@+id/foto_keren" />
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/deskripsi_kiossku"
             android:layout_width="190dp"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -53,22 +53,39 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/teks_selamat_datang" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/cari_kios_button"
-            android:layout_width="327dp"
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
-            android:layout_marginHorizontal="24dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView"
-            android:backgroundTint="#118E49"
-            android:text="Cari Kios"
-            android:paddingVertical="15dp"
-            app:circularflow_radiusInDP="12dp"
-            android:layout_marginBottom="48dp"
-            app:cornerRadius="12dp"/>
+            app:layout_constraintTop_toBottomOf="@id/deskripsi_kiossku"
+            tools:layout_editor_absoluteX="0dp"
+            android:gravity="center_horizontal"
+            android:paddingTop="48dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_pemilik_kios"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/white"
+                android:paddingVertical="15dp"
+                android:text="Pemilik Kios"
+                android:textColor="@color/black"
+                app:strokeColor="#605B57"
+                app:strokeWidth=".5dp"
+                app:cornerRadius="12dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cari_kios_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:backgroundTint="#118E49"
+                android:paddingVertical="15dp"
+                android:text="Pencari Kios"
+                app:circularflow_radiusInDP="12dp"
+                app:cornerRadius="12dp" />
+
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

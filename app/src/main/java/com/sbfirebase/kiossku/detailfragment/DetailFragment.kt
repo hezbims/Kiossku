@@ -31,9 +31,6 @@ class DetailFragment : Fragment() {
         binding.backButton.setOnClickListener {
             findNavController().navigateUp()
         }
-        binding.recyclerView.adapter = DetailAdapter().apply{
-            submitList(List(5){R.drawable.kioss_home_placeholder})
-        }
 
         return binding.root
     }
@@ -48,6 +45,12 @@ class DetailFragment : Fragment() {
                 DetailFragmentArgs.fromBundle(requireArguments()).currentKioss
             )
         )[DetailViewModel::class.java]
+
+        binding.recyclerView.adapter = DetailAdapter().apply{
+            submitList(
+                viewModel.currentKioss.gambar.split(',').map { it.trim() }
+            )
+        }
 
         binding.currentKioss = viewModel.currentKioss
 

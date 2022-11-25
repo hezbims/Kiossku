@@ -1,13 +1,15 @@
 package com.sbfirebase.kiossku.home
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.*
 import com.sbfirebase.kiossku.data.Kioss
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.BufferedReader
-import java.io.InputStreamReader
+import org.apache.commons.io.IOUtils
+import java.nio.charset.StandardCharsets
+import java.util.Scanner
 
 class HomeViewModel(val app : Application) : AndroidViewModel(app) {
     private val _data = MutableLiveData<List<Kioss>>(null)
@@ -18,14 +20,18 @@ class HomeViewModel(val app : Application) : AndroidViewModel(app) {
         viewModelScope.launch(Dispatchers.IO) {
             val allKiossData = mutableListOf<Kioss>()
 
-            val reader = BufferedReader(
-                InputStreamReader(app.assets.open("data.tsv"))
+
+            val rawData = IOUtils.toString(
+                app.assets.open("data2.tsv"),
+                StandardCharsets.UTF_8
             )
+
+            //Log.d("qqq" , rawData.count{ it == '}'}.toString())
             var id = 1L
 
-            while (true) {
-                val currentLine = reader.readLine() ?: break
-                val itemList = currentLine.split("\t")
+            for (currentLine in rawData.split('}')) {
+                Log.d("qqq" , id.toString())
+                val itemList = currentLine.split('\t')
 
                 allKiossData.add(
                     Kioss(
@@ -33,7 +39,7 @@ class HomeViewModel(val app : Application) : AndroidViewModel(app) {
                         judul = itemList[4],
                         alamat = itemList[10],
                         harga = itemList[7],
-                        gambar = itemList.last(),
+                        gambar = itemList[0],
                         tipeProperti = itemList[5],
                         fixAtauNego = itemList[8],
                         luasBangunan = itemList[12],
@@ -58,7 +64,7 @@ class HomeViewModel(val app : Application) : AndroidViewModel(app) {
     val navigateToDetail : (kioss : Kioss) -> Unit = {
         _navigateDataArgument.value = it
     }
-    fun doneNavigateToDetail(){_navigateDataArgument.value = null}
+    fun doneNavigateToDetail(){ _navigateDataArgument.value = null }
 }
 
 class HomeViewModelFactory(private val app : Application) : ViewModelProvider.Factory{

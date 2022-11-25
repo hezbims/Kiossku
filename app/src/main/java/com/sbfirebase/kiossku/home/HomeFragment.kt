@@ -21,6 +21,7 @@ class HomeFragment : Fragment() {
         binding = FragmentHomeBinding.inflate(inflater , container , false)
         binding.lifecycleOwner = viewLifecycleOwner
 
+
         return binding.root
     }
 

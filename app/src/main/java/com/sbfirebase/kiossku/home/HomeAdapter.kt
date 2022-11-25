@@ -1,6 +1,5 @@
 package com.sbfirebase.kiossku.home
 
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -30,12 +29,17 @@ class HomeAdapter(private val navigateToDetail : (Kioss) -> Unit) : ListAdapter<
     class ViewHolder(
         private val binding : ViewHolderKiosHomeBinding,
         private val navigateToDetail: (Kioss) -> Unit
-        )
-        : RecyclerView.ViewHolder(binding.root) {
+        ) : RecyclerView.ViewHolder(binding.root) {
             fun bind(item : Kioss){
-                Picasso.get()
-                    .load("https://kiossku.com/wp-content/uploads/2022/11/a1-2-348x450.png")
-                    .into(binding.gambarKios)
+                try {
+                    Picasso.get()
+                        .load(getFirstPicPath(item.gambar))
+                        .into(binding.gambarKios)
+                }
+                catch (e : IllegalArgumentException){
+                    e.printStackTrace()
+                }
+
                 binding.harga.text = binding.root.context
                     .getString(R.string.harga , item.harga)
                 binding.alamat.text = item.alamat
@@ -45,6 +49,9 @@ class HomeAdapter(private val navigateToDetail : (Kioss) -> Unit) : ListAdapter<
                     navigateToDetail(item)
                 }
             }
+
+            private fun getFirstPicPath(imagesPath : String) : String =
+                imagesPath.split(',').first().trim()
     }
 }
 

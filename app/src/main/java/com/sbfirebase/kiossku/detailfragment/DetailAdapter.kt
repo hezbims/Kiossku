@@ -4,20 +4,27 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.sbfirebase.kiossku.databinding.ViewHolderDetailImageBinding
+import com.squareup.picasso.Picasso
 
 class DetailAdapter : RecyclerView.Adapter<DetailAdapter.ViewHolder>() {
-    private var links = listOf<Int>()
+    private var links = listOf<String>()
 
-    fun submitList(newLinks : List<Int>){
+    fun submitList(newLinks : List<String>){
         links = newLinks
         notifyDataSetChanged()
     }
 
     class ViewHolder(private val binding : ViewHolderDetailImageBinding) :
         RecyclerView.ViewHolder(binding.root){
-        fun bind(item : Int) : Unit =
-            binding.gambarKios.setImageResource(item)
-
+        fun bind(link : String){
+            try{
+                Picasso.get()
+                    .load(link)
+                    .into(binding.gambarKios)
+            }catch (e : IllegalArgumentException){
+                e.printStackTrace()
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =

@@ -1,6 +1,7 @@
 package com.sbfirebase.kiossku.ladingpage
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.sbfirebase.kiossku.databinding.ActivityLandingPageBinding
@@ -22,6 +23,14 @@ class LandingPageActivity : AppCompatActivity() {
                 )
             )
             finish()
+        }
+
+        binding.buttonPemilikKios.setOnClickListener {
+            startActivity(
+                Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse("https://bit.ly/DaftarIklanGratis2022")
+                }
+            )
         }
     }
 }
