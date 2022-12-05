@@ -1,5 +1,6 @@
 package com.sbfirebase.kiossku
 
+import com.sbfirebase.kiossku.data.SavedAuthToken
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -13,5 +14,9 @@ class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
+    }
+
+    @Test fun savedAuthTokenJson_isCorrect(){
+        val x = SavedAuthToken("777").toString()
     }
 }

@@ -4,12 +4,12 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
 import com.sbfirebase.kiossku.data.Kioss
+import com.sbfirebase.kiossku.data.api
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.IOUtils
 import java.nio.charset.StandardCharsets
-import java.util.Scanner
 
 class HomeViewModel(val app : Application) : AndroidViewModel(app) {
     private val _data = MutableLiveData<List<Kioss>>(null)
@@ -30,7 +30,6 @@ class HomeViewModel(val app : Application) : AndroidViewModel(app) {
             var id = 1L
 
             for (currentLine in rawData.split('}')) {
-                Log.d("qqq" , id.toString())
                 val itemList = currentLine.split('\t')
 
                 allKiossData.add(
@@ -65,6 +64,35 @@ class HomeViewModel(val app : Application) : AndroidViewModel(app) {
         _navigateDataArgument.value = it
     }
     fun doneNavigateToDetail(){ _navigateDataArgument.value = null }
+
+
+
+    init{
+        /*api.login(
+            email = "ilhamap45@gmail.com",
+            password = "milhamap123"
+        ).enqueue(object : Callback<LoginResponse>{
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                Log.d("qqq" , response.body()?.data?.token.toString())
+            }
+
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                Log.d("qqq" , "Failure")
+            }
+        })*/
+
+        viewModelScope.launch(Dispatchers.IO){
+            val loginResponse = api.login(
+                email = "ilhamap45@gmail.com",
+                password = "milhamap123"
+            ).execute()
+            val data = api.getAllProducts(
+                token = "Bearer ${loginResponse.body()!!.data.token}"
+            ).execute()
+            Log.d("qqq" , data.body()?.data?.size.toString())
+        }
+    }
+
 }
 
 class HomeViewModelFactory(private val app : Application) : ViewModelProvider.Factory{

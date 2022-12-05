@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.sbfirebase.kiossku.authentication.LoginViewModel" />
+    </data>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".authentication.LoginActivity"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="171dp"
+            android:layout_height="44dp"
+            android:src="@drawable/kiossku_header"
+            android:layout_marginTop="56dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hai, kemana aja kamu?"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginTop="64dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Login untuk mengakses fitur Kiossku lagi!" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="Email"
+            style="@style/OutlinedRoundedBox"
+            app:startIconDrawable="@drawable/ic_outline_email">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="Password"
+            app:endIconMode="password_toggle"
+            app:startIconDrawable="@drawable/ic_outline_lock_24"
+            style="@style/OutlinedRoundedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Lupa password?"
+            android:textColor="@color/primary_color"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:gravity="end" />
+
+        <include
+            layout="@layout/component_green_kiossku_button"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginTop="24dp"
+            android:text="Masuk"/>
+
+        <TextView
+            android:id="@+id/belum_punya_akun_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:gravity="center|bottom"
+            android:layout_marginBottom="60dp"
+            tools:text="Belum punya akun? Yuk daftar!" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</layout>

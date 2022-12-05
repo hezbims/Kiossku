@@ -22,7 +22,6 @@ class LandingPageActivity : AppCompatActivity() {
                     HomeActivity::class.java
                 )
             )
-            finish()
         }
 
         binding.buttonPemilikKios.setOnClickListener {

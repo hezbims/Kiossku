@@ -8,4 +8,13 @@
         <item name="android:layout_width">94dp</item>
         <item name="android:layout_height">24dp</item>
     </style>
+
+    <style name="OutlinedRoundedBox" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="shapeAppearanceOverlay">@style/MediumRoundedCorner</item>
+    </style>
+
+    <style name="MediumRoundedCorner" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
 </resources>
