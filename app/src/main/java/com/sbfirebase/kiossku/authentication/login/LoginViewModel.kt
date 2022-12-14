@@ -1,17 +1,14 @@
-package com.sbfirebase.kiossku.authentication
+package com.sbfirebase.kiossku.authentication.login
 
 import android.app.Application
-import android.content.Context
+import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
-import com.sbfirebase.kiossku.R
-import com.sbfirebase.kiossku.data.LoginResponse
+import androidx.lifecycle.*
+import com.sbfirebase.kiossku.authentication.Authenticator
 import com.sbfirebase.kiossku.data.api
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -35,12 +32,14 @@ class LoginViewModel(val app : Application) : AndroidViewModel(app){
         override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
             if (response.isSuccessful){
                 viewModelScope.launch(Dispatchers.IO) {
-                    saveToken(response.body()!!.data.token)
-                    _isLoginSucceed.value = true
+                    Authenticator(app).saveToken(response.body()!!.data.token)
+                    withContext(Dispatchers.Main) {
+                        _isLoginSucceed.value = true
+                    }
                 }
             }
             else
-                Toast.makeText(app , response.body()!!.message , Toast.LENGTH_LONG).show()
+                Toast.makeText(app , "Password dan email tidak cocok" , Toast.LENGTH_LONG).show()
             _isWaitingForResponse.value = false
         }
 
@@ -49,18 +48,13 @@ class LoginViewModel(val app : Application) : AndroidViewModel(app){
             _isWaitingForResponse.value = false
         }
     }
+}
 
-    private fun saveToken(token : String){
-        app.getSharedPreferences(
-            app.getString(R.string.shared_preference_name),
-            Context.MODE_PRIVATE
-        ).edit().apply {
-            putString(
-                app.getString(R.string.saved_token_key),
-                token
-            )
-            apply()
-        }
+class LoginViewModelFactory(private val app : Application) : ViewModelProvider.Factory{
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        @Suppress("UNCHECKED_CAST")
+        if (modelClass.isAssignableFrom(LoginViewModel::class.java))
+            return LoginViewModel(app) as T
+        throw IllegalArgumentException("Ada bug")
     }
-
 }

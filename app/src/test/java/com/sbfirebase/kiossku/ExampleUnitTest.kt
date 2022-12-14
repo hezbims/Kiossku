@@ -1,9 +1,10 @@
 package com.sbfirebase.kiossku
 
-import com.sbfirebase.kiossku.data.SavedAuthToken
+import com.google.gson.Gson
+import com.sbfirebase.kiossku.authentication.SavedAuthToken
+import org.json.JSONArray
+import org.junit.Assert.assertEquals
 import org.junit.Test
-
-import org.junit.Assert.*
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -18,5 +19,24 @@ class ExampleUnitTest {
 
     @Test fun savedAuthTokenJson_isCorrect(){
         val x = SavedAuthToken("777").toString()
+        val savedAuthToken = Gson().fromJson(x , SavedAuthToken::class.java)
+        savedAuthToken.toString()
+    }
+
+    @Test fun jsonObject_test(){
+        val x = """[
+                        {
+                            \"message\" : \"Halo dunia\"
+                        },
+                        {
+                            \"message\" : \"Halo2\"
+                        }
+                   ]
+            """
+        x
+        val jsonArray = JSONArray(x)
+        val y = jsonArray.getJSONObject(0).toString()
+        y
+        //val jsonArray = jsonObject.getAsJsonArray("message")
     }
 }

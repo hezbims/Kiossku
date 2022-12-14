@@ -1,14 +1,16 @@
-package com.sbfirebase.kiossku.authentication
+package com.sbfirebase.kiossku.authentication.login
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
+import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import com.sbfirebase.kiossku.R
+import com.sbfirebase.kiossku.authentication.register.RegisterActivity
 import com.sbfirebase.kiossku.databinding.ActivityLoginBinding
 import com.sbfirebase.kiossku.ladingpage.LandingPageActivity
 
@@ -20,7 +22,10 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
+        viewModel = ViewModelProvider(
+            this,
+            LoginViewModelFactory(app = application)
+        )[LoginViewModel::class.java]
 
         binding = ActivityLoginBinding.inflate(layoutInflater).apply {
             lifecycleOwner = this@LoginActivity
@@ -54,6 +59,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.belumPunyaAkunText.text = noAccountText
+        binding.belumPunyaAkunText.movementMethod = LinkMovementMethod()
     }
 
     private fun setSuccessfullLogin(){

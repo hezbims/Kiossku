@@ -1,12 +1,12 @@
-package com.sbfirebase.kiossku.data
+package com.sbfirebase.kiossku.authentication.login
 
 import com.google.gson.annotations.SerializedName
 
 data class LoginResponse(
-	@field:SerializedName("data")
+    @field:SerializedName("data")
 	val data: Data,
 
-	@field:SerializedName("message")
+    @field:SerializedName("message")
 	val message: String
 )
 

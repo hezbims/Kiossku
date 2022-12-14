@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.sbfirebase.kiossku.authentication.LoginViewModel" />
+            type="com.sbfirebase.kiossku.authentication.login.LoginViewModel" />
     </data>
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -39,7 +39,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_marginTop="16dp"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:hint="Email"
             style="@style/OutlinedRoundedBox"
             app:startIconDrawable="@drawable/ic_outline_email">
@@ -54,7 +54,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_marginTop="16dp"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:hint="Password"
             app:endIconMode="password_toggle"
             app:startIconDrawable="@drawable/ic_outline_lock_24"
@@ -77,12 +77,15 @@
             android:textSize="12sp"
             android:gravity="end" />
 
-        <include
-            layout="@layout/component_green_kiossku_button"
-            android:layout_height="wrap_content"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/submit_button"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/primary_color"
+            android:paddingVertical="15dp"
+            app:cornerRadius="12dp"
             android:layout_marginTop="24dp"
-            android:text="Masuk"/>
+            android:text="Masuk" />
 
         <TextView
             android:id="@+id/belum_punya_akun_text"

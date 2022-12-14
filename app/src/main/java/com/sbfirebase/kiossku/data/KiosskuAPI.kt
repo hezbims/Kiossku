@@ -1,5 +1,6 @@
 package com.sbfirebase.kiossku.data
 
+import com.sbfirebase.kiossku.authentication.login.LoginResponse
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

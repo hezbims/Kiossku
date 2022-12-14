@@ -1,4 +1,4 @@
-package com.sbfirebase.kiossku.data
+package com.sbfirebase.kiossku.authentication
 
 import com.google.gson.Gson
 import java.util.Calendar
