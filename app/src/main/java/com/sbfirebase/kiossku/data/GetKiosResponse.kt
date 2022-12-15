@@ -2,16 +2,16 @@ package com.sbfirebase.kiossku.data
 
 import com.google.gson.annotations.SerializedName
 
-data class GetProductResponse(
+data class GetKiosResponse(
 
 	@field:SerializedName("data")
-	val data: List<DataItem?>? = null,
+	val data: List<KiosData?>? = null,
 
 	@field:SerializedName("message")
 	val message: String? = null
 )
 
-data class ImagesItem(
+data class KiosImage(
 
 	@field:SerializedName("image")
 	val image: String? = null,
@@ -23,7 +23,7 @@ data class ImagesItem(
 	val id: Int? = null
 )
 
-data class DataItem(
+data class KiosData(
 
 	@field:SerializedName("kapasitas_listrik")
 	val kapasitasListrik: Int? = null,

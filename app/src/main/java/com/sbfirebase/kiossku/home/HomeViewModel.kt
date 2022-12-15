@@ -1,10 +1,8 @@
 package com.sbfirebase.kiossku.home
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.*
 import com.sbfirebase.kiossku.data.Kioss
-import com.sbfirebase.kiossku.data.api
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -81,7 +79,7 @@ class HomeViewModel(val app : Application) : AndroidViewModel(app) {
             }
         })*/
 
-        viewModelScope.launch(Dispatchers.IO){
+        /*viewModelScope.launch(Dispatchers.IO){
             val loginResponse = api.login(
                 email = "ilhamap45@gmail.com",
                 password = "milhamap123"
@@ -90,7 +88,7 @@ class HomeViewModel(val app : Application) : AndroidViewModel(app) {
                 token = "Bearer ${loginResponse.body()!!.data.token}"
             ).execute()
             Log.d("qqq" , data.body()?.data?.size.toString())
-        }
+        }*/
     }
 
 }
