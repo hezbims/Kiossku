@@ -15,7 +15,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.KiosskuWithoutActionBar"
         tools:targetApi="31">
-
+        <activity
+            android:name=".submitkios.SubmitKiosActivty"
+            android:exported="false"
+            android:label="@string/title_activity_submit_kios_activty"
+            android:theme="@style/Theme.KiosskuWithoutActionBar">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
         <activity
             android:name=".authentication.register.RegisterActivity"
             android:exported="false">

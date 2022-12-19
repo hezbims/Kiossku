@@ -9,6 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
 import retrofit2.http.Body
 import retrofit2.http.DELETE
+import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface AuthApi {
@@ -19,6 +20,9 @@ interface AuthApi {
 
     @DELETE("logout")
     fun logout() : Call<LogoutResponse>
+
+    @GET("token/")
+    fun refreshToken() : Call<RefreshTokenResponse>
 }
 
 val authApiClient = Retrofit.Builder()

@@ -1,7 +1,6 @@
 package com.sbfirebase.kiossku.authentication.login
 
 import android.app.Application
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.*
 import com.sbfirebase.kiossku.authentication.Authenticator
@@ -32,7 +31,7 @@ class LoginViewModel(val app : Application) : AndroidViewModel(app){
         override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
             if (response.isSuccessful){
                 viewModelScope.launch(Dispatchers.IO) {
-                    Authenticator(app).saveToken(response.body()!!.data.token)
+                    Authenticator(app).saveTokenSync(response.body()!!.data.token)
                     withContext(Dispatchers.Main) {
                         _isLoginSucceed.value = true
                     }

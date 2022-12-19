@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -16,9 +18,13 @@ import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.PinDrop
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -32,8 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sbfirebase.kiossku.R
 import com.sbfirebase.kiossku.data.KiosData
 import com.sbfirebase.kiossku.databinding.FragmentHomeBinding
@@ -42,44 +47,34 @@ import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
 import java.text.DecimalFormat
 
 class HomeFragment : Fragment() {
-
-    private lateinit var viewModel: HomeViewModel
     private lateinit var binding : FragmentHomeBinding
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View{
-        binding = FragmentHomeBinding.inflate(inflater , container , false)
-        binding.lifecycleOwner = viewLifecycleOwner
-
-
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        viewModel = ViewModelProvider(
-            this ,
-            HomeViewModelFactory(requireActivity().application)
-        )[HomeViewModel::class.java]
-
-        viewModel.navigateDataArgument.observe(viewLifecycleOwner){
-            it?.let{
-                findNavController().navigate(
-                    HomeFragmentDirections.actionHomeFragmentToDetailFragment(it)
+    ): View {
+        binding = FragmentHomeBinding.inflate(
+            inflater , container , false
+        )
+        binding.composeView.setContent {
+            KiosskuTheme {
+                HomeScreen(
+                    viewModel = viewModel(
+                        factory = HomeViewModelFactory(
+                            requireActivity().application
+                        )
+                    )
                 )
-                viewModel.doneNavigateToDetail()
             }
         }
-
-        binding.viewModel = viewModel
+        return binding.root
     }
 }
 
 @Composable
 fun HomeScreen(
+    viewModel: HomeViewModel?,
     modifier: Modifier = Modifier
 ){
     Surface {
@@ -96,7 +91,7 @@ fun HomeScreen(
                     .height(24.dp)
             )
 
-            Filter(
+            FilterBar(
                 modifier = Modifier
                     .padding(top = 24.dp)
                     .fillMaxWidth()
@@ -104,7 +99,12 @@ fun HomeScreen(
 
             Banner(modifier = Modifier.padding(top = 16.dp))
 
-            KiosKios()
+            if (viewModel != null)
+                KiosKios(
+                    kiosList = viewModel.data.value
+                )
+            else
+                KiosKios()
 
         }
 
@@ -113,7 +113,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun Filter(modifier: Modifier = Modifier){
+fun FilterBar(modifier: Modifier = Modifier){
     OutlinedTextField(
         value = "",
         placeholder = {
@@ -128,7 +128,8 @@ fun Filter(modifier: Modifier = Modifier){
         shape = RoundedCornerShape(13.dp),
         trailingIcon = {
             Icon(Icons.Outlined.ExpandMore , contentDescription = null)
-        }
+        },
+        readOnly = true
     )
 }
 
@@ -170,7 +171,7 @@ fun Banner(
 
 @Composable
 fun KiosKios(
-    kiosList : List<KiosData> =
+    kiosList : List<KiosData?>? =
         List(24){
             KiosData(
                 jenis = "Kios",
@@ -190,8 +191,10 @@ fun KiosKios(
         contentPadding = PaddingValues(top = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ){
-        items(items = kiosList){ item ->
-            KiosItem(kiosData = item)
+        kiosList?.let {
+            items(items = it) { item ->
+                KiosItem(kiosData = item!!)
+            }
         }
     }
 }
@@ -282,12 +285,126 @@ fun KiosItem(
     }
 }
 
+@Composable
+fun FilterLayout(modifier : Modifier = Modifier){
+    Card(
+        modifier = modifier
+            .padding(24.dp)
+            .padding(top = 16.dp)
+    ){
+        Column{
+            Row{
+                Text(
+                    text = "Dijual",
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "Disewakan",
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Canvas(modifier = Modifier
+                .fillMaxWidth()
+                .height(4.dp)){
+                val height = size.height
+                val width = size.width
+                drawLine(
+                    start = Offset(x = 0f , y = height / 2),
+                    end = Offset(x = width , y = height / 2),
+                    color = Color(0x1A118E49),
+                    strokeWidth = height
+                )
+                if (false)
+                    drawLine(
+                        start = Offset(x = 0f , y = height / 2),
+                        end = Offset(x = width / 2 , y = height / 2),
+                        color = GreenKiossku,
+                        strokeWidth = height
+                    )
+                else
+                    drawLine(
+                        start = Offset(x = width / 2 , y = height / 2),
+                        end = Offset(x = width , y = height / 2),
+                        color = GreenKiossku,
+                        strokeWidth = height
+                    )
+            }
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+                horizontalArrangement = Arrangement.spacedBy(17.dp),
+                modifier = Modifier.padding(top = 14.dp)
+            ){
+                items(
+                    listOf("Kios/ruko" , "Lahan" , "Lapak" , "Gudang")
+                ){ tipeProperti ->
+                    TipePropertiCard(
+                        tipeProperti = tipeProperti
+                    )
+                }
+            }
+
+            Text(
+                text = "Rentang Harga",
+                style = TextStyle(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp
+                ),
+                modifier = Modifier.padding(top = 4.dp)
+            )
+            Row{
+                val minimumHarga by remember{ mutableStateOf("") }
+                val maksimumHarga by remember {
+                    mutableStateOf("")
+                }
+                OutlinedTextField(value = "AAAAA", onValueChange = {},
+                modifier = Modifier.defaultMinSize(minHeight = 10.dp),
+
+                    )
+            }
+        }
+    }
+}
+
+@Composable
+fun TipePropertiCard(
+    tipeProperti : String = "Kios",
+    modifier: Modifier = Modifier
+){
+    Column(
+        modifier = modifier
+            .width(131.dp)
+            .height(40.dp)
+            .clip(RoundedCornerShape(13.dp))
+            .background(color = Color(0x1A118E49)),
+
+    ) {
+        Text(
+            text = tipeProperti,
+            style = TextStyle(
+                fontSize = 12.sp
+            ),
+            modifier = Modifier
+                .padding(vertical = 12.dp)
+                .padding(start = 16.dp)
+        )
+    }
+}
 
 @Composable
 @Preview
 fun HomeScreenPreview(){
     KiosskuTheme {
-        HomeScreen()
+        HomeScreen(null)
     }
 }
 
@@ -315,6 +432,16 @@ fun KiosItemPreview(){
     KiosskuTheme {
         Surface {
             KiosItem()
+        }
+    }
+}
+
+@Composable
+@Preview
+fun FilterLayoutPreview(){
+    KiosskuTheme {
+        Surface{
+            FilterLayout()
         }
     }
 }

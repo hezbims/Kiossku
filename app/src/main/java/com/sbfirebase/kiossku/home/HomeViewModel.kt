@@ -1,21 +1,56 @@
 package com.sbfirebase.kiossku.home
 
 import android.app.Application
+import android.widget.Toast
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.*
-import com.sbfirebase.kiossku.data.Kioss
+import com.sbfirebase.kiossku.R
+import com.sbfirebase.kiossku.authentication.Authenticator
+import com.sbfirebase.kiossku.data.GetKiosResponse
+import com.sbfirebase.kiossku.data.KiosData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.apache.commons.io.IOUtils
-import java.nio.charset.StandardCharsets
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class HomeViewModel(val app : Application) : AndroidViewModel(app) {
-    private val _data = MutableLiveData<List<Kioss>>(null)
-    val data : LiveData<List<Kioss>>
+    private val _data = mutableStateOf<List<KiosData?>?>(null)
+    val data : State<List<KiosData?>?>
         get() = _data
 
-    init{
+    init {
         viewModelScope.launch(Dispatchers.IO) {
+            val authenticator = Authenticator(app)
+            authenticator.refreshToken()
+
+            val token = authenticator.getToken()
+            println("Berhasil")
+            withContext(Dispatchers.Main) {
+                getProductApiClient.getAllProduct(
+                    token = app.getString(R.string.header_token_format , token)
+                ).enqueue(object : Callback<GetKiosResponse>{
+                    override fun onResponse(
+                        call: Call<GetKiosResponse>,
+                        response: Response<GetKiosResponse>
+                    ) {
+                        if (response.isSuccessful)
+                            _data.value = response.body()!!.data!!
+                    }
+
+                    override fun onFailure(call: Call<GetKiosResponse>, t: Throwable) {
+                        Toast.makeText(
+                            app,
+                            "Periksa koneksi internet anda!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                })
+            }
+        }
+        /*viewModelScope.launch(Dispatchers.IO) {
             val allKiossData = mutableListOf<Kioss>()
 
 
@@ -52,13 +87,15 @@ class HomeViewModel(val app : Application) : AndroidViewModel(app) {
                 _data.value = allKiossData
             }
         }
+
+         */
     }
 
-    private val _navigateDataArgument = MutableLiveData<Kioss?>(null)
-    val navigateDataArgument : LiveData<Kioss?>
+    private val _navigateDataArgument = MutableLiveData<KiosData?>(null)
+    val navigateDataArgument : LiveData<KiosData?>
         get() = _navigateDataArgument
 
-    val navigateToDetail : (kioss : Kioss) -> Unit = {
+    val navigateToDetail : (kioss : KiosData) -> Unit = {
         _navigateDataArgument.value = it
     }
     fun doneNavigateToDetail(){ _navigateDataArgument.value = null }
