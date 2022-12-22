@@ -16,5 +16,4 @@
     <string name="format_harga_compose">Rp%1$s/%2$s</string>
     <string name="header_token_format">Bearer %1$s</string>
     <string name="title_activity_submit_kios_activty">SubmitKiosActivty</string>
-    <string name="pilih_sewa_jual">PilihSewaJual</string>
 </resources>

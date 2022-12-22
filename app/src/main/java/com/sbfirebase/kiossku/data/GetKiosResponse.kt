@@ -34,6 +34,7 @@ data class KiosData(
 	@field:SerializedName("images")
 	val images: List<Any?>? = null,
 
+	// sewa atau jual
 	@field:SerializedName("sistem")
 	val sistem: String? = null,
 

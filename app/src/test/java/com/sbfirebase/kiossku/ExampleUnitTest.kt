@@ -39,4 +39,11 @@ class ExampleUnitTest {
         y
         //val jsonArray = jsonObject.getAsJsonArray("message")
     }
+
+    @Test
+    fun tesListConcatenation(){
+        val x = mutableListOf(1 , 2 , 3 , 4 , 5)
+        val y = listOf(6 , 7 , 8 , 9)
+        val v = x + y
+    }
 }
