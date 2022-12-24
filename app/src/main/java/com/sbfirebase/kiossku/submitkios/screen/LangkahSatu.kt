@@ -1,12 +1,10 @@
 package com.sbfirebase.kiossku.submitkios.screen
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AttachMoney
 import androidx.compose.material.icons.outlined.ExpandLess
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.runtime.Composable
@@ -14,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,10 +20,8 @@ import com.sbfirebase.kiossku.submitkios.enumdata.ElemenProperti
 import com.sbfirebase.kiossku.submitkios.enumdata.JenisProperti
 import com.sbfirebase.kiossku.submitkios.enumdata.TipePenawaran
 import com.sbfirebase.kiossku.submitkios.enumdata.WaktuPembayaran
-import com.sbfirebase.kiossku.submitkios.uicomponent.BackAndNextButton
-import com.sbfirebase.kiossku.submitkios.uicomponent.DropDownTextField
-import com.sbfirebase.kiossku.submitkios.uicomponent.NormalLongTextField
-import com.sbfirebase.kiossku.submitkios.uicomponent.NormalStringTextField
+import com.sbfirebase.kiossku.submitkios.toPair
+import com.sbfirebase.kiossku.submitkios.uicomponent.*
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
 
 @Composable
@@ -38,16 +35,31 @@ fun LangkahSatu(
 
     navigateNext : () -> Unit,
     navigateBack : () -> Unit,
+    displayError : (String) -> Unit,
     modifier: Modifier = Modifier
 ){
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier
+            .padding(
+                top = 16.dp,
+                start = 24.dp,
+                end = 24.dp,
+                bottom = 48.dp
+            )
+    ) {
+        SubmitHeader(langkah = 1)
+
         NormalStringTextField(
-            elemenProperti = judulPromosi
+            elemenProperti = judulPromosi,
+            modifier = Modifier
+                .padding(top = 16.dp)
         )
 
         DropDownTextField(
             elemenProperti = jenisProperti,
-            itemList = JenisProperti.values().asList()
+            itemList = JenisProperti.values().asList(),
+            modifier = Modifier
+                .padding(top = 16.dp)
         )
 
         var expandWaktuPembayaran by rememberSaveable{
@@ -87,23 +99,49 @@ fun LangkahSatu(
                                 Icons.Outlined.ExpandLess
                             else
                                 Icons.Outlined.ExpandMore,
-                            contentDescription = null
+                            contentDescription = null,
+                            modifier = Modifier
+                                .padding(end = 14.dp)
                         )
                     }
                 }
-            } else null
+            } else null,
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.AttachMoney,
+                    contentDescription = null
+                )
+            },
+            modifier = Modifier
+                .padding(top = 16.dp)
         )
 
 
         DropDownTextField(
             elemenProperti = tipePenawaran,
-            itemList = TipePenawaran.values().asList()
+            itemList = TipePenawaran.values().asList(),
+            modifier = Modifier
+                .padding(top = 16.dp)
         )
 
-        BackAndNextButton(
-            navigateNext = navigateNext,
-            navigateBack = navigateBack
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxHeight()
+        ) {
+            BackAndNextButton(
+                navigateNext = navigateNext,
+                navigateBack = navigateBack,
+                verificationData = listOf(
+                    toPair(judulPromosi),
+                    toPair(jenisProperti),
+                    toPair(harga),
+                    toPair(tipePenawaran)
+                ),
+                displayError = displayError,
+                modifier = Modifier
+                    .align(Alignment.Bottom)
+            )
+        }
 
 
     }
@@ -115,14 +153,15 @@ fun LangkahSatuPreview(){
     KiosskuTheme {
         Surface(modifier = Modifier.fillMaxSize()){
             LangkahSatu(
-                judulPromosi = ElemenProperti("Judul promosi"),
-                jenisProperti = ElemenProperti("Pilih jenis properti"),
-                harga = ElemenProperti("Harga"),
-                waktuPembayaran = ElemenProperti("-" , defValue = WaktuPembayaran.TAHUNAN),
+                judulPromosi = ElemenProperti("Judul promosi" , ""),
+                jenisProperti = ElemenProperti("Pilih jenis properti" , ""),
+                harga = ElemenProperti("Harga" , ""),
+                waktuPembayaran = ElemenProperti("-", "", defValue = WaktuPembayaran.TAHUNAN),
                 isSewa = true,
-                tipePenawaran = ElemenProperti("Pilih tipe penawaran"),
+                tipePenawaran = ElemenProperti("Pilih tipe penawaran" , ""),
                 navigateNext = {},
-                navigateBack = {}
+                navigateBack = {},
+                displayError = {}
             )
         }
     }

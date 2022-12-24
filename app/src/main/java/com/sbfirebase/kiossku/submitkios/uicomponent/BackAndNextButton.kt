@@ -2,6 +2,7 @@ package com.sbfirebase.kiossku.submitkios.uicomponent
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.NavigateNext
@@ -11,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.sbfirebase.kiossku.submitkios.verify
 import com.sbfirebase.kiossku.ui.theme.GreenKiossku
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
 
@@ -18,6 +20,8 @@ import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
 fun BackAndNextButton(
     navigateNext : () -> Unit,
     navigateBack : () -> Unit,
+    verificationData : List<Pair<String , Boolean>>,
+    displayError : (String) -> Unit,
     modifier: Modifier = Modifier,
     nextText : String = "Lanjut",
     backText : String = "Kembali"
@@ -41,20 +45,26 @@ fun BackAndNextButton(
             ),
             modifier = Modifier
                 .weight(1f)
-                .height(50.dp)
+                .height(50.dp),
+            shape = RoundedCornerShape(16.dp)
         ){
             Text(backText)
         }
 
         Button(
-            onClick = navigateNext,
+            onClick = {
+                if (verify(datas = verificationData,
+                        displayError = displayError))
+                    navigateNext()
+            },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = GreenKiossku,
                 contentColor = Color.White
             ),
             modifier = Modifier
                 .weight(1f)
-                .height(50.dp)
+                .height(50.dp),
+            shape = RoundedCornerShape(16.dp)
         ){
             Text(nextText)
             Icon(
@@ -74,6 +84,8 @@ fun BackAndNextButtonPreview(){
             BackAndNextButton(
                 navigateNext = {},
                 navigateBack = {},
+                verificationData = listOf(),
+                displayError = {},
                 nextText = "Lanjut",
                 backText = "Kembali"
             )

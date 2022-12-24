@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class ElemenProperti<T>(val placeholder : String , defValue : T? = null){
+class ElemenProperti<T>(val placeholder : String , val errorMessage : String , defValue : T? = null){
     private val stateFlow = MutableStateFlow<T?>(defValue)
 
     @Composable

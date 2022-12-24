@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContract
@@ -79,7 +80,8 @@ class SubmitKiosActivty : ComponentActivity() {
                                 },
                                 navigateBack = {
                                     navController.popBackStack()
-                                }
+                                },
+                                displayError = ::displayError
                             )
                         }
 
@@ -100,7 +102,8 @@ class SubmitKiosActivty : ComponentActivity() {
                                 },
                                 navigateBack = {
                                     navController.popBackStack()
-                                }
+                                },
+                                displayError = ::displayError
                             )
                         }
 
@@ -112,13 +115,28 @@ class SubmitKiosActivty : ComponentActivity() {
                                     pickPhoto.launch("image/*")
                                 },
                                 deletePhoto = viewModel::deletePhotoUri,
-                                photoUris = viewModel.photoUris
+                                photoUris = viewModel.photoUris,
+                                navigateBack = {
+                                    navController.popBackStack()
+                                },
+                                navigateNext = {
+
+                                },
+                                displayError = {}
                             )
                         }
                     }
                 }
             }
         }
+    }
+
+    private fun displayError(elemen : String){
+        Toast.makeText(
+            applicationContext,
+            "$elemen masih kosong!",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     class PickMultiplePhotoContract : ActivityResultContract<String, List<Uri>>(){

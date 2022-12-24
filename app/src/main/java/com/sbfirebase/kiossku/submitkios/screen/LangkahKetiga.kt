@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.sbfirebase.kiossku.submitkios.UriWithId
+import com.sbfirebase.kiossku.submitkios.uicomponent.BackAndNextButton
+import com.sbfirebase.kiossku.submitkios.uicomponent.SubmitHeader
 import com.sbfirebase.kiossku.ui.theme.GreenKiossku
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
 
@@ -34,17 +36,31 @@ import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
 fun LangkahKetiga(
     getPhotoUri : () -> Unit,
     deletePhoto : (Int) -> Unit,
-    photoUris : List<UriWithId>
+    photoUris : List<UriWithId>,
+    navigateNext : () -> Unit,
+    navigateBack : () -> Unit,
+    displayError : (String) -> Unit
 ){
     Column(
         modifier = Modifier
-            .padding(horizontal = 24.dp, vertical = 16.dp)
-            .fillMaxSize()
+            .padding(
+                top = 16.dp,
+                start = 24.dp,
+                end = 24.dp,
+                bottom = 48.dp
+            )
     ){
+        SubmitHeader(langkah = 3)
+
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             horizontalArrangement = Arrangement.spacedBy(19.dp),
-            verticalArrangement = Arrangement.spacedBy(19.dp)
+            verticalArrangement = Arrangement.spacedBy(19.dp),
+            modifier = Modifier
+                .weight(1f),
+            contentPadding = PaddingValues(
+                top = 24.dp
+            )
         ) {
             item {
                 TambahGambar(getPhotoUri)
@@ -53,7 +69,14 @@ fun LangkahKetiga(
                 DeletableGambar(item , deletePhoto)
             }
         }
-
+        BackAndNextButton(
+            navigateNext = { /*TODO*/ },
+            navigateBack = {
+                navigateBack()
+            },
+            displayError = displayError,
+            verificationData = listOf()
+        )
     }
 }
 
@@ -166,7 +189,14 @@ fun LangkahKetigaPreview(){
                 deletePhoto = {
 
                 },
-                photoUris = listOf()
+                photoUris = listOf(),
+                navigateNext = {
+
+                },
+                navigateBack = {
+
+                },
+                displayError = {}
             )
         }
     }
