@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.sbfirebase.kiossku.authentication.login.LoginViewModel" />
+            type="com.sbfirebase.kiossku.ui.screen.authentication.login.LoginViewModel" />
     </data>
 
     <androidx.appcompat.widget.LinearLayoutCompat

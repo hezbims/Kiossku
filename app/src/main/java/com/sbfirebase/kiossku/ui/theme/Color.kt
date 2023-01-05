@@ -1,5 +1,6 @@
 package com.sbfirebase.kiossku.ui.theme
 
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.ui.graphics.Color
 
 val Purple200 = Color(0xFFBB86FC)
