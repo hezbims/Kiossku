@@ -18,6 +18,8 @@ data class KiosDataDto(
     @field:SerializedName("sistem")
     val sistem: String? = null,
 
+
+    // fix atau nego
     @field:SerializedName("tipe_harga")
     val tipeHarga: String? = null,
 
@@ -51,6 +53,7 @@ data class KiosDataDto(
     @field:SerializedName("name")
     val name: String? = null,
 
+    // jenis properti
     @field:SerializedName("jenis")
     val jenis: String? = null,
 

@@ -31,15 +31,15 @@ data class KiosData(
     val status : Int
 ) : Parcelable{
     fun toJsonString() : String{
-        return Gson().toJson(KiosData::class.java)
+        return Gson().toJson(this)
     }
 }
 
 class KiosDataType : NavType<KiosData>(isNullableAllowed = false){
     override fun get(bundle: Bundle, key: String): KiosData? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
-            return bundle.getParcelable(key)
-        return bundle.getParcelable(key , KiosData::class.java)
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+            bundle.getParcelable(key)
+        else bundle.getParcelable(key , KiosData::class.java)
     }
 
     override fun parseValue(value: String): KiosData {

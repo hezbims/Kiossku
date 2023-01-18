@@ -8,7 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.sbfirebase.kiossku.route.AllRoute
-import com.sbfirebase.kiossku.ui.screen.detail.DetailViewModel
+import com.sbfirebase.kiossku.ui.screen.detail.DetailScreen
 import com.sbfirebase.kiossku.ui.screen.home.HomeScreen
 import com.sbfirebase.kiossku.ui.screen.home.HomeViewModel
 import com.sbfirebase.kiossku.ui.screen.profile.ProfileScreen
@@ -50,9 +50,7 @@ fun NavigationHost(
                 loadData = viewModel::loadData,
                 onItemClick = { kiosData ->
                     navController.navigate(
-                        AllRoute.Detail.formatRouteWithArg(
-                            kiosData.toJsonString()
-                        )
+                        AllRoute.Detail.formatRouteWithArg(kiosData)
                     )
                 }
             )
@@ -62,8 +60,12 @@ fun NavigationHost(
             route = AllRoute.Detail.route,
             arguments = AllRoute.Detail.args
         ){
-            val viewModel = hiltViewModel<DetailViewModel>()
+            DetailScreen()
         }
+
+        submitKiosGraph(navController = navController)
+
+
     }
 }
 

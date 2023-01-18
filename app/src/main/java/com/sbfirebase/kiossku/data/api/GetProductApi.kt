@@ -12,7 +12,7 @@ interface GetProductApi {
     fun getAllProduct(@Header("Authorization") token : String) : Call<SuccessfulGetKiosResponse>
 
     @GET("{product_id}")
-    fun getProductById(
+    suspend fun getProductById(
         @Path("product_id") productId : Int,
         @Header("Authorization") token : String
     ) : KiosDataDto

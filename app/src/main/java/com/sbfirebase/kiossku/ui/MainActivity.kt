@@ -8,7 +8,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.FabPosition
 import androidx.compose.material.Scaffold
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sbfirebase.kiossku.route.AllRoute
 import com.sbfirebase.kiossku.ui.navigation.BottomNavBar
@@ -26,17 +30,29 @@ class MainActivity : ComponentActivity() {
         setContent {
             KiosskuTheme {
                 val navController = rememberNavController()
+                val showBottomBar = rememberSaveable { mutableStateOf(true) }
+
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                showBottomBar.value = when (navBackStackEntry?.destination?.route){
+                    AllRoute.SubmitKios.SewaJual.route  , AllRoute.Home.route , AllRoute.Profile.route -> true
+                    else -> false
+                }
+
                 Scaffold(
                     bottomBar = {
-                        BottomNavBar(navController = navController)
+                        BottomNavBar(
+                            navController = navController,
+                            showBottomBar = showBottomBar.value
+                        )
                     },
                     isFloatingActionButtonDocked = true,
                     floatingActionButtonPosition = FabPosition.Center,
                     floatingActionButton = {
                         BottomNavBarActionButton(
                             navigate = {
-                                navController.replaceAndNavigate(AllRoute.SewaJual.route)
-                            }
+                                navController.replaceAndNavigate(AllRoute.SubmitKios.root)
+                            },
+                            showButton = showBottomBar.value
                         )
                     }
                 ) { innerPadding ->

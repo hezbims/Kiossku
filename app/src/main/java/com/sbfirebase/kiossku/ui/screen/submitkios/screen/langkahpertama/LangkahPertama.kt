@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -12,27 +13,28 @@ import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.sbfirebase.kiossku.ui.screen.submitkios.uicomponent.BackAndNextButton
-import com.sbfirebase.kiossku.ui.screen.submitkios.uicomponent.DropDownDaerah
-import com.sbfirebase.kiossku.ui.screen.submitkios.uicomponent.DropDownTextField
-import com.sbfirebase.kiossku.ui.screen.submitkios.uicomponent.SubmitHeader
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.sbfirebase.kiossku.ui.screen.submitkios.uicomponent.*
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun LangkahPertama(
     navigateNext : () -> Unit,
     navigateBack : () -> Unit,
-    displayError : (String) -> Unit,
+    viewModel : LangkahPertamaViewModel,
     modifier: Modifier = Modifier,
-    viewModel : LangkahPertamaViewModel = viewModel()
+
 ){
     val uiState = viewModel.uiState.collectAsState().value
     val daerahUiState = viewModel.daerahuiState.collectAsState().value
     val onChangeData = viewModel::onDataChange
     val onLoadDaerah = viewModel::onLoadDaerah
+
+    if (viewModel.canNavigate.value)
+        navigateNext()
 
     Column(
         modifier = modifier
@@ -56,81 +58,96 @@ fun LangkahPertama(
                 ),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            OutlinedTextField(
-                value = uiState.judulPromosi,
-                onValueChange = { onChangeData(TipeLangkahPertamaData.JudulPromosi(it)) },
-                placeholder = {
-                    Text("Judul promosi")
-                },
-                shape = textFieldShape,
+            WithError(
+                errorMessage = uiState.judulPromosiError,
                 modifier = Modifier
                     .fillMaxWidth()
-            )
+            ){
+                OutlinedTextField(
+                    value = uiState.judulPromosi,
+                    onValueChange = { onChangeData(TipeLangkahPertamaData.JudulPromosi(it)) },
+                    placeholder = {
+                        Text("Judul promosi")
+                    },
+                    shape = textFieldShape,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+            }
 
             DropDownTextField(
                 value = uiState.jenisProperti,
                 onChangeValue = { onChangeData(TipeLangkahPertamaData.JenisProperti(it)) },
                 placeholder = "Pilih jenis properti",
                 itemList = remember {
-                    listOf("Lapak", "Kios", "Lahan", "Gudang")
+                    listOf("kios" , "ruko", "lapak", "lahan", "gudang")
                 },
+                errorMessage = uiState.jenisPropertiError
             )
 
             var expandWaktuPembayaran by rememberSaveable {
                 mutableStateOf(false)
             }
 
-            OutlinedTextField(
-                placeholder = {
-                    Text("Harga")
-                },
-                shape = textFieldShape,
-                value = uiState.harga,
-                onValueChange = { onChangeData(TipeLangkahPertamaData.Harga(it)) },
-                trailingIcon = if (uiState.isSewa) {
-                    {
-                        DropdownMenu(
-                            expanded = expandWaktuPembayaran,
-                            onDismissRequest = {
-                                expandWaktuPembayaran = false
-                            }
-                        ) {
-                            for (item in remember{listOf("/tahun" , "/bulan")})
-                                DropdownMenuItem(onClick = {
-                                    onChangeData(
-                                        TipeLangkahPertamaData.WaktuPembayaran(item)
-                                    )
+            WithError(
+                errorMessage = uiState.hargaError,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedTextField(
+                    placeholder = {
+                        Text("Harga")
+                    },
+                    shape = textFieldShape,
+                    value = uiState.harga,
+                    onValueChange = { onChangeData(TipeLangkahPertamaData.Harga(it)) },
+                    trailingIcon = if (uiState.isSewa) {
+                        {
+                            DropdownMenu(
+                                expanded = expandWaktuPembayaran,
+                                onDismissRequest = {
                                     expandWaktuPembayaran = false
-                                }) {
-                                    Text(item)
                                 }
-                        }
-
-                        Row(
-                            modifier = Modifier.clickable {
-                                expandWaktuPembayaran = !expandWaktuPembayaran
+                            ) {
+                                for (item in remember { listOf("tahunan", "bulanan") })
+                                    DropdownMenuItem(onClick = {
+                                        onChangeData(
+                                            TipeLangkahPertamaData.WaktuPembayaran(item)
+                                        )
+                                        expandWaktuPembayaran = false
+                                    }) {
+                                        Text(item)
+                                    }
                             }
-                        ) {
-                            Text(
-                                text = uiState.waktuPembayaran,
-                                modifier = Modifier.padding(horizontal = 4.dp)
-                            )
-                            Icon(
-                                imageVector =
-                                if (expandWaktuPembayaran)
-                                    Icons.Outlined.ExpandLess
-                                else
-                                    Icons.Outlined.ExpandMore,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .padding(end = 14.dp)
-                            )
+
+                            Row(
+                                modifier = Modifier.clickable {
+                                    expandWaktuPembayaran = !expandWaktuPembayaran
+                                }
+                            ) {
+                                Text(
+                                    text = uiState.waktuPembayaran,
+                                    modifier = Modifier.padding(horizontal = 4.dp)
+                                )
+                                Icon(
+                                    imageVector =
+                                    if (expandWaktuPembayaran)
+                                        Icons.Outlined.ExpandLess
+                                    else
+                                        Icons.Outlined.ExpandMore,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .padding(end = 14.dp)
+                                )
+                            }
                         }
-                    }
-                } else null,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
+                    } else null,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+            }
 
 
             DropDownTextField(
@@ -138,8 +155,9 @@ fun LangkahPertama(
                 onChangeValue = { onChangeData(TipeLangkahPertamaData.TipePenawaran(it)) },
                 placeholder = "Pilih tipe penawaran",
                 itemList = remember {
-                    listOf("Fix", "Nego")
-                }
+                    listOf("fix", "nego")
+                },
+                errorMessage = uiState.tipePenawaranError
             )
 
             DropDownDaerah(
@@ -147,7 +165,8 @@ fun LangkahPertama(
                 onValueChange = { onChangeData(TipeLangkahPertamaData.Provinsi(it)) },
                 onLoadData = { onLoadDaerah(TipeLoadedDaerah.Provinsi) },
                 response = daerahUiState.provinsi,
-                placeholder = "provinsi"
+                placeholder = "provinsi",
+                errorMessage = uiState.provinsiError
             )
 
             DropDownDaerah(
@@ -157,7 +176,8 @@ fun LangkahPertama(
                     onLoadDaerah(TipeLoadedDaerah.Kabupaten(uiState.provinsi?.id ?: ""))
                  },
                 response = daerahUiState.kabupaten,
-                placeholder = "kabupaten"
+                placeholder = "kabupaten",
+                errorMessage = uiState.kabupatenError
             )
 
             DropDownDaerah(
@@ -167,7 +187,8 @@ fun LangkahPertama(
                     onLoadDaerah(TipeLoadedDaerah.Kecamatan(uiState.kabupaten?.id ?: ""))
                 },
                 response = daerahUiState.kecamatan,
-                placeholder = "kecamatan"
+                placeholder = "kecamatan",
+                errorMessage = uiState.kecamatanError
             )
 
             DropDownDaerah(
@@ -177,23 +198,13 @@ fun LangkahPertama(
                     onLoadDaerah(TipeLoadedDaerah.Kelurahan(uiState.kecamatan?.id ?: ""))
                 },
                 response = daerahUiState.kelurahan,
-                placeholder = "kelurahan"
+                placeholder = "kelurahan",
+                errorMessage = uiState.kelurahanError
             )
 
             BackAndNextButton(
-                navigateNext = navigateNext,
-                navigateBack = navigateBack,
-                verificationData = listOf(
-                    Pair("Judul promosi", uiState.judulPromosi.isEmpty()),
-                    Pair("Jenis properti", uiState.jenisProperti.isEmpty()),
-                    Pair("Harga", uiState.harga.isEmpty()),
-                    Pair("Tipe penawaran", uiState.tipePenawaran.isEmpty()),
-                    Pair("Provinsi", uiState.provinsi == null),
-                    Pair("Kabupaten", uiState.kabupaten == null),
-                    Pair("Kecamatan", uiState.kecamatan == null),
-                    Pair("Kelurahan", uiState.kelurahan == null)
-                ),
-                displayError = displayError,
+                onClickBack = navigateBack,
+                onClickNext = viewModel::validate,
             )
         }
 
@@ -210,7 +221,7 @@ fun LangkahPertamaPreview(){
             LangkahPertama(
                 navigateNext = {},
                 navigateBack = {},
-                displayError = {}
+                viewModel = hiltViewModel()
             )
         }
     }

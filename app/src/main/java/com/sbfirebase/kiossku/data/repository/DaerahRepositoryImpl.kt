@@ -12,7 +12,7 @@ class DaerahRepositoryImpl @Inject constructor(
     private val daerahApiClient : DaerahApi
 ) : IDaerahRepository{
     override suspend fun getProvinsi(): Flow<DaerahApiResponse> =
-        getDaerah(daerahApiClient::getProvinsi)
+        getDaerah { daerahApiClient.getProvinsi() }
 
     override suspend fun getKabupaten(idProvinsi: String): Flow<DaerahApiResponse> =
         getDaerah { daerahApiClient.getKabupaten(idProvinsi) }
@@ -23,7 +23,7 @@ class DaerahRepositoryImpl @Inject constructor(
     override suspend fun getKelurahan(idKecamatan: String): Flow<DaerahApiResponse> =
         getDaerah { daerahApiClient.getKelurahan(idKecamatan) }
 
-    private fun getDaerah(getDaerah : () -> List<Daerah>) = flow{
+    private suspend fun getDaerah(getDaerah : suspend () -> List<Daerah>) = flow{
         emit(DaerahApiResponse.Loading)
         try{
             val result = getDaerah()

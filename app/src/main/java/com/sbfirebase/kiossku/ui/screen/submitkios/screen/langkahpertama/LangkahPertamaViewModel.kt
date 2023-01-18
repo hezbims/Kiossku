@@ -1,11 +1,13 @@
 package com.sbfirebase.kiossku.ui.screen.submitkios.screen.langkahpertama
 
-import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sbfirebase.kiossku.data.api.Daerah
 import com.sbfirebase.kiossku.domain.apiresponse.DaerahApiResponse
 import com.sbfirebase.kiossku.domain.repo_interface.IDaerahRepository
+import com.sbfirebase.kiossku.domain.use_case.EmptyValidationUseCases
 import com.sbfirebase.kiossku.ui.screen.submitkios.screen.langkahkedua.isValidNumber
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -14,11 +16,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class LangkahPertamaViewModel @Inject constructor(
-    private val daerahRepository : IDaerahRepository
+    private val daerahRepository : IDaerahRepository,
+    private val validateEmpty : EmptyValidationUseCases
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LangkahPertamaUiState())
     val uiState = _uiState.asStateFlow()
@@ -53,7 +57,7 @@ class LangkahPertamaViewModel @Inject constructor(
                 is TipeLangkahPertamaData.Kecamatan -> {
                     if (it.kecamatan != newData.newValue)
                         onLoadDaerah(TipeLoadedDaerah.Kelurahan(newData.newValue!!.id))
-                    it.copy(kelurahan = newData.newValue)
+                    it.copy(kecamatan = newData.newValue)
                 }
                 is TipeLangkahPertamaData.Kelurahan -> it.copy(kelurahan = newData.newValue)
             }
@@ -109,10 +113,52 @@ class LangkahPertamaViewModel @Inject constructor(
     }
 
     init{
-        Log.e("qqq" , "BERHASIL MEMBUATA VIEW MODEL")
         onLoadDaerah(TipeLoadedDaerah.Provinsi)
-
     }
+
+    private val _canNavigate = mutableStateOf(false)
+    val canNavigate : State<Boolean>
+        get() = _canNavigate
+
+    private var validationJob : Job? = null
+    fun validate(){
+        if (validationJob == null || validationJob?.isCompleted == true) {
+            validationJob = viewModelScope.launch(Dispatchers.IO) {
+                uiState.value.let {
+                    val judulPromosiError = validateEmpty(data = it.judulPromosi , "Judul promosi")
+                    val jenisPropertiError = validateEmpty(data = it.jenisProperti , "Jenis properti")
+                    val hargaError = validateEmpty(data = it.harga , "Harga")
+                    val tipePenawaranError = validateEmpty(data = it.tipePenawaran , "Tipe penawaran")
+                    val provinsiError = validateEmpty(data = it.provinsi?.nama , "Provinsi")
+                    val kabupatenError = validateEmpty(data = it.kabupaten?.nama , namaField = "Kabupaten")
+                    val kecamatanError = validateEmpty(data = it.kecamatan?.nama , namaField = "Kecamatan")
+                    val kelurahanError = validateEmpty(data = it.kelurahan?.nama , namaField = "Kelurahan")
+
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            judulPromosiError = judulPromosiError,
+                            jenisPropertiError = jenisPropertiError,
+                            hargaError = hargaError,
+                            tipePenawaranError = tipePenawaranError,
+                            provinsiError = provinsiError,
+                            kabupatenError = kabupatenError,
+                            kecamatanError = kecamatanError,
+                            kelurahanError = kelurahanError
+                        )
+                    }
+                    if (listOf(judulPromosiError , jenisPropertiError , hargaError ,
+                        tipePenawaranError , provinsiError , kabupatenError , kecamatanError ,
+                        kelurahanError).all { errorMessage -> errorMessage == null }){
+                            withContext(Dispatchers.Main){
+                                _canNavigate.value = true
+                            }
+                    }
+                }
+            }
+        }
+    }
+
+    fun doneNavigating(){ _canNavigate.value = false }
 }
 
 data class DaerahUiState(
@@ -144,13 +190,25 @@ sealed class TipeLoadedDaerah{
 
 data class LangkahPertamaUiState(
     val judulPromosi : String = "",
+    val judulPromosiError : String? = null,
+
     val jenisProperti : String = "",
+    val jenisPropertiError : String? = null,
+
     val harga : String = "",
+    val hargaError : String? = null,
+
     val tipePenawaran : String = "",
-    val waktuPembayaran: String = "/tahun",
+    val tipePenawaranError : String? = null,
+
+    val waktuPembayaran: String = "tahunan",
     val isSewa : Boolean = true,
     val provinsi : Daerah? = null,
+    val provinsiError : String? = null,
     val kabupaten : Daerah? = null,
+    val kabupatenError : String? = null,
     val kecamatan : Daerah? = null,
-    val kelurahan : Daerah? = null
+    val kecamatanError : String? = null,
+    val kelurahan : Daerah? = null,
+    val kelurahanError : String? = null,
 )

@@ -17,10 +17,8 @@ import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
 
 @Composable
 fun BackAndNextButton(
-    navigateNext : () -> Unit,
-    navigateBack : () -> Unit,
-    verificationData : List<Pair<String , Boolean>>,
-    displayError : (String) -> Unit,
+    onClickBack : () -> Unit,
+    onClickNext : () -> Unit,
     modifier: Modifier = Modifier,
     nextText : String = "Lanjut",
     backText : String = "Kembali"
@@ -34,7 +32,7 @@ fun BackAndNextButton(
         modifier = modifier.fillMaxWidth()
     ){
         Button(
-            onClick = navigateBack,
+            onClick = onClickBack,
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = Color.White
             ),
@@ -51,11 +49,7 @@ fun BackAndNextButton(
         }
 
         Button(
-            onClick = {
-                if (verify(datas = verificationData,
-                        displayError = displayError))
-                    navigateNext()
-            },
+            onClick = onClickNext,
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = GreenKiossku,
                 contentColor = Color.White
@@ -81,10 +75,8 @@ fun BackAndNextButtonPreview(){
     KiosskuTheme{
         Surface {
             BackAndNextButton(
-                navigateNext = {},
-                navigateBack = {},
-                verificationData = listOf(),
-                displayError = {},
+                onClickBack = {},
+                onClickNext = {},
                 nextText = "Lanjut",
                 backText = "Kembali"
             )

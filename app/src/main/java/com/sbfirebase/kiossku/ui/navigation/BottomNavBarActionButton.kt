@@ -1,5 +1,8 @@
 package com.sbfirebase.kiossku.ui.navigation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.FloatingActionButton
@@ -14,21 +17,28 @@ import com.sbfirebase.kiossku.ui.theme.GreenKiossku
 
 @Composable
 fun BottomNavBarActionButton(
-    navigate : () -> Unit
+    navigate : () -> Unit,
+    showButton : Boolean
 ){
-    FloatingActionButton(
-        shape = CircleShape,
-        backgroundColor = GreenKiossku,
-        contentColor = Color.White,
-        onClick = {
-            navigate()
-        }
+    AnimatedVisibility(
+        visible = showButton,
+        enter = fadeIn(),
+        exit = fadeOut()
     ) {
-        Icon(
-            imageVector = Icons.Outlined.AddToPhotos,
-            contentDescription = "Sewa atau jual kios",
-            modifier = Modifier
-                .size(24.dp)
-        )
+        FloatingActionButton(
+            shape = CircleShape,
+            backgroundColor = GreenKiossku,
+            contentColor = Color.White,
+            onClick = {
+                navigate()
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.AddToPhotos,
+                contentDescription = "Sewa atau jual kios",
+                modifier = Modifier
+                    .size(24.dp)
+            )
+        }
     }
 }

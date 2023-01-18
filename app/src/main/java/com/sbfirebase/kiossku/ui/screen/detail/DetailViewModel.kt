@@ -1,8 +1,8 @@
 package com.sbfirebase.kiossku.ui.screen.detail
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.sbfirebase.kiossku.data.model.getproduct.KiosDataDto
 import com.sbfirebase.kiossku.domain.AuthManager
 import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
 import com.sbfirebase.kiossku.domain.model.KiosData
@@ -18,13 +18,16 @@ class DetailViewModel @Inject constructor(
     private val authManager: AuthManager,
     savedStateHandle : SavedStateHandle
 ): ViewModel() {
-    private val product : KiosData =  savedStateHandle[AllRoute.Detail.argName]!!
+    val product : KiosData =  savedStateHandle[AllRoute.Detail.argName]!!
+    val images = product.images.split(",")
+    init{
+        Log.e("qqq" , images.toString())
+    }
     var uiState = MutableStateFlow(DetailUiState())
         private set
 
 }
 
 data class DetailUiState(
-    val productResponse : AuthorizedApiResponse<KiosDataDto> = AuthorizedApiResponse.Loading(),
     val getNomorTelepon : AuthorizedApiResponse<String>? = null
 )

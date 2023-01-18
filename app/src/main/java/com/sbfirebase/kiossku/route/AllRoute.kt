@@ -1,11 +1,13 @@
 package com.sbfirebase.kiossku.route
 
+import android.net.Uri
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.navArgument
 import com.sbfirebase.kiossku.R
+import com.sbfirebase.kiossku.domain.model.KiosData
 import com.sbfirebase.kiossku.domain.model.KiosDataType
 
 sealed interface NavRoute{
@@ -24,13 +26,14 @@ sealed class AllRoute {
     }
 
     object Detail : NavRoute{
-        override val route = "DetailRoute/{product_id}"
         const val argName = "product"
+        override val route = "DetailRoute/{$argName}"
         val args = listOf(
             navArgument(name = argName){ type = KiosDataType() }
         )
 
-        fun formatRouteWithArg(arg : String) : String{
+        fun formatRouteWithArg(kiosData : KiosData) : String{
+            val arg = Uri.encode(kiosData.toJsonString())
             return "DetailRoute/$arg"
         }
     }
@@ -40,24 +43,34 @@ sealed class AllRoute {
         override val icon = Icons.Rounded.AccountCircle
         override val labelStringId = R.string.profile_label
     }
-    object SewaJual : NavRoute {
-        override val route = "SewaJualRoute"
-    }
 
-    object LangkahPertama : NavRoute {
-        override val route = "LangkahPertamaRoute"
-    }
 
-    object LangkahKedua : NavRoute {
-        override val route = "LangkahKeduaRoute"
-    }
+    object SubmitKios{
+        val root = "SubmitKiosRoute"
 
-    object LangkahKetiga : NavRoute {
-        override val route = "LangkahKetigaRoute"
+        object SewaJual : NavRoute {
+            override val route = "SewaJualRoute"
+        }
+
+        object LangkahPertama : NavRoute {
+            override val route = "LangkahPertamaRoute"
+        }
+
+        object LangkahKedua : NavRoute {
+            override val route = "LangkahKeduaRoute"
+        }
+
+        object LangkahKetiga : NavRoute {
+            override val route = "LangkahKetigaRoute"
+        }
+
+        object SubmitDataSucceed : NavRoute{
+            override val route = "SubmitDataRoute"
+        }
     }
 }
 
 val bottomNavItems = listOf(
     AllRoute.Home,
-    AllRoute.Profile
+    AllRoute.Profile,
 )

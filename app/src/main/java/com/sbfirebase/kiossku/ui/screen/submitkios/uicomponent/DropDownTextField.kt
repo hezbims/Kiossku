@@ -23,70 +23,76 @@ fun <Item> DropDownTextField(
     onChangeValue : (Item) -> Unit,
     placeholder : String,
     itemList : List<Item>,
+    errorMessage : String?,
     modifier: Modifier = Modifier,
 ){
-    Box(
+    WithError(
+        errorMessage = errorMessage,
         modifier = modifier
             .fillMaxWidth()
     ) {
-        var expanded by rememberSaveable{ mutableStateOf(false) }
-
-        OutlinedTextField(
-            value = value,
-            onValueChange = {},
-            placeholder = {
-                Text(placeholder)
-            },
+        Box(
             modifier = Modifier
-                .clickable {
-                    expanded = !expanded
-                }
-                .fillMaxWidth(),
-            enabled = false,
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                disabledTextColor = LocalContentColor.current.copy(LocalContentAlpha.current),
-                disabledLabelColor =  MaterialTheme.colors.onSurface.copy(ContentAlpha.medium),
-                disabledBorderColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled),
-                disabledPlaceholderColor = MaterialTheme.colors.onSurface.copy(ContentAlpha.medium),
-                disabledLeadingIconColor = MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.IconOpacity),
-                disabledTrailingIconColor = MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.IconOpacity)
-            ),
-            trailingIcon = {
-                Icon(
-                    imageVector =
+                .fillMaxWidth()
+        ) {
+            var expanded by rememberSaveable{ mutableStateOf(false) }
+
+            OutlinedTextField(
+                value = value,
+                onValueChange = {},
+                placeholder = {
+                    Text(placeholder)
+                },
+                modifier = Modifier
+                    .clickable {
+                        expanded = !expanded
+                    }
+                    .fillMaxWidth(),
+                enabled = false,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    disabledTextColor = LocalContentColor.current.copy(LocalContentAlpha.current),
+                    disabledLabelColor =  MaterialTheme.colors.onSurface.copy(ContentAlpha.medium),
+                    disabledBorderColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled),
+                    disabledPlaceholderColor = MaterialTheme.colors.onSurface.copy(ContentAlpha.medium),
+                    disabledLeadingIconColor = MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.IconOpacity),
+                    disabledTrailingIconColor = MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.IconOpacity)
+                ),
+                trailingIcon = {
+                    Icon(
+                        imageVector =
                         if (expanded)
                             Icons.Outlined.ExpandLess
                         else
                             Icons.Outlined.ExpandMore ,
-                    contentDescription = null
-                )
-            },
-            shape = RoundedCornerShape(16.dp)
-        )
-
-        Box(
-            modifier = Modifier.align(
-                Alignment.TopEnd
+                        contentDescription = null
+                    )
+                },
+                shape = RoundedCornerShape(16.dp)
             )
-        ){
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier
-                    .wrapContentSize()
-            ) {
-                for (item in itemList) {
-                    DropdownMenuItem(
-                        onClick = {
-                            onChangeValue(item)
+
+            Box(
+                modifier = Modifier.align(
+                    Alignment.TopEnd
+                )
+            ){
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .wrapContentSize()
+                ) {
+                    for (item in itemList) {
+                        DropdownMenuItem(
+                            onClick = {
+                                onChangeValue(item)
+                            }
+                        ) {
+                            Text(item.toString())
                         }
-                    ) {
-                        Text(item.toString())
                     }
                 }
             }
         }
-
     }
 }
 
@@ -102,7 +108,8 @@ fun DropDownTextFieldPreview(){
                 value = "",
                 onChangeValue = {},
                 itemList = listOf("Kios" , "Lahan" , "Gudang"),
-                placeholder = "Jenis properti"
+                placeholder = "Jenis properti",
+                errorMessage = null
             )
         }
     }
