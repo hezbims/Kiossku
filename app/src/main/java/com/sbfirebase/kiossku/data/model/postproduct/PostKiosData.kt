@@ -1,5 +1,6 @@
 package com.sbfirebase.kiossku.data.model.postproduct
 
+import android.net.Uri
 import com.google.gson.annotations.SerializedName
 
 data class PostKiosData(
@@ -52,5 +53,5 @@ data class PostKiosData(
     val lebar : Int,
 
     @SerializedName("images")
-    val images : List<String>
+    val images : List<Uri>
 )

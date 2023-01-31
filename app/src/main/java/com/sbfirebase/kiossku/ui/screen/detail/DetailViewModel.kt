@@ -21,7 +21,8 @@ class DetailViewModel @Inject constructor(
     val product : KiosData =  savedStateHandle[AllRoute.Detail.argName]!!
     val images = product.images.split(",")
     init{
-        Log.e("qqq" , images.toString())
+        Log.e("qqqDetailViewModel" , images.toString())
+        Log.e("qqqDetailViewModel" , product.images)
     }
     var uiState = MutableStateFlow(DetailUiState())
         private set

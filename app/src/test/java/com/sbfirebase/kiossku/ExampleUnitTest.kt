@@ -1,8 +1,6 @@
 package com.sbfirebase.kiossku
 
-import com.google.gson.Gson
-import com.sbfirebase.kiossku.authentication.SavedAuthToken
-import org.json.JSONArray
+import com.google.gson.JsonParser
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -17,27 +15,12 @@ class ExampleUnitTest {
         assertEquals(4, 2 + 2)
     }
 
-    @Test fun savedAuthTokenJson_isCorrect(){
-        val x = SavedAuthToken("777").toString()
-        val savedAuthToken = Gson().fromJson(x , SavedAuthToken::class.java)
-        savedAuthToken.toString()
-    }
-
     @Test fun jsonObject_test(){
-        val x = """[
-                        {
-                            \"message\" : \"Halo dunia\"
-                        },
-                        {
-                            \"message\" : \"Halo2\"
-                        }
-                   ]
-            """
-        x
-        val jsonArray = JSONArray(x)
-        val y = jsonArray.getJSONObject(0).toString()
-        y
-        //val jsonArray = jsonObject.getAsJsonArray("message")
+        val jsonString = "{\"message\":\"Password or email not match\"}"
+        val jsonObject = JsonParser().parse(jsonString).asJsonObject
+
+        val message = jsonObject.get("message").asString
+        message
     }
 
     @Test

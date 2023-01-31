@@ -1,0 +1,49 @@
+jenis : kios, ruko, lapak, lahan, gudang (done)
+tipe_harga : tahunan, bulanan (done)
+tipe_pembayaran : nego, fix
+sistem : sewa, jual (done)
+fasilitas : air, listrik (done, incomplete, ada di bagian function submit langkah ketiga)
+
+coming soon : 
+fix fasilitas
+tambahkan field alamat
+
+gimana kalo user udah punya akun, mau login, tapi belum diverifikasi
+
+register success : 
+{
+    "message": "Register success",
+    "data": {
+        "id": 18,
+        "fullname": "Si Ganteng",
+        "email": "siganteng@gmail.com",
+        "telepon": "6281765287189"
+    }
+}
+register 2x :
+error code = 400
+{
+    "message": "Password or email not match"
+}
+
+[
+    {
+        "type": "stringMin",
+        "message": "The 'password' field length must be greater than or equal to 6 characters long.",
+        "field": "password",
+        "expected": 6,
+        "actual": 5
+    },
+    {
+        "type": "stringMin",
+        "message": "The 'confirm_password' field length must be greater than or equal to 6 characters long.",
+        "field": "confirm_password",
+        "expected": 6,
+        "actual": 5
+    }
+]
+
+error_code = 400
+{
+	"message" : "Telepon already exists"
+}

@@ -38,6 +38,12 @@ class ProfileViewModel @Inject constructor(
             }
         }
     }
+
+    fun doneLoggingOut(){
+        _uiState.update {
+            it.copy(isLoggedOut = false)
+        }
+    }
 }
 
 data class ProfileUIState(

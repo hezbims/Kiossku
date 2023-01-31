@@ -33,19 +33,22 @@ class TokenManager @Inject constructor(
 
     val isTokenExpired : Boolean
         get() {
-            val savedTime = savedAuthToken!!.savedDate.timeInMillis
+            val savedTime = savedAuthToken?.savedDate?.timeInMillis
             val currentTime = Calendar.getInstance().timeInMillis
 
-            if (currentTime - savedTime >= AlarmManager.INTERVAL_HOUR - ONE_MINUTES)
-                return true
-            return false
+            if (savedTime != null) {
+                if (currentTime - savedTime >= AlarmManager.INTERVAL_HOUR - ONE_MINUTES)
+                    return true
+                return false
+            }
+            return true
         }
 
     suspend fun setTokenSync(token : String?){
         sharedPreferences.edit().apply {
             putString(
                 SAVED_TOKEN_KEY,
-                SavedAuthToken(token).toString()
+                if (token != null) SavedAuthToken(token).toString() else null
             )
             commit()
         }

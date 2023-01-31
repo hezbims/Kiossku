@@ -11,21 +11,26 @@ import com.sbfirebase.kiossku.route.AllRoute
 import com.sbfirebase.kiossku.ui.screen.detail.DetailScreen
 import com.sbfirebase.kiossku.ui.screen.home.HomeScreen
 import com.sbfirebase.kiossku.ui.screen.home.HomeViewModel
+import com.sbfirebase.kiossku.ui.screen.landing_page.LandingPageScreen
 import com.sbfirebase.kiossku.ui.screen.profile.ProfileScreen
 import com.sbfirebase.kiossku.ui.screen.profile.ProfileViewModel
 
 @Composable
 fun NavigationHost(
     navController : NavHostController,
-    modifier: Modifier,
-    startLoginActivity : () -> Unit,
-    displayError : (String) -> Unit
+    modifier: Modifier
 ){
     NavHost(
         navController = navController,
-        startDestination = AllRoute.Profile.route,
+        startDestination = AllRoute.LandingPage.route,
         modifier = modifier
     ) {
+        composable(
+            route = AllRoute.LandingPage.route
+        ){
+            LandingPageScreen(navController = navController)
+        }
+
         composable(
             route = AllRoute.Profile.route
         ) {
@@ -34,8 +39,11 @@ fun NavigationHost(
                 .uiState
                 .collectAsState()
                 .value
-            if (uiState.isLoggedOut)
-                startLoginActivity()
+            if (uiState.isLoggedOut) {
+                navController.replaceAndNavigate(route = AllRoute.Auth.root)
+                viewModel.doneLoggingOut()
+            }
+
             ProfileScreen(
                 uiState = uiState,
                 logout = viewModel::logout
@@ -65,16 +73,13 @@ fun NavigationHost(
 
         submitKiosGraph(navController = navController)
 
-
+        authNavGraph(navController = navController)
     }
 }
 
 fun NavHostController.replaceAndNavigate(route : String){
     navigate(route) {
-        popUpTo(0){
-            saveState = true
-        }
+        popUpTo(0)
         launchSingleTop = true
-        restoreState = true
     }
 }

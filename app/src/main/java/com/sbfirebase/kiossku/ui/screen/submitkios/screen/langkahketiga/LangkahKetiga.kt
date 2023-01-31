@@ -247,7 +247,7 @@ private fun SubmitData(
             fasilitas = "air",
             panjang = data2.panjang.toInt(),
             lebar = data2.lebar.toInt(),
-            images = data3.map{ it.uri.toString() }
+            images = data3.map{ it.uri }
         )
     )
 }
