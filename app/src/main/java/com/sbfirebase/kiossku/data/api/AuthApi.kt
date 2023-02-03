@@ -1,6 +1,6 @@
 package com.sbfirebase.kiossku.data.api
 
-import com.sbfirebase.kiossku.data.model.login.SuccessfulLoginResponse
+import com.sbfirebase.kiossku.data.model.login.LoginDto
 import com.sbfirebase.kiossku.data.model.logout.LogoutResponse
 import com.sbfirebase.kiossku.data.model.refresh.SuccessfulRefreshTokenResponse
 import com.sbfirebase.kiossku.data.model.register.RegisterPost
@@ -26,7 +26,7 @@ interface AuthApi {
     suspend fun login(
         @Field("email") email : String,
         @Field("password") password : String
-    ) : Response<SuccessfulLoginResponse>
+    ) : Response<LoginDto>
 
     @FormUrlEncoded
     @POST("email/verification")

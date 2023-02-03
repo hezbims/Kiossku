@@ -1,13 +1,7 @@
 package com.sbfirebase.kiossku.di
 
-import com.sbfirebase.kiossku.data.repository.AuthRepositoryImpl
-import com.sbfirebase.kiossku.data.repository.DaerahRepositoryImpl
-import com.sbfirebase.kiossku.data.repository.GetProductRepositoryImpl
-import com.sbfirebase.kiossku.data.repository.PostProductRepositoryImpl
-import com.sbfirebase.kiossku.domain.repo_interface.IAuthRepository
-import com.sbfirebase.kiossku.domain.repo_interface.IDaerahRepository
-import com.sbfirebase.kiossku.domain.repo_interface.IGetProductRepository
-import com.sbfirebase.kiossku.domain.repo_interface.IPostProductRepository
+import com.sbfirebase.kiossku.data.repository.*
+import com.sbfirebase.kiossku.domain.repo_interface.*
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -38,4 +32,10 @@ abstract class RepositoryModule {
     abstract fun providePostProductRepository(
         postProductRepository : PostProductRepositoryImpl
     ) : IPostProductRepository
+
+    @Singleton
+    @Binds
+    abstract fun provideUserRepository(
+        userRepository : UserRepositoryImpl
+    ) : IUserRepository
 }

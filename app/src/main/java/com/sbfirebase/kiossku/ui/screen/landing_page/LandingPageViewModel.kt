@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sbfirebase.kiossku.domain.AuthManager
 import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
-import com.sbfirebase.kiossku.domain.apiresponse.RefreshTokenApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -18,7 +17,7 @@ import javax.inject.Inject
 class LandingPageViewModel @Inject constructor(
     private val authManager : AuthManager
 ) : ViewModel(){
-    private val _apiResponse = MutableStateFlow<AuthorizedApiResponse<Nothing>>(
+    private val _apiResponse = MutableStateFlow<AuthorizedApiResponse<String>>(
         AuthorizedApiResponse.Loading()
     )
     val apiResponse = _apiResponse.asStateFlow()
@@ -32,18 +31,7 @@ class LandingPageViewModel @Inject constructor(
             while(true) {
                 delay(500)
                 _apiResponse.update { AuthorizedApiResponse.Loading() }
-                when (authManager.getToken()) {
-                    is RefreshTokenApiResponse.InternetFail ->
-                        _apiResponse.update { AuthorizedApiResponse.Failure() }
-                    is RefreshTokenApiResponse.Unauthorized -> {
-                        _apiResponse.update { AuthorizedApiResponse.Unauthorized() }
-                        break
-                    }
-                    else -> {
-                        _apiResponse.update { AuthorizedApiResponse.Success() }
-                        break
-                    }
-                }
+                _apiResponse.update { authManager.getToken() }
             }
         }
     }

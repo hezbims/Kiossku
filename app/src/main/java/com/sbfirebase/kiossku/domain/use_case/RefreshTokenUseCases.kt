@@ -1,21 +1,25 @@
 package com.sbfirebase.kiossku.domain.use_case
 
-import com.sbfirebase.kiossku.domain.apiresponse.RefreshTokenApiResponse
+import com.sbfirebase.kiossku.domain.TokenManager
+import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
 import com.sbfirebase.kiossku.domain.repo_interface.IAuthRepository
 import javax.inject.Inject
 
 class RefreshTokenUseCases @Inject constructor(
-    private val authRepository: IAuthRepository
+    private val authRepository: IAuthRepository,
+    private val tokenManager : TokenManager
 ){
-    suspend operator fun invoke() : RefreshTokenApiResponse =
+    suspend operator fun invoke() : AuthorizedApiResponse<String> =
         try{
             val response = authRepository.refreshToken()
-            if (response.isSuccessful)
-                RefreshTokenApiResponse
-                    .Success(response.body()?.data?.token!!)
+            if (response.isSuccessful) {
+                val token = response.body()?.data?.token!!
+                tokenManager.setTokenSync(token = token)
+                AuthorizedApiResponse.Success(data = token)
+            }
             else
-                RefreshTokenApiResponse.Unauthorized
+                AuthorizedApiResponse.Failure(errorCode = response.code())
         }catch (e : Exception){
-            RefreshTokenApiResponse.InternetFail
+            AuthorizedApiResponse.Failure()
         }
 }

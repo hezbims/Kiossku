@@ -1,9 +1,6 @@
 package com.sbfirebase.kiossku.di
 
-import com.sbfirebase.kiossku.data.api.AuthApi
-import com.sbfirebase.kiossku.data.api.DaerahApi
-import com.sbfirebase.kiossku.data.api.GetProductApi
-import com.sbfirebase.kiossku.data.api.PostProductApi
+import com.sbfirebase.kiossku.data.api.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -52,5 +49,15 @@ object ApiClientModule {
             .baseUrl("https://kiossku.com/be-api/v1/product/")
             .build()
             .create<PostProductApi>()
+
+    @Singleton
+    @Provides
+    fun provideUserApiClient() =
+        Retrofit.Builder()
+            .baseUrl("https://kiossku.com/be-api/v1/auth/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create<UserApi>()
+
 
 }

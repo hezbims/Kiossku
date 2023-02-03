@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.gson.JsonParser
 import com.sbfirebase.kiossku.constant.ApiMessage
 import com.sbfirebase.kiossku.data.api.AuthApi
+import com.sbfirebase.kiossku.data.model.login.LoginDto
 import com.sbfirebase.kiossku.data.model.logout.LogoutResponse
 import com.sbfirebase.kiossku.data.model.refresh.SuccessfulRefreshTokenResponse
 import com.sbfirebase.kiossku.data.model.register.RegisterPost
@@ -22,7 +23,7 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun login(
         email : String,
         password : String
-    ): Flow<AuthorizedApiResponse<String>> =
+    ): Flow<AuthorizedApiResponse<LoginDto>> =
         flow {
             emit(AuthorizedApiResponse.Loading())
             try{
@@ -32,7 +33,7 @@ class AuthRepositoryImpl @Inject constructor(
                 )
 
                 if (response.isSuccessful)
-                    emit(AuthorizedApiResponse.Success(response.body()!!.loginData.token))
+                    emit(AuthorizedApiResponse.Success(data = response.body()!!))
                 else
                     emit(AuthorizedApiResponse.Failure(errorMessage = "Password dan email tidak cocok!"))
             }catch (e : Exception){

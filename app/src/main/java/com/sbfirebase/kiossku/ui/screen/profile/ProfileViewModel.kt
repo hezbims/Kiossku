@@ -3,7 +3,10 @@ package com.sbfirebase.kiossku.ui.screen.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sbfirebase.kiossku.domain.AuthManager
+import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
 import com.sbfirebase.kiossku.domain.apiresponse.LogoutApiResponse
+import com.sbfirebase.kiossku.domain.model.UserData
+import com.sbfirebase.kiossku.domain.use_case.GetUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val authManager: AuthManager
+    private val authManager: AuthManager,
+    private val getUser : GetUserUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUIState())
     val uiState = _uiState.asStateFlow()
@@ -44,9 +48,20 @@ class ProfileViewModel @Inject constructor(
             it.copy(isLoggedOut = false)
         }
     }
+
+    init{
+        refreshProfile()
+    }
+
+    fun refreshProfile(){
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update { it.copy(getUserResponse = getUser()) }
+        }
+    }
 }
 
 data class ProfileUIState(
     val sedangLogout : Boolean = false,
-    val isLoggedOut : Boolean = false
+    val isLoggedOut : Boolean = false,
+    val getUserResponse : AuthorizedApiResponse<UserData> = AuthorizedApiResponse.Loading()
 )

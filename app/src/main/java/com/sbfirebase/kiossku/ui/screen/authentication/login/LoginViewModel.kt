@@ -2,6 +2,7 @@ package com.sbfirebase.kiossku.ui.screen.authentication.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sbfirebase.kiossku.data.model.login.LoginDto
 import com.sbfirebase.kiossku.domain.AuthManager
 import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
 import com.sbfirebase.kiossku.ui.utils.ToastDisplayer
@@ -66,7 +67,7 @@ data class LoginScreenUiState(
     val email: String = "",
     val password : String = "",
     val showPassword : Boolean = false,
-    val loginResponse : AuthorizedApiResponse<String>? = null
+    val loginResponse : AuthorizedApiResponse<LoginDto>? = null
 )
 
 sealed class LoginScreenEvent{

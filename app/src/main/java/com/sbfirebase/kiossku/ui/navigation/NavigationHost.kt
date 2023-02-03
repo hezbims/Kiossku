@@ -13,7 +13,6 @@ import com.sbfirebase.kiossku.ui.screen.home.HomeScreen
 import com.sbfirebase.kiossku.ui.screen.home.HomeViewModel
 import com.sbfirebase.kiossku.ui.screen.landing_page.LandingPageScreen
 import com.sbfirebase.kiossku.ui.screen.profile.ProfileScreen
-import com.sbfirebase.kiossku.ui.screen.profile.ProfileViewModel
 
 @Composable
 fun NavigationHost(
@@ -34,21 +33,9 @@ fun NavigationHost(
         composable(
             route = AllRoute.Profile.route
         ) {
-            val viewModel : ProfileViewModel = hiltViewModel()
-            val uiState = viewModel
-                .uiState
-                .collectAsState()
-                .value
-            if (uiState.isLoggedOut) {
-                navController.replaceAndNavigate(route = AllRoute.Auth.root)
-                viewModel.doneLoggingOut()
-            }
-
-            ProfileScreen(
-                uiState = uiState,
-                logout = viewModel::logout
-            )
+            ProfileScreen(navController = navController)
         }
+
         composable(
             route = AllRoute.Home.route
         ){

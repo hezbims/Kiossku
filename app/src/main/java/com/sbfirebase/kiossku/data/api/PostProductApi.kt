@@ -1,6 +1,6 @@
 package com.sbfirebase.kiossku.data.api
 
-import com.sbfirebase.kiossku.data.model.postproduct.SuccessfulPostProductResponse
+import com.sbfirebase.kiossku.data.model.postproduct.PostProductDto
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -29,5 +29,5 @@ interface PostProductApi {
         @Part("lebar") lebar : RequestBody,
         @Part images : List<MultipartBody.Part>,
         @Header("Authorization") token : String
-    ) : Response<SuccessfulPostProductResponse>
+    ) : Response<PostProductDto>
 }

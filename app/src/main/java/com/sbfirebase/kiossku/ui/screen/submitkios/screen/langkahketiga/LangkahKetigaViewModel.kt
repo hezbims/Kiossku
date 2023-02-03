@@ -8,11 +8,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sbfirebase.kiossku.data.model.postproduct.PostKiosData
-import com.sbfirebase.kiossku.data.model.postproduct.SuccessfulPostProductResponse
 import com.sbfirebase.kiossku.domain.AuthManager
 import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
-import com.sbfirebase.kiossku.domain.apiresponse.RefreshTokenApiResponse
-import com.sbfirebase.kiossku.domain.repo_interface.IPostProductRepository
+import com.sbfirebase.kiossku.domain.use_case.PostProductUseCase
 import com.sbfirebase.kiossku.ui.utils.ToastDisplayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -26,9 +24,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LangkahKetigaViewModel @Inject constructor(
-    private val postProductRepo : IPostProductRepository,
+    private val postProduct : PostProductUseCase,
     private val authManager : AuthManager,
-    private val toastDisplayer: ToastDisplayer
+    private val displayToast : ToastDisplayer
 ): ViewModel() {
     private var photoId = 0
     private val _photoUris = mutableStateListOf<UriWithId>()
@@ -51,7 +49,7 @@ class LangkahKetigaViewModel @Inject constructor(
         _photoUris.removeIf { it.id == deleteId }
     }
 
-    private val _submitState = MutableStateFlow<AuthorizedApiResponse<SuccessfulPostProductResponse>>(
+    private val _submitState = MutableStateFlow<AuthorizedApiResponse<Nothing>>(
         AuthorizedApiResponse.Failure()
     )
     val submitState = _submitState.asStateFlow()
@@ -64,26 +62,19 @@ class LangkahKetigaViewModel @Inject constructor(
     ){
         if (submitJob == null || submitJob?.isCompleted == true)
             submitJob = viewModelScope.launch(Dispatchers.IO){
-                val tokenResponse = authManager.getToken()
+                _submitState.update { AuthorizedApiResponse.Loading() }
 
-                when(tokenResponse) {
-                    is RefreshTokenApiResponse.Success ->
-                        postProductRepo.submitProduct(
-                            postData = postData,
-                            token = tokenResponse.token
+                val postProductResponse = postProduct(data = postData)
+                _submitState.update { postProductResponse }
+
+                if (postProductResponse is AuthorizedApiResponse.Failure)
+                    withContext(Dispatchers.Main){
+                        displayToast(
+                            message = if (postProductResponse.errorCode == null)
+                                "Gagal tersambung ke server, periksa internet anda!"
+                            else "Token expired"
                         )
-                            .collect { apiResponse ->
-                                if (apiResponse is AuthorizedApiResponse.Failure)
-                                    withContext(Dispatchers.Main) {
-                                        toastDisplayer("Gagal mensubmit data, periksa internet anda")
-                                    }
-                                _submitState.update { apiResponse }
-                            }
-                    else ->
-                        withContext(Dispatchers.Main) {
-                            toastDisplayer("Data gagal dikirim, periksa internet anda")
-                        }
-                }
+                    }
             }
     }
 }

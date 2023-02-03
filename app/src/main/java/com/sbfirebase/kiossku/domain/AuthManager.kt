@@ -1,10 +1,10 @@
 package com.sbfirebase.kiossku.domain
 
 import android.util.Log
+import com.sbfirebase.kiossku.data.model.login.LoginDto
 import com.sbfirebase.kiossku.data.model.register.RegisterPost
 import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
 import com.sbfirebase.kiossku.domain.apiresponse.LogoutApiResponse
-import com.sbfirebase.kiossku.domain.apiresponse.RefreshTokenApiResponse
 import com.sbfirebase.kiossku.domain.repo_interface.IAuthRepository
 import com.sbfirebase.kiossku.domain.use_case.LogoutUseCases
 import com.sbfirebase.kiossku.domain.use_case.RefreshTokenUseCases
@@ -20,22 +20,20 @@ class AuthManager @Inject constructor(
     private val authRepository : IAuthRepository,
     private val logoutUseCases: LogoutUseCases
 ) {
+    fun getUserId() : Int = tokenManager.getUserId()
+
     fun isLoggedIn() : Boolean = tokenManager.getToken() != null
 
-    suspend fun getToken() : RefreshTokenApiResponse {
+    suspend fun getToken() : AuthorizedApiResponse<String> {
         return try {
-            val result = if (!tokenManager.isTokenExpired) {
-                Log.e("qqq" , "Masuk ke sini")
-                RefreshTokenApiResponse.Success(tokenManager.getToken()!!)
-            }
+            val savedToken = tokenManager.getToken()
+            if (savedToken != null)
+                AuthorizedApiResponse.Success(data = savedToken)
             else
-                refreshToken()
-            if (result is RefreshTokenApiResponse.Success)
-                Log.e("qqqAuthGetToken" , "Token : ${result.token}")
-            return result
-        }catch (e : Exception){
-            Log.e("qqqAuthGetToken" , e.localizedMessage?.toString() ?: "Unknown Error")
-            RefreshTokenApiResponse.InternetFail
+                refreshTokenUseCases()
+        } catch (e: Exception) {
+            Log.e("qqqAuthGetToken", e.localizedMessage?.toString() ?: "Unknown Error")
+            AuthorizedApiResponse.Failure()
         }
     }
 
@@ -46,22 +44,19 @@ class AuthManager @Inject constructor(
                 tokenManager.setTokenSync(token = null)
         }
 
-    suspend fun login(email : String , password : String) : Flow<AuthorizedApiResponse<String>> =
+    suspend fun login(email : String , password : String) : Flow<AuthorizedApiResponse<LoginDto>> =
         authRepository.login(
             email = email,
             password = password
         ).onEach { response ->
-            if (response is AuthorizedApiResponse.Success)
-                tokenManager.setTokenSync(response.data!!)
+            if (response is AuthorizedApiResponse.Success) {
+                tokenManager.setTokenSync(
+                    token = response.data!!.loginData.token,
+                )
+                tokenManager.setUserId(response.data.loginData.id)
+            }
         }
 
     suspend fun register(registerBody : RegisterPost) : Flow<AuthorizedApiResponse<Nothing>> =
         authRepository.register(registerBody = registerBody)
-
-    private suspend fun refreshToken() : RefreshTokenApiResponse {
-        return refreshTokenUseCases().apply {
-            if (this is RefreshTokenApiResponse.Success)
-                tokenManager.setTokenSync(token = token)
-        }
-    }
 }

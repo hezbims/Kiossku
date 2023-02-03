@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sbfirebase.kiossku.data.model.getproduct.KiosDataDto
 import com.sbfirebase.kiossku.domain.AuthManager
-import com.sbfirebase.kiossku.domain.apiresponse.GetProductApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
 import com.sbfirebase.kiossku.domain.use_case.GetAllProductUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val authManager : AuthManager,
-    private val getAllProductUseCases: GetAllProductUseCases
+    private val getAllProduct: GetAllProductUseCases
 ) : ViewModel() {
     private val _uiHomeState = MutableStateFlow(UiHomeState())
     val uiHomeState = _uiHomeState.asStateFlow()
@@ -29,26 +29,12 @@ class HomeViewModel @Inject constructor(
     }
 
     fun loadData(){
-        _uiHomeState.update {
-            _uiHomeState.value.copy(
-                uiGetProductState = UiGetProductState.IsLoading
-            )
-        }
         viewModelScope.launch(Dispatchers.IO) {
-            val response = getAllProductUseCases()
             _uiHomeState.update {
-                when(response){
-                    is GetProductApiResponse.Success ->
-                        it.copy(
-                            uiGetProductState = UiGetProductState.IsSuccess(
-                                response.products
-                            )
-                        )
-                    GetProductApiResponse.Unauthorized ->
-                        it.copy(uiGetProductState = UiGetProductState.IsUnauthorized)
-                    GetProductApiResponse.Failed ->
-                        it.copy(uiGetProductState = UiGetProductState.IsInternetFail)
-                }
+                _uiHomeState.value.copy(getProductApiResponse = AuthorizedApiResponse.Loading())
+            }
+            _uiHomeState.update {
+                it.copy(getProductApiResponse = getAllProduct())
             }
         }
     }
@@ -66,12 +52,5 @@ class HomeViewModel @Inject constructor(
 
 data class UiHomeState(
     val singleKios : KiosDataDto? = null,
-    val uiGetProductState: UiGetProductState = UiGetProductState.IsLoading
+    val getProductApiResponse : AuthorizedApiResponse<List<KiosDataDto?>> = AuthorizedApiResponse.Loading()
 )
-
-sealed class UiGetProductState{
-    object IsLoading : UiGetProductState()
-    object IsInternetFail : UiGetProductState()
-    object IsUnauthorized : UiGetProductState()
-    class IsSuccess(val data : List<KiosDataDto?>) : UiGetProductState()
-}

@@ -5,7 +5,6 @@ sealed class AuthorizedApiResponse<T> (
     val  errorMessage : String? = null,
     val errorCode : Int? = null
 ){
-    class Unauthorized<T> : AuthorizedApiResponse<T>()
     class Success<T>(data : T? = null) : AuthorizedApiResponse<T>(data)
     class Failure<T>(
         errorMessage : String? = null,

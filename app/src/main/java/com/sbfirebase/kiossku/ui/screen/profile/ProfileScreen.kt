@@ -1,13 +1,16 @@
 package com.sbfirebase.kiossku.ui.screen.profile
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -15,17 +18,42 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.sbfirebase.kiossku.R
+import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.route.AllRoute
+import com.sbfirebase.kiossku.ui.navigation.replaceAndNavigate
 import com.sbfirebase.kiossku.ui.theme.GreenKiossku
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
 
 @Composable
 fun ProfileScreen(
+    navController : NavHostController,
+    viewModel : ProfileViewModel = hiltViewModel()
+){
+    val uiState = viewModel.uiState.collectAsState().value
+    if (uiState.isLoggedOut){
+        viewModel.doneLoggingOut()
+        navController.replaceAndNavigate(AllRoute.Auth.root)
+    }
+    else
+        ProfileScreen(
+            uiState = uiState,
+            logout = viewModel::logout,
+            refreshProfile = viewModel::refreshProfile
+        )
+}
+
+@Composable
+private fun ProfileScreen(
     uiState : ProfileUIState,
     logout : () -> Unit,
+    refreshProfile : () -> Unit,
     modifier : Modifier = Modifier
 ){
     Column(
@@ -85,39 +113,65 @@ fun ProfileScreen(
                 backgroundColor = GreenKiossku
             ),
             modifier = Modifier
-                .padding(top = 24.dp)
+                .padding(top = 24.dp, bottom = 32.dp)
                 .width(208.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
             Text("Edit Profil")
         }
 
-        Card(
-            modifier = Modifier
-                .padding(top = 32.dp)
-                .fillMaxWidth()
-        ){
-            Column(
-                modifier = Modifier
-                    .padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ){
-                Text(
-                    text = "Info profil",
-                    fontWeight = FontWeight.Bold
+        when (uiState.getUserResponse){
+            is AuthorizedApiResponse.Success ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ){
+                    Column(
+                        modifier = Modifier
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ){
+                        Text(
+                            text = "Info profil",
+                            fontWeight = FontWeight.Bold
+                        )
+                        RowProfile(
+                            label = "Nama",
+                            data = uiState.getUserResponse.data?.namaLengkap!!,
+                        )
+                        RowProfile(
+                            label = "Email" ,
+                            data = uiState.getUserResponse.data.email
+                        )
+                        RowProfile(
+                            label = "Nomor telepon",
+                            data = uiState.getUserResponse.data.nomorTelepon
+                        )
+                    }
+                }
+            is AuthorizedApiResponse.Loading ->
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(48.dp)
                 )
-                RowProfile(
-                    label = "Nama",
-                    data = "Fulan",
-                )
-                RowProfile(
-                    label = "Email" ,
-                    data = "fulan@gmail.com"
-                )
-                RowProfile(
-                    label = "Nomor telepon",
-                    data = "081234567890"
-                )
+            is AuthorizedApiResponse.Failure -> {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { refreshProfile() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Refresh,
+                        contentDescription = "Tap to refresh"
+                    )
+                    Text(
+                        text = "Gagal memuat data profil, tekan untuk refresh",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .width(208.dp)
+                    )
+                }
             }
         }
 
@@ -180,7 +234,8 @@ fun ProfileScreenPreview(){
         Surface(modifier = Modifier.fillMaxSize()) {
             ProfileScreen(
                 uiState = ProfileUIState(),
-                logout = {}
+                logout = {},
+                refreshProfile = {}
             )
         }
     }

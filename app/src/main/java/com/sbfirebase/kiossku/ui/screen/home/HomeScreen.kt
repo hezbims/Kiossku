@@ -28,12 +28,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sbfirebase.kiossku.R
 import com.sbfirebase.kiossku.data.model.getproduct.KiosDataDto
+import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
 import com.sbfirebase.kiossku.domain.model.KiosData
 import com.sbfirebase.kiossku.ui.theme.GreenKiossku
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
@@ -74,8 +76,8 @@ fun HomeScreen(
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                when (val response = uiHomeState.uiGetProductState) {
-                    is UiGetProductState.IsSuccess -> {
+                when (val response = uiHomeState.getProductApiResponse) {
+                    is AuthorizedApiResponse.Success -> {
                         KiosKios(
                             kiosList = response.data,
                             onItemClick = onItemClick,
@@ -83,10 +85,10 @@ fun HomeScreen(
                                 .matchParentSize()
                         )
                     }
-                    is UiGetProductState.IsLoading -> {
+                    is AuthorizedApiResponse.Loading -> {
                         CircularProgressIndicator()
                     }
-                    is UiGetProductState.IsInternetFail -> {
+                    is AuthorizedApiResponse.Failure -> {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
@@ -96,17 +98,17 @@ fun HomeScreen(
                                 imageVector = Icons.Outlined.WifiOff,
                                 contentDescription = null
                             )
+
                             Text(
-                                text = "Gagal tersambung ke server,\n" +
-                                       "tekan untuk mencoba kembali"
+                                text =
+                                    if (response.errorCode == null)
+                                        "Gagal tersambung ke server,\n" +
+                                                "tekan untuk mencoba kembali"
+                                    else
+                                        "Token expired",
+                                textAlign = TextAlign.Center
                             )
                         }
-                    }
-                    is UiGetProductState.IsUnauthorized -> {
-                        Text(
-                            text = "Sesi anda telah berakhir,\n" +
-                                    "tekan untuk login kembali"
-                        )
                     }
                 }
             }
@@ -374,8 +376,8 @@ fun FilterLayout(modifier : Modifier = Modifier){
 
 @Composable
 fun TipePropertiCard(
-    tipeProperti : String = "Kios",
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    tipeProperti : String = "Kios"
 ){
     Column(
         modifier = modifier
