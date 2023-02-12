@@ -49,9 +49,13 @@ fun BottomNavBar(
                                 )
                             )
                         },
-                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                        selected = currentDestination?.hierarchy?.any { it.route == screen.root } == true,
                         onClick = {
-                            navController.replaceAndNavigate(screen.route)
+                            navController.replaceAndNavigate(
+                                route = screen.root,
+                                saveCurrentState = true,
+                                restoreCurrentState = true
+                            )
                         }
                     )
                 }

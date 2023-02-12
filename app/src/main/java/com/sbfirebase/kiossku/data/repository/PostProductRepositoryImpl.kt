@@ -14,7 +14,6 @@ import com.sbfirebase.kiossku.domain.repo_interface.IPostProductRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -33,14 +32,10 @@ class PostProductRepositoryImpl @Inject constructor(
         token : String
     ): AuthorizedApiResponse<Nothing> =
         try{
-            val images = postData.images.map{
-                val file = it.toBitmap().toFile()
-                val requestBody = file.asRequestBody("image/*".toMediaType())
-                MultipartBody.Part.createFormData(
-                    name = "images",
-                    filename = file.name,
-                    body = requestBody
-                )
+            val images = postData.images.map{ uri ->
+                context.contentResolver.openInputStream(uri)!!.use{
+                    it.readBytes()
+                }
             }
 
             /*
@@ -70,6 +65,8 @@ class PostProductRepositoryImpl @Inject constructor(
             )
 
              */
+
+            /*
             val response = postProductApiClient.postProduct(
                 judulPromosi = postData.judulPromosi.toRequestBody(),
                 tipeProperti = postData.tipeProperti.toRequestBody(),
@@ -90,16 +87,50 @@ class PostProductRepositoryImpl @Inject constructor(
                 images = images,
                 token = "Bearer $token"
             )
+             */
 
+            val multipartBody = MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("name" , postData.judulPromosi)
+                .addFormDataPart("jenis" , postData.tipeProperti)
+                .addFormDataPart("harga" , postData.harga.toString())
+                .addFormDataPart("tipe_harga" , postData.waktuPembayaran)
+                .addFormDataPart("tipe_pembayaran" , postData.fixNego)
+                .addFormDataPart("sistem" , postData.sewaJual)
+                .addFormDataPart("lokasi" , postData.lokasi)
+                .addFormDataPart("luas_lahan" , postData.luasLahan.toString())
+                .addFormDataPart("luas_bangunan" , postData.luasBangunan.toString())
+                .addFormDataPart("tingkat" , postData.tingkat.toString())
+                .addFormDataPart("kapasitas_listrik" , postData.kapasitasListrik.toString())
+                .addFormDataPart("alamat_lengkap" , postData.alamat)
+                .addFormDataPart("fasilitas" , postData.fasilitas)
+                .addFormDataPart("deskripsi" , postData.deskripsi)
+                .addFormDataPart("panjang" , postData.panjang.toString())
+                .addFormDataPart("lebar" , postData.lebar.toString())
+                .apply {
+                    images.forEachIndexed{ _ , it ->
+                        addFormDataPart(
+                            name = "images" ,
+                            filename = "${fileCounter++}" ,
+                            body = it.toRequestBody("image/*".toMediaType())
+                        )
+                    }
+                }
+                .build()
+
+            val response = postProductApiClient.postProduct(
+                body = multipartBody,
+                token = "Bearer $token"
+            )
 
             if (response.isSuccessful)
                 AuthorizedApiResponse.Success()
             else{
-                Log.e("qqq" ,  response.errorBody()!!.string())
+                Log.e("qqqPostData" ,  response.errorBody()!!.string())
                 AuthorizedApiResponse.Failure(errorCode = response.code())
             }
         }catch (e : Exception){
-            Log.e("qqq" , e.localizedMessage?.toString() ?: "Unknown Error Muncul")
+            Log.e("qqqPostData" , e.localizedMessage?.toString() ?: "Unknown Error Muncul")
             AuthorizedApiResponse.Failure()
         }
 
@@ -122,7 +153,6 @@ class PostProductRepositoryImpl @Inject constructor(
 
         val bitmapData = with(ByteArrayOutputStream()) {
             compress(Bitmap.CompressFormat.JPEG , 0 , this)
-            this@toFile.compress(Bitmap.CompressFormat.JPEG , 0 , this)
             toByteArray()
         }
 

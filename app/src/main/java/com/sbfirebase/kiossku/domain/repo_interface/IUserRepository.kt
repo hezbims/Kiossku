@@ -7,5 +7,9 @@ import com.sbfirebase.kiossku.domain.model.UserData
 interface IUserRepository {
     suspend fun getUser(userId : Int , token : String) : AuthorizedApiResponse<UserData>
 
-    suspend fun updateUser(userId : Int , userNewData : UpdateUserDto) : AuthorizedApiResponse<Nothing>
+    suspend fun updateUser(
+        userId : Int ,
+        userNewData : UpdateUserDto,
+        token : String
+    ) : AuthorizedApiResponse<Nothing>
 }

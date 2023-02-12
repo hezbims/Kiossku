@@ -30,7 +30,7 @@ fun LandingPageScreen(
     when (apiResponse){
         is AuthorizedApiResponse.Success -> {
             viewModel.doneNavigating()
-            navController.replaceAndNavigate(AllRoute.Home.route)
+            navController.replaceAndNavigate(AllRoute.Home.root)
         }
         is AuthorizedApiResponse.Failure -> {
             if (apiResponse.errorCode != null){

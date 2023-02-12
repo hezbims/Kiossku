@@ -1,12 +1,12 @@
 package com.sbfirebase.kiossku.ui.screen.authentication.register
 
-import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sbfirebase.kiossku.constant.ApiMessage
 import com.sbfirebase.kiossku.data.model.register.RegisterPost
 import com.sbfirebase.kiossku.domain.AuthManager
 import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.use_case.validation.ValidationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -19,6 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
     private val authManager: AuthManager,
+    private val validationuseCase : ValidationUseCase
 ) : ViewModel(){
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState = _uiState.asStateFlow()
@@ -45,24 +46,17 @@ class RegisterViewModel @Inject constructor(
     private fun register(){
         if (registerJob == null || registerJob?.isCompleted == true)
             registerJob = viewModelScope.launch(Dispatchers.IO){
-                var teleponError =
-                    if (_uiState.value.telepon.length != 11)
-                        "Nomor telepon tidak valid"
-                    else null
+                var teleponError = validationuseCase
+                    .validateTelepon(_uiState.value.telepon)
 
-                var emailError : String? =
-                    _uiState.value.email.let{
-                        if (it.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(it).matches())
-                            null
-                        else "Email tidak valid"
-                    }
+                var emailError = validationuseCase
+                    .validateEmail(_uiState.value.email)
 
-                val passwordError =
-                    if (_uiState.value.password != _uiState.value.confirmPassword)
-                        "Password tidak sama"
-                    else if (_uiState.value.password.length < 6)
-                        "Panjang password tidak boleh kurang dari 6"
-                    else null
+                val passwordError = validationuseCase
+                    .validatePassword(
+                        password = _uiState.value.password,
+                        confirmPassword = _uiState.value.confirmPassword
+                    )
 
                 if (listOf(passwordError , emailError , teleponError).all { it == null })
                     authManager.register(
@@ -79,7 +73,7 @@ class RegisterViewModel @Inject constructor(
                                 "Nomor telepon sudah pernah digunakan"
                             else null
                         emailError =
-                            if (ApiMessage.EMAIL_ALREADY_USED == response.errorMessage)
+                            if (ApiMessage.EMAIL_AND_PASSWORD_NOT_MATCH == response.errorMessage)
                                 "Email sudah pernah digunakan"
                             else null
 

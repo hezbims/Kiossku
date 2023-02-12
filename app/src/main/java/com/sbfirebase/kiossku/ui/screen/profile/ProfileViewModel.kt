@@ -23,7 +23,26 @@ class ProfileViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ProfileUIState())
     val uiState = _uiState.asStateFlow()
 
-    fun logout(){
+    fun onEvent(event : ProfileScreenEvent){
+        when (event){
+            ProfileScreenEvent.Logout ->
+                logout()
+            ProfileScreenEvent.DoneLoggingOut ->
+                doneLoggingOut()
+            ProfileScreenEvent.GetUser ->
+                refreshProfile()
+            is ProfileScreenEvent.DoneUpdatingProfile -> {
+                _uiState.update {
+                    it.copy(
+                        getUserResponse = AuthorizedApiResponse.Success(data = event.newData),
+                        displayDialog = false
+                    )
+                }
+            }
+        }
+    }
+
+    private fun logout(){
         if (!uiState.value.sedangLogout) {
             _uiState.update {
                 _uiState.value.copy(
@@ -43,7 +62,7 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun doneLoggingOut(){
+    private fun doneLoggingOut(){
         _uiState.update {
             it.copy(isLoggedOut = false)
         }
@@ -53,7 +72,7 @@ class ProfileViewModel @Inject constructor(
         refreshProfile()
     }
 
-    fun refreshProfile(){
+    private fun refreshProfile(){
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(getUserResponse = getUser()) }
         }
@@ -63,5 +82,13 @@ class ProfileViewModel @Inject constructor(
 data class ProfileUIState(
     val sedangLogout : Boolean = false,
     val isLoggedOut : Boolean = false,
-    val getUserResponse : AuthorizedApiResponse<UserData> = AuthorizedApiResponse.Loading()
+    val getUserResponse : AuthorizedApiResponse<UserData> = AuthorizedApiResponse.Loading(),
+    val displayDialog : Boolean = false
 )
+
+sealed class ProfileScreenEvent {
+    object Logout : ProfileScreenEvent()
+    object GetUser : ProfileScreenEvent()
+    object DoneLoggingOut : ProfileScreenEvent()
+    class DoneUpdatingProfile(val newData: UserData) : ProfileScreenEvent()
+}

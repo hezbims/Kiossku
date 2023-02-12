@@ -12,7 +12,7 @@ import com.sbfirebase.kiossku.domain.model.KiosData
 import com.sbfirebase.kiossku.domain.model.KiosDataType
 
 sealed interface NavRoute{
-    val route : String
+    val root : String
 }
 sealed interface BottomNavItem : NavRoute {
     val icon : ImageVector
@@ -25,7 +25,7 @@ sealed class AllRoute {
     }
 
     object Home : BottomNavItem {
-        override val route = "HomeRoute"
+        override val root = "HomeRoute"
         override val icon = Icons.Outlined.Home
         override val labelStringId = R.string.home_label
     }
@@ -34,7 +34,7 @@ sealed class AllRoute {
         private const val baseRoute = "DetailRoute"
 
         const val argName = "product"
-        override val route = "$baseRoute/{$argName}"
+        override val root = "$baseRoute/{$argName}"
         val args = listOf(
             navArgument(name = argName){ type = KiosDataType() }
         )
@@ -46,9 +46,18 @@ sealed class AllRoute {
     }
 
     object Profile : BottomNavItem {
-        override val route = "ProfileRoute"
+        override val root = "ProfileRoute"
         override val icon = Icons.Rounded.AccountCircle
         override val labelStringId = R.string.profile_label
+        object MainProfile {
+            const val route = "MainProfileRoute"
+        }
+        object UpdateProfile {
+            const val route = "UpdateProfileRoute"
+        }
+        object ChangePassword {
+            const val route = "ChangePasswordRoute"
+        }
     }
 
     object Auth {
@@ -84,23 +93,23 @@ sealed class AllRoute {
         const val root = "SubmitKiosRoute"
 
         object SewaJual : NavRoute {
-            override val route = "SewaJualRoute"
+            override val root = "SewaJualRoute"
         }
 
         object LangkahPertama : NavRoute {
-            override val route = "LangkahPertamaRoute"
+            override val root = "LangkahPertamaRoute"
         }
 
         object LangkahKedua : NavRoute {
-            override val route = "LangkahKeduaRoute"
+            override val root = "LangkahKeduaRoute"
         }
 
         object LangkahKetiga : NavRoute {
-            override val route = "LangkahKetigaRoute"
+            override val root = "LangkahKetigaRoute"
         }
 
         object SubmitDataSucceed : NavRoute{
-            override val route = "SubmitDataRoute"
+            override val root = "SubmitDataRoute"
         }
     }
 }

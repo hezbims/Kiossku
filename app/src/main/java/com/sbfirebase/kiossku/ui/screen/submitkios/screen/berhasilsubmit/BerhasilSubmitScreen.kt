@@ -50,7 +50,7 @@ fun BerhasilSubmitScreen(
 
         Button(
             onClick = {
-                navController.navigate(AllRoute.Home.route){
+                navController.navigate(AllRoute.Home.root){
                     popUpTo(0){
                         inclusive = true
                     }

@@ -36,7 +36,7 @@ fun LoginScreen(
 
     if (uiState.loginResponse is AuthorizedApiResponse.Success) {
         viewModel.doneLoggingIn()
-        navController.replaceAndNavigate(route = AllRoute.Home.route)
+        navController.replaceAndNavigate(route = AllRoute.Home.root)
     }
     else
         LoginScreen(

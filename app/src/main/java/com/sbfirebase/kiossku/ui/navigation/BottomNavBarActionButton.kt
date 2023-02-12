@@ -13,11 +13,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.sbfirebase.kiossku.route.AllRoute
 import com.sbfirebase.kiossku.ui.theme.GreenKiossku
 
 @Composable
 fun BottomNavBarActionButton(
-    navigate : () -> Unit,
+    navController : NavHostController,
     showButton : Boolean
 ){
     AnimatedVisibility(
@@ -30,7 +32,11 @@ fun BottomNavBarActionButton(
             backgroundColor = GreenKiossku,
             contentColor = Color.White,
             onClick = {
-                navigate()
+                navController.replaceAndNavigate(
+                    route = AllRoute.SubmitKios.root,
+                    saveCurrentState = true,
+                    restoreCurrentState = false
+                )
             }
         ) {
             Icon(

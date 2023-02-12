@@ -1,6 +1,7 @@
 package com.sbfirebase.kiossku.ui.screen.detail
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -25,42 +26,65 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
+import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
 import com.sbfirebase.kiossku.domain.model.KiosData
 import com.sbfirebase.kiossku.ui.theme.GreenKiossku
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
 
 @Composable
 fun DetailScreen(
+    navController : NavHostController,
     viewModel : DetailViewModel = hiltViewModel()
 ){
-    val uiState = viewModel.uiState.collectAsState().value
+    DetailScreen(
+        data = viewModel.staticData,
+        uiState = viewModel.uiState.collectAsState().value,
+        onEvent = viewModel::onEvent,
+        navigateBack = { navController.popBackStack() }
+    )
+}
 
+@Composable
+private fun DetailScreen(
+    data : DetailStaticData,
+    uiState: DetailScreenUiState,
+    onEvent : (DetailScreenEvent) -> Unit,
+    navigateBack : () -> Unit
+){
     Column(
         verticalArrangement = Arrangement.spacedBy(24.dp),
         modifier = Modifier
             .verticalScroll(rememberScrollState())
     ) {
         DetailTopBar(
+            navigateBack = navigateBack,
             modifier = Modifier
                 .padding(start = 24.dp , end = 24.dp , top = 4.dp)
         )
 
-        FotoFotoProperti(viewModel.images)
-
+        FotoFotoProperti(data.images)
         DetailKiosData(
-            kiosData = viewModel.product
+            uiState = uiState,
+            kiosData = data.product,
+            onEvent = onEvent
         )
     }
 }
 
 @Composable
 fun DetailKiosData(
+    uiState: DetailScreenUiState,
     kiosData: KiosData,
+    onEvent: (DetailScreenEvent) -> Unit,
     modifier: Modifier = Modifier
 ){
+    if (uiState.shouldOpenWhatsapp)
+        onEvent(DetailScreenEvent.OpenWhatsapp)
+
     Column(
         modifier = modifier
             .padding(horizontal = 24.dp)
@@ -157,6 +181,21 @@ fun DetailKiosData(
                 dataText =
             )*/
         }
+
+        Button(
+            onClick = { onEvent(DetailScreenEvent.GetNomorTelepon) },
+            enabled = uiState.getTeleponResponse !is AuthorizedApiResponse.Loading,
+            modifier = Modifier
+                .padding(top = 32.dp)
+                .height(50.dp)
+                .fillMaxWidth()
+                .align(Alignment.CenterHorizontally)
+        ) {
+            if (uiState.getTeleponResponse is AuthorizedApiResponse.Loading)
+                CircularProgressIndicator()
+            else
+                Text("Hubungi penjual")
+        }
     }
 
 }
@@ -183,9 +222,9 @@ fun FotoFotoProperti(
 ){
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(24.dp),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 24.dp)
+        contentPadding = PaddingValues(horizontal = 24.dp),
     ){
         items(images){
             FotoPropertiItem(imageUri = "https://kiossku.com/uploads/$it")
@@ -237,6 +276,7 @@ fun FotoPropertiItem(
 }
 @Composable
 fun DetailTopBar(
+    navigateBack: () -> Unit,
     modifier : Modifier = Modifier
 ){
     Row(
@@ -254,6 +294,7 @@ fun DetailTopBar(
                     modifier = Modifier
                         .padding(12.dp)
                         .size(24.dp)
+                        .clickable { navigateBack() }
                 )
             }
         }
@@ -289,7 +330,9 @@ fun DetailTopBar(
 fun DetailTopBarPreview(){
     KiosskuTheme {
         Surface(modifier = Modifier.fillMaxWidth()){
-            DetailTopBar()
+            DetailTopBar(
+                navigateBack = {}
+            )
         }
     }
 }
@@ -299,7 +342,7 @@ fun DetailTopBarPreview(){
 fun DetailKiosDataPreview(){
     KiosskuTheme {
         Surface(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxSize()
         ) {
             DetailKiosData(kiosData = KiosData(
                 images = "",
@@ -323,7 +366,10 @@ fun DetailKiosDataPreview(){
                 alamat = "Jl Pertulaka no 32 Q",
                 deskripsi = "",
                 fasilitas = "2 Kamar mandi, 2 Kamar tidur"
-            ))
+                ),
+                onEvent = {},
+                uiState = DetailScreenUiState()
+            )
         }
     }
 }

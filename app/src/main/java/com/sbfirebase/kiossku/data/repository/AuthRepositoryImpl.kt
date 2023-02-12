@@ -1,7 +1,6 @@
 package com.sbfirebase.kiossku.data.repository
 
 import android.util.Log
-import com.google.gson.JsonParser
 import com.sbfirebase.kiossku.constant.ApiMessage
 import com.sbfirebase.kiossku.data.api.AuthApi
 import com.sbfirebase.kiossku.data.model.login.LoginDto
@@ -9,6 +8,7 @@ import com.sbfirebase.kiossku.data.model.logout.LogoutResponse
 import com.sbfirebase.kiossku.data.model.refresh.SuccessfulRefreshTokenResponse
 import com.sbfirebase.kiossku.data.model.register.RegisterPost
 import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.mapper.Mapper
 import com.sbfirebase.kiossku.domain.repo_interface.IAuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -18,7 +18,8 @@ import javax.inject.Singleton
 
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
-    private val authApiClient : AuthApi
+    private val authApiClient : AuthApi,
+    private val errorBodyToMessage : Mapper<String , String>
 ) : IAuthRepository {
     override suspend fun login(
         email : String,
@@ -52,13 +53,9 @@ class AuthRepositoryImpl @Inject constructor(
                 if (response.isSuccessful)
                     emit(AuthorizedApiResponse.Success())
                 else {
-                    val jsonString = response.errorBody()!!.string()
-                    val message = with(JsonParser()) {
-                        parse(jsonString)
-                            .asJsonObject
-                            .get("message")
-                            .asString
-                    }
+                    val message = errorBodyToMessage.from(
+                        data = response.errorBody()!!.string()
+                    )
                     emit(
                         AuthorizedApiResponse.Failure(
                             errorMessage = message

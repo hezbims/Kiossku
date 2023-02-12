@@ -22,7 +22,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.sbfirebase.kiossku.R
 import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
@@ -34,26 +33,30 @@ import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
 @Composable
 fun ProfileScreen(
     navController : NavHostController,
-    viewModel : ProfileViewModel = hiltViewModel()
+    viewModel : ProfileViewModel
 ){
     val uiState = viewModel.uiState.collectAsState().value
     if (uiState.isLoggedOut){
-        viewModel.doneLoggingOut()
+        viewModel.onEvent(ProfileScreenEvent.DoneLoggingOut)
         navController.replaceAndNavigate(AllRoute.Auth.root)
     }
     else
         ProfileScreen(
             uiState = uiState,
-            logout = viewModel::logout,
-            refreshProfile = viewModel::refreshProfile
+            onEvent = viewModel::onEvent,
+            openDialog = {
+                navController.navigate(AllRoute.Profile.UpdateProfile.route){
+                    launchSingleTop = true
+                }
+            }
         )
 }
 
 @Composable
 private fun ProfileScreen(
     uiState : ProfileUIState,
-    logout : () -> Unit,
-    refreshProfile : () -> Unit,
+    onEvent : (ProfileScreenEvent) -> Unit,
+    openDialog : () -> Unit,
     modifier : Modifier = Modifier
 ){
     Column(
@@ -68,7 +71,10 @@ private fun ProfileScreen(
                .padding(top = 59.dp)
        )
 
-        Box{
+        Box(
+            modifier = Modifier
+                .padding(bottom = 32.dp)
+        ){
             Image(
                 painter = painterResource(id = R.drawable.kioss_home_placeholder),
                 contentDescription = "Foto profil",
@@ -106,31 +112,31 @@ private fun ProfileScreen(
             }
         }
 
-        Button(
-            onClick = { /*TODO*/ },
-            colors = ButtonDefaults.buttonColors(
-                contentColor = Color.White,
-                backgroundColor = GreenKiossku
-            ),
-            modifier = Modifier
-                .padding(top = 24.dp, bottom = 32.dp)
-                .width(208.dp),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("Edit Profil")
-        }
-
         when (uiState.getUserResponse){
-            is AuthorizedApiResponse.Success ->
+            is AuthorizedApiResponse.Success -> {
+                Button(
+                    onClick = openDialog,
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = Color.White,
+                        backgroundColor = GreenKiossku
+                    ),
+                    modifier = Modifier
+                        .padding(top = 24.dp)
+                        .width(208.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Edit Profil")
+                }
+
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                ){
+                ) {
                     Column(
                         modifier = Modifier
                             .padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ){
+                    ) {
                         Text(
                             text = "Info profil",
                             fontWeight = FontWeight.Bold
@@ -140,7 +146,7 @@ private fun ProfileScreen(
                             data = uiState.getUserResponse.data?.namaLengkap!!,
                         )
                         RowProfile(
-                            label = "Email" ,
+                            label = "Email",
                             data = uiState.getUserResponse.data.email
                         )
                         RowProfile(
@@ -149,6 +155,7 @@ private fun ProfileScreen(
                         )
                     }
                 }
+            }
             is AuthorizedApiResponse.Loading ->
                 CircularProgressIndicator(
                     modifier = Modifier
@@ -159,7 +166,7 @@ private fun ProfileScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { refreshProfile() }
+                        .clickable { onEvent(ProfileScreenEvent.GetUser) }
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Refresh,
@@ -182,9 +189,7 @@ private fun ProfileScreen(
             verticalAlignment = Alignment.Bottom
         ){
             Button(
-                onClick = {
-                    logout()
-                },
+                onClick = { onEvent(ProfileScreenEvent.Logout) },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = GreenKiossku,
                     contentColor = Color.White
@@ -212,7 +217,7 @@ private fun ProfileScreen(
 }
 
 @Composable
-fun RowProfile(
+private fun RowProfile(
     label : String,
     data : String,
     modifier : Modifier = Modifier
@@ -229,13 +234,13 @@ fun RowProfile(
 
 @Composable
 @Preview
-fun ProfileScreenPreview(){
+private fun ProfileScreenPreview(){
     KiosskuTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
             ProfileScreen(
                 uiState = ProfileUIState(),
-                logout = {},
-                refreshProfile = {}
+                onEvent = {},
+                openDialog = {}
             )
         }
     }

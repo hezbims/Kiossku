@@ -12,7 +12,6 @@ import com.sbfirebase.kiossku.ui.screen.detail.DetailScreen
 import com.sbfirebase.kiossku.ui.screen.home.HomeScreen
 import com.sbfirebase.kiossku.ui.screen.home.HomeViewModel
 import com.sbfirebase.kiossku.ui.screen.landing_page.LandingPageScreen
-import com.sbfirebase.kiossku.ui.screen.profile.ProfileScreen
 
 @Composable
 fun NavigationHost(
@@ -30,14 +29,10 @@ fun NavigationHost(
             LandingPageScreen(navController = navController)
         }
 
-        composable(
-            route = AllRoute.Profile.route
-        ) {
-            ProfileScreen(navController = navController)
-        }
+        profileNavGraph(navController = navController)
 
         composable(
-            route = AllRoute.Home.route
+            route = AllRoute.Home.root
         ){
             val viewModel = hiltViewModel<HomeViewModel>()
             HomeScreen(
@@ -52,10 +47,12 @@ fun NavigationHost(
         }
 
         composable(
-            route = AllRoute.Detail.route,
+            route = AllRoute.Detail.root,
             arguments = AllRoute.Detail.args
         ){
-            DetailScreen()
+            DetailScreen(
+                navController = navController
+            )
         }
 
         submitKiosGraph(navController = navController)
@@ -64,9 +61,16 @@ fun NavigationHost(
     }
 }
 
-fun NavHostController.replaceAndNavigate(route : String){
+fun NavHostController.replaceAndNavigate(
+    route : String ,
+    saveCurrentState : Boolean = false ,
+    restoreCurrentState : Boolean = false
+){
     navigate(route) {
-        popUpTo(0)
+        popUpTo(0){
+            saveState = saveCurrentState
+        }
         launchSingleTop = true
+        restoreState = restoreCurrentState
     }
 }

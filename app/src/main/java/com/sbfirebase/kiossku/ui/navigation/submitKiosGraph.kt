@@ -21,10 +21,10 @@ fun NavGraphBuilder.submitKiosGraph(
     val root = AllRoute.SubmitKios.root
     navigation(
         route = root,
-        startDestination = AllRoute.SubmitKios.SewaJual.route
+        startDestination = AllRoute.SubmitKios.SewaJual.root
     ){
         composable(
-            route = AllRoute.SubmitKios.SewaJual.route
+            route = AllRoute.SubmitKios.SewaJual.root
         ){
             val rootBackStackEntry = remember(it) {
                 navController.getBackStackEntry(root)
@@ -32,14 +32,14 @@ fun NavGraphBuilder.submitKiosGraph(
 
             PilihSewaJualScreen(
                 navigate = {
-                    navController.navigate(AllRoute.SubmitKios.LangkahPertama.route)
+                    navController.navigate(AllRoute.SubmitKios.LangkahPertama.root)
                 },
                 viewModel = hiltViewModel(rootBackStackEntry)
             )
         }
 
         composable(
-            route = AllRoute.SubmitKios.LangkahPertama.route
+            route = AllRoute.SubmitKios.LangkahPertama.root
         ){
             val rootBackStackEntry = remember(it) {
                 navController.getBackStackEntry(root)
@@ -48,7 +48,7 @@ fun NavGraphBuilder.submitKiosGraph(
 
             LangkahPertama(
                 navigateNext = {
-                    navController.navigate(AllRoute.SubmitKios.LangkahKedua.route)
+                    navController.navigate(AllRoute.SubmitKios.LangkahKedua.root)
                     viewModel.doneNavigating()
                 },
                 navigateBack = {
@@ -59,7 +59,7 @@ fun NavGraphBuilder.submitKiosGraph(
         }
 
         composable(
-            route = AllRoute.SubmitKios.LangkahKedua.route
+            route = AllRoute.SubmitKios.LangkahKedua.root
         ){
             val rootEntry = remember(it){
                 navController.getBackStackEntry(root)
@@ -69,7 +69,7 @@ fun NavGraphBuilder.submitKiosGraph(
             LangkahKedua(
                 viewModel = viewModel,
                 navigateNext = {
-                    navController.navigate(AllRoute.SubmitKios.LangkahKetiga.route)
+                    navController.navigate(AllRoute.SubmitKios.LangkahKetiga.root)
                     viewModel.doneNavigating()
                 },
                 navigateBack = {
@@ -79,7 +79,7 @@ fun NavGraphBuilder.submitKiosGraph(
         }
 
         composable(
-            route = AllRoute.SubmitKios.LangkahKetiga.route
+            route = AllRoute.SubmitKios.LangkahKetiga.root
         ){
             val rootEntry = remember(it) {
                 navController.getBackStackEntry(root)
@@ -90,7 +90,7 @@ fun NavGraphBuilder.submitKiosGraph(
                 viewModel2 = hiltViewModel(rootEntry),
                 viewModel3 = hiltViewModel(rootEntry),
                 navigateNext = {
-                    navController.navigate(AllRoute.SubmitKios.SubmitDataSucceed.route){
+                    navController.navigate(AllRoute.SubmitKios.SubmitDataSucceed.root){
                         popUpTo(route = AllRoute.SubmitKios.root){
                             inclusive = true
                         }
@@ -101,7 +101,7 @@ fun NavGraphBuilder.submitKiosGraph(
         }
 
         composable(
-            route = AllRoute.SubmitKios.SubmitDataSucceed.route
+            route = AllRoute.SubmitKios.SubmitDataSucceed.root
         ){
             BerhasilSubmitScreen(navController = navController)
         }

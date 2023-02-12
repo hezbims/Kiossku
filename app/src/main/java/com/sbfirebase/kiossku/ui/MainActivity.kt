@@ -16,12 +16,22 @@ import com.sbfirebase.kiossku.route.AllRoute
 import com.sbfirebase.kiossku.ui.navigation.BottomNavBar
 import com.sbfirebase.kiossku.ui.navigation.BottomNavBarActionButton
 import com.sbfirebase.kiossku.ui.navigation.NavigationHost
-import com.sbfirebase.kiossku.ui.navigation.replaceAndNavigate
+import com.sbfirebase.kiossku.ui.screen.profile.update_profile_dialog.ProfileDialogViewModel
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.components.ActivityComponent
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @EntryPoint
+    @InstallIn(ActivityComponent::class)
+    interface ProfileDialogViewModelFactoryProvider{
+        fun getFactory() : ProfileDialogViewModel.Factory
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -31,7 +41,7 @@ class MainActivity : ComponentActivity() {
 
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 showBottomBar.value = when (navBackStackEntry?.destination?.route){
-                    AllRoute.SubmitKios.SewaJual.route  , AllRoute.Home.route , AllRoute.Profile.route -> true
+                    AllRoute.SubmitKios.SewaJual.root  , AllRoute.Home.root , AllRoute.Profile.root -> true
                     else -> false
                 }
 
@@ -46,9 +56,7 @@ class MainActivity : ComponentActivity() {
                     floatingActionButtonPosition = FabPosition.Center,
                     floatingActionButton = {
                         BottomNavBarActionButton(
-                            navigate = {
-                                navController.replaceAndNavigate(AllRoute.SubmitKios.root)
-                            },
+                            navController = navController,
                             showButton = showBottomBar.value
                         )
                     }
