@@ -1,5 +1,6 @@
 package com.sbfirebase.kiossku.domain.use_case
 
+import android.util.Log
 import com.sbfirebase.kiossku.domain.TokenManager
 import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
 import com.sbfirebase.kiossku.domain.repo_interface.IAuthRepository
@@ -17,8 +18,10 @@ class RefreshTokenUseCases @Inject constructor(
                 tokenManager.setTokenSync(token = token)
                 AuthorizedApiResponse.Success(data = token)
             }
-            else
+            else {
+                Log.e("qqqRefTokenRepo" , response.errorBody()!!.string())
                 AuthorizedApiResponse.Failure(errorCode = response.code())
+            }
         }catch (e : Exception){
             AuthorizedApiResponse.Failure()
         }

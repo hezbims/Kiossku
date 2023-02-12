@@ -42,6 +42,9 @@ class ProfileDialogViewModel @AssistedInject constructor(
             is ProfileDialogEvent.ChangeNomorTelepon ->
                 _uiState.update { it.copy(nomorTelepon = event.newValue) }
             ProfileDialogEvent.Submit -> submitData()
+            ProfileDialogEvent.DoneSubmitting -> _uiState.update {
+                it.copy(updateUserResponse = null)
+            }
         }
     }
 
@@ -120,4 +123,5 @@ sealed class ProfileDialogEvent {
     class ChangeNomorTelepon(val newValue : String) : ProfileDialogEvent()
     class ChangeNamaLengkap(val newValue : String) : ProfileDialogEvent()
     object Submit : ProfileDialogEvent()
+    object DoneSubmitting : ProfileDialogEvent()
 }

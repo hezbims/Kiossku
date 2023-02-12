@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
 
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 showBottomBar.value = when (navBackStackEntry?.destination?.route){
-                    AllRoute.SubmitKios.SewaJual.root  , AllRoute.Home.root , AllRoute.Profile.root -> true
+                    AllRoute.SubmitKios.SewaJual.root  , AllRoute.Home.root , AllRoute.Profile.MainProfile.route -> true
                     else -> false
                 }
 

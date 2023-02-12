@@ -27,6 +27,7 @@ import androidx.navigation.NavHostController
 import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
 import com.sbfirebase.kiossku.domain.model.UserData
 import com.sbfirebase.kiossku.ui.MainActivity
+import com.sbfirebase.kiossku.ui.screen.submitkios.uicomponent.WithError
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
 import com.sbfirebase.kiossku.ui.utils.phoneVisualTransformation
 import dagger.hilt.android.EntryPointAccessors
@@ -42,6 +43,8 @@ fun UpdateProfileDialog(
     val uiState = viewModel.uiState.collectAsState().value
 
     if (uiState.updateUserResponse is AuthorizedApiResponse.Success) {
+        viewModel
+            .onEvent(ProfileDialogEvent.DoneSubmitting)
         doneUpdatingProfile(
             UserData(
                 namaLengkap = uiState.namaLengkap,
@@ -116,6 +119,7 @@ private fun UpdateProfileDialog(
                         fontSize = 12.sp
                     )
 
+
                     OutlinedTextField(
                         value = uiState.namaLengkap,
                         onValueChange = { onEvent(ProfileDialogEvent.ChangeNamaLengkap(it)) },
@@ -128,38 +132,54 @@ private fun UpdateProfileDialog(
                             .fillMaxWidth()
                     )
 
-                    OutlinedTextField(
-                        value = uiState.email,
-                        onValueChange = { onEvent(ProfileDialogEvent.ChangeEmail(it)) },
-                        label = {
-                            Text(
-                                text = "Email"
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
+                    WithError(
+                        errorMessage = uiState.emailError,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = uiState.email,
+                            onValueChange = { onEvent(ProfileDialogEvent.ChangeEmail(it)) },
+                            label = {
+                                Text(
+                                    text = "Email"
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
 
-                    OutlinedTextField(
-                        value = uiState.nomorTelepon,
-                        onValueChange = { onEvent(ProfileDialogEvent.ChangeNomorTelepon(it)) },
-                        label = {
-                            Text(
-                                text = "Nomor telepon"
-                            )
-                        },
-                        visualTransformation = { phoneVisualTransformation(it) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
+
+                    WithError(
+                        errorMessage = uiState.nomorTeleponError,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = uiState.nomorTelepon,
+                            onValueChange = { onEvent(ProfileDialogEvent.ChangeNomorTelepon(it)) },
+                            label = {
+                                Text(
+                                    text = "Nomor telepon"
+                                )
+                            },
+                            visualTransformation = { phoneVisualTransformation(it) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+
 
                     Button(
-                        onClick = {  },
+                        onClick = { onEvent(ProfileDialogEvent.Submit) },
                         modifier = Modifier
                             .height(48.dp)
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
+                        enabled = uiState.updateUserResponse !is AuthorizedApiResponse.Loading
                     ) {
-                        Text("Kirim")
+                        if (uiState.updateUserResponse is AuthorizedApiResponse.Loading)
+                            CircularProgressIndicator()
+                        else
+                            Text("Kirim")
                     }
                 }
             }

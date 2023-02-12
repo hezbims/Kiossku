@@ -1,5 +1,6 @@
 package com.sbfirebase.kiossku.ui.navigation
 
+import android.util.Log
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -35,6 +36,12 @@ fun NavGraphBuilder.profileNavGraph(navController : NavHostController){
                 navController.getBackStackEntry(AllRoute.Profile.root)
             }
             val mainProfileViewModel : ProfileViewModel = hiltViewModel(rootBackStackEntry)
+            Log.e("qqq" , mainProfileViewModel
+                .uiState
+                .collectAsState()
+                .value
+                .getUserResponse
+                .data?.toString() ?: "null")
             val data = mainProfileViewModel
                 .uiState
                 .collectAsState()
