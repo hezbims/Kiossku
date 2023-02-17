@@ -3,7 +3,7 @@ package com.sbfirebase.kiossku.ui.screen.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sbfirebase.kiossku.domain.AuthManager
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.domain.apiresponse.LogoutApiResponse
 import com.sbfirebase.kiossku.domain.model.UserData
 import com.sbfirebase.kiossku.domain.use_case.GetUserUseCase
@@ -34,7 +34,7 @@ class ProfileViewModel @Inject constructor(
             is ProfileScreenEvent.DoneUpdatingProfile -> {
                 _uiState.update {
                     it.copy(
-                        getUserResponse = AuthorizedApiResponse.Success(data = event.newData),
+                        getUserResponse = ApiResponse.Success(data = event.newData),
                         displayDialog = false
                     )
                 }
@@ -82,7 +82,7 @@ class ProfileViewModel @Inject constructor(
 data class ProfileUIState(
     val sedangLogout : Boolean = false,
     val isLoggedOut : Boolean = false,
-    val getUserResponse : AuthorizedApiResponse<UserData> = AuthorizedApiResponse.Loading(),
+    val getUserResponse : ApiResponse<UserData> = ApiResponse.Loading(),
     val displayDialog : Boolean = false
 )
 

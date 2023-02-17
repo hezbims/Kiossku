@@ -3,7 +3,7 @@ package com.sbfirebase.kiossku.domain
 import android.util.Log
 import com.sbfirebase.kiossku.data.model.login.LoginDto
 import com.sbfirebase.kiossku.data.model.register.RegisterPost
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.domain.apiresponse.LogoutApiResponse
 import com.sbfirebase.kiossku.domain.repo_interface.IAuthRepository
 import com.sbfirebase.kiossku.domain.use_case.LogoutUseCases
@@ -24,16 +24,16 @@ class AuthManager @Inject constructor(
 
     fun isLoggedIn() : Boolean = tokenManager.getToken() != null
 
-    suspend fun getToken() : AuthorizedApiResponse<String> {
+    suspend fun getToken() : ApiResponse<String> {
         return try {
             val savedToken = tokenManager.getToken()
             if (savedToken != null)
-                AuthorizedApiResponse.Success(data = savedToken)
+                ApiResponse.Success(data = savedToken)
             else
                 refreshTokenUseCases()
         } catch (e: Exception) {
             Log.e("qqqAuthGetToken", e.localizedMessage?.toString() ?: "Unknown Error")
-            AuthorizedApiResponse.Failure()
+            ApiResponse.Failure()
         }
     }
 
@@ -44,12 +44,12 @@ class AuthManager @Inject constructor(
                 tokenManager.setTokenSync(token = null)
         }
 
-    suspend fun login(email : String , password : String) : Flow<AuthorizedApiResponse<LoginDto>> =
+    suspend fun login(email : String , password : String) : Flow<ApiResponse<LoginDto>> =
         authRepository.login(
             email = email,
             password = password
         ).onEach { response ->
-            if (response is AuthorizedApiResponse.Success) {
+            if (response is ApiResponse.Success) {
                 tokenManager.setTokenSync(
                     token = response.data!!.loginData.token,
                 )
@@ -57,6 +57,6 @@ class AuthManager @Inject constructor(
             }
         }
 
-    suspend fun register(registerBody : RegisterPost) : Flow<AuthorizedApiResponse<Nothing>> =
+    suspend fun register(registerBody : RegisterPost) : Flow<ApiResponse<Nothing>> =
         authRepository.register(registerBody = registerBody)
 }

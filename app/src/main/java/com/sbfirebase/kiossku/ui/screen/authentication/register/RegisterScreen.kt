@@ -2,14 +2,19 @@ package com.sbfirebase.kiossku.ui.screen.authentication.register
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
@@ -28,9 +33,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.sbfirebase.kiossku.R
 import com.sbfirebase.kiossku.constant.ApiMessage
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.route.AllRoute
 import com.sbfirebase.kiossku.ui.navigation.replaceAndNavigate
+import com.sbfirebase.kiossku.ui.screen.authentication.PasswordTextField
 import com.sbfirebase.kiossku.ui.screen.submitkios.uicomponent.WithError
 import com.sbfirebase.kiossku.ui.theme.GreenKiossku
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
@@ -42,10 +48,12 @@ fun RegisterScreen(
     navController : NavHostController
 ){
     val uiState = viewModel.uiState.collectAsState().value
-    val goToLogin : () -> Unit = { navController.replaceAndNavigate(AllRoute.Auth.Login.route) }
+    val goToLogin : () -> Unit = {
+        navController.replaceAndNavigate(AllRoute.Auth.Login.route)
+    }
 
     when (uiState.apiResponse){
-        is AuthorizedApiResponse.Success -> {
+        is ApiResponse.Success -> {
             viewModel.resetApiState()
             Toast.makeText(
                 LocalContext.current,
@@ -79,154 +87,169 @@ private fun RegisterScreen(
     onEvent : (RegisterScreenEvent) -> Unit,
     goToLogin: () -> Unit
 ){
-    Column(
+    Box(
         modifier = Modifier
-            .padding(horizontal = 24.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.kiossku_header),
-            contentDescription = null,
-            modifier = Modifier
-                .padding(56.dp)
-                .height(44.dp)
-                .width(171.dp)
-        )
-
+            .fillMaxSize()
+    ){
         Column(
             modifier = Modifier
-                .padding(top = 64.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ){
-            OutlinedTextField(
-                value = uiState.fullName,
-                onValueChange = { onEvent(RegisterScreenEvent.OnChangeFullName(it)) },
+                .padding(horizontal = 24.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.kiossku_header),
+                contentDescription = null,
                 modifier = Modifier
-                    .fillMaxWidth(),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Outlined.Person,
-                        contentDescription = null
-                    )
-                },
-                placeholder = { Text("Nama lengkap") },
+                    .padding(56.dp)
+                    .height(44.dp)
+                    .width(171.dp)
             )
 
-            WithError(
-                errorMessage = uiState.emailError,
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier
+                    .padding(top = 64.dp)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 OutlinedTextField(
-                    value = uiState.email,
-                    onValueChange = { onEvent(RegisterScreenEvent.OnChangeEmail(it)) },
-                    leadingIcon = {
-                        Icon(
-                            Icons.Outlined.Email ,
-                            contentDescription = null
-                        )
-                    },
+                    value = uiState.fullName,
+                    onValueChange = { onEvent(RegisterScreenEvent.OnChangeFullName(it)) },
                     modifier = Modifier
                         .fillMaxWidth(),
-                    placeholder = { Text("Email") }
-                )
-            }
-
-
-            WithError(
-                errorMessage = uiState.teleponError,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedTextField(
-                    value = uiState.telepon,
-                    onValueChange = { onEvent(RegisterScreenEvent.OnChangeTelepon(it)) },
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Outlined.Phone,
+                            imageVector = Icons.Outlined.Person,
                             contentDescription = null
                         )
                     },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number
-                    ),
-                    // placeholder = { Text("Nomor telepon") },
-                    visualTransformation = { phoneVisualTransformation(it) },
-                    label = { Text("Nomor telepon ") }
+                    placeholder = { Text("Nama lengkap") },
+                    shape = RoundedCornerShape(16.dp)
                 )
-            }
+
+                WithError(
+                    errorMessage = uiState.emailError,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = uiState.email,
+                        onValueChange = { onEvent(RegisterScreenEvent.OnChangeEmail(it)) },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Outlined.Email,
+                                contentDescription = null
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        placeholder = { Text("Email") },
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                }
 
 
-            WithError(
-                errorMessage = uiState.passwordError,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedTextField(
-                    value = uiState.password,
-                    onValueChange = { onEvent(RegisterScreenEvent.OnChangePassword(it)) },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.Visibility,
-                            contentDescription = null
-                        )
+                WithError(
+                    errorMessage = uiState.teleponError,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = uiState.telepon,
+                        onValueChange = { onEvent(RegisterScreenEvent.OnChangeTelepon(it)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Phone,
+                                contentDescription = null
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        // placeholder = { Text("Nomor telepon") },
+                        visualTransformation = { phoneVisualTransformation(it) },
+                        label = { Text("Nomor telepon ") },
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                }
+
+
+                WithError(
+                    errorMessage = uiState.passwordError,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    PasswordTextField(
+                        value = uiState.password,
+                        onValueChange = { onEvent(RegisterScreenEvent.OnChangePassword(it)) },
+                        placeholder = { Text("Password") },
+                        showPassword = uiState.showPassword,
+                        onChangeVisibility = {
+                            onEvent(RegisterScreenEvent.OnChangePasswordVisibility)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                    )
+                }
+
+
+                PasswordTextField(
+                    value = uiState.confirmPassword,
+                    onValueChange = { onEvent(RegisterScreenEvent.OnChangeConfirmPassword(it)) },
+                    placeholder = { Text("Konfirmasi password") },
+                    showPassword = uiState.showConfirmPassword,
+                    onChangeVisibility = {
+                        onEvent(RegisterScreenEvent.OnChangeConfirmPasswordVisibility)
                     },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.Lock,
-                            contentDescription = null
-                        )
-                    },
-                    placeholder = { Text("Password") },
                     modifier = Modifier
                         .fillMaxWidth()
                 )
             }
 
+            val isLoading = uiState.apiResponse is ApiResponse.Loading
 
-            OutlinedTextField(
-                value = uiState.confirmPassword,
-                onValueChange = { onEvent(RegisterScreenEvent.OnChangeConfirmPassword(it)) },
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Outlined.Visibility,
-                        contentDescription = null
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Outlined.Lock,
-                        contentDescription = null
-                    )
-                },
-                placeholder = { Text("Konfirmasi password") },
+            Button(
+                onClick = { onEvent(RegisterScreenEvent.OnSubmitData) },
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .padding(top = 24.dp)
+                    .height(48.dp)
+                    .fillMaxWidth(),
+                enabled = !isLoading,
+                contentPadding = PaddingValues(0.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                if (isLoading)
+                    CircularProgressIndicator()
+                else
+                    Text("Daftar")
+            }
+
+            AnnotatedGoToLoginText(
+                goToLogin = goToLogin,
+                modifier = Modifier.padding(
+                    top = 24.dp, bottom = 48.dp
+                )
             )
         }
 
-
-        Button(
-            onClick = { onEvent(RegisterScreenEvent.OnSubmitData) },
+        Card(
+            elevation = 12.dp,
             modifier = Modifier
-                .padding(top = 24.dp)
-                .fillMaxWidth(),
-            enabled = uiState.apiResponse !is AuthorizedApiResponse.Loading,
-            contentPadding = PaddingValues(0.dp)
+                .align(Alignment.TopStart)
+                .fillMaxWidth()
         ) {
-            if (uiState.apiResponse is AuthorizedApiResponse.Loading)
-                CircularProgressIndicator()
-            else
-                Text("Daftar")
+            Row {
+                Icon(
+                    imageVector = Icons.Outlined.ArrowBack,
+                    contentDescription = "Back to login",
+                    modifier = Modifier
+                        .clickable { goToLogin() }
+                        .padding(
+                            top = 12.dp ,
+                            bottom = 12.dp,
+                            start = 24.dp)
+                )
+            }
         }
-
-        AnnotatedGoToLoginText(
-            goToLogin = goToLogin,
-            modifier = Modifier.padding(
-                top = 81.dp
-            )
-        )
     }
 }
 

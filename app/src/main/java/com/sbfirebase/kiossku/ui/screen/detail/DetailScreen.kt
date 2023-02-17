@@ -30,7 +30,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.domain.model.KiosData
 import com.sbfirebase.kiossku.ui.theme.GreenKiossku
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
@@ -182,16 +182,17 @@ fun DetailKiosData(
             )*/
         }
 
+        val isLoading = uiState.getTeleponResponse is ApiResponse.Loading
         Button(
             onClick = { onEvent(DetailScreenEvent.GetNomorTelepon) },
-            enabled = uiState.getTeleponResponse !is AuthorizedApiResponse.Loading,
+            enabled = !isLoading,
             modifier = Modifier
-                .padding(top = 32.dp)
+                .padding(top = 32.dp , bottom = 48.dp)
                 .height(50.dp)
                 .fillMaxWidth()
                 .align(Alignment.CenterHorizontally)
         ) {
-            if (uiState.getTeleponResponse is AuthorizedApiResponse.Loading)
+            if (isLoading)
                 CircularProgressIndicator()
             else
                 Text("Hubungi penjual")

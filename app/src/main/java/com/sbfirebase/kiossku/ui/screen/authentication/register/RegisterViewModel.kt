@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.sbfirebase.kiossku.constant.ApiMessage
 import com.sbfirebase.kiossku.data.model.register.RegisterPost
 import com.sbfirebase.kiossku.domain.AuthManager
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.domain.use_case.validation.ValidationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -34,8 +34,20 @@ class RegisterViewModel @Inject constructor(
                 _uiState.update { it.copy(email = event.newValue) }
             is RegisterScreenEvent.OnChangePassword ->
                 _uiState.update { it.copy(password = event.newValue) }
+            RegisterScreenEvent.OnChangePasswordVisibility -> {
+                val newValue = !_uiState.value.showPassword
+                _uiState.update {
+                    it.copy(showPassword = newValue)
+                }
+            }
             is RegisterScreenEvent.OnChangeConfirmPassword ->
                 _uiState.update { it.copy(confirmPassword = event.newValue) }
+            RegisterScreenEvent.OnChangeConfirmPasswordVisibility -> {
+                val newValue = !_uiState.value.showConfirmPassword
+                _uiState.update {
+                    it.copy(showConfirmPassword = newValue)
+                }
+            }
             RegisterScreenEvent.OnSubmitData ->
                 register()
         }
@@ -107,8 +119,10 @@ data class RegisterUiState(
     val emailError : String? = null,
     val password : String = "",
     val passwordError : String? = null,
+    val showPassword : Boolean = false,
     val confirmPassword: String = "",
-    val apiResponse : AuthorizedApiResponse<Nothing>? = null
+    val showConfirmPassword : Boolean = false,
+    val apiResponse : ApiResponse<Nothing>? = null
 )
 
 sealed class RegisterScreenEvent{
@@ -116,6 +130,8 @@ sealed class RegisterScreenEvent{
     class OnChangeTelepon(val newValue : String) : RegisterScreenEvent()
     class OnChangeEmail(val newValue : String) : RegisterScreenEvent()
     class OnChangePassword(val newValue : String) : RegisterScreenEvent()
+    object OnChangePasswordVisibility : RegisterScreenEvent()
     class OnChangeConfirmPassword(val newValue : String) : RegisterScreenEvent()
+    object OnChangeConfirmPasswordVisibility : RegisterScreenEvent()
     object OnSubmitData : RegisterScreenEvent()
 }

@@ -3,7 +3,7 @@ package com.sbfirebase.kiossku.ui.screen.landing_page
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sbfirebase.kiossku.domain.AuthManager
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -17,8 +17,8 @@ import javax.inject.Inject
 class LandingPageViewModel @Inject constructor(
     private val authManager : AuthManager
 ) : ViewModel(){
-    private val _apiResponse = MutableStateFlow<AuthorizedApiResponse<String>>(
-        AuthorizedApiResponse.Loading()
+    private val _apiResponse = MutableStateFlow<ApiResponse<String>>(
+        ApiResponse.Loading()
     )
     val apiResponse = _apiResponse.asStateFlow()
 
@@ -30,13 +30,13 @@ class LandingPageViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             while(true) {
                 delay(500)
-                _apiResponse.update { AuthorizedApiResponse.Loading() }
+                _apiResponse.update { ApiResponse.Loading() }
                 _apiResponse.update { authManager.getToken() }
             }
         }
     }
 
     fun doneNavigating(){
-        _apiResponse.update { AuthorizedApiResponse.Loading() }
+        _apiResponse.update { ApiResponse.Loading() }
     }
 }

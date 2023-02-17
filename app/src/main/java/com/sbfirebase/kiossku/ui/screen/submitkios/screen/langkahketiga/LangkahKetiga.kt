@@ -30,7 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.sbfirebase.kiossku.R
 import com.sbfirebase.kiossku.data.model.postproduct.PostKiosData
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.ui.screen.submitkios.screen.langkahkedua.LangkahKeduaUiState
 import com.sbfirebase.kiossku.ui.screen.submitkios.screen.langkahkedua.LangkahKeduaViewModel
 import com.sbfirebase.kiossku.ui.screen.submitkios.screen.langkahpertama.LangkahPertamaUiState
@@ -49,7 +49,7 @@ fun LangkahKetiga(
     navigateNext : () -> Unit,
     navigateBack : () -> Unit
 ){
-    if (viewModel3.submitState.collectAsState().value is AuthorizedApiResponse.Success) {
+    if (viewModel3.submitState.collectAsState().value is ApiResponse.Success) {
         viewModel3.doneNavigating()
         navigateNext()
     }

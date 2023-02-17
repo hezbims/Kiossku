@@ -16,7 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.sbfirebase.kiossku.R
 import com.sbfirebase.kiossku.constant.ApiCode
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.route.AllRoute
 import com.sbfirebase.kiossku.ui.navigation.replaceAndNavigate
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
@@ -28,11 +28,11 @@ fun LandingPageScreen(
 ){
     val apiResponse = viewModel.apiResponse.collectAsState().value
     when (apiResponse){
-        is AuthorizedApiResponse.Success -> {
+        is ApiResponse.Success -> {
             viewModel.doneNavigating()
             navController.replaceAndNavigate(AllRoute.Home.root)
         }
-        is AuthorizedApiResponse.Failure -> {
+        is ApiResponse.Failure -> {
             if (apiResponse.errorCode != null){
                 assert(apiResponse.errorCode == ApiCode.UNAUTHORIZED)
                 viewModel.doneNavigating()
@@ -41,7 +41,7 @@ fun LandingPageScreen(
             else
                 LandingPageScreen(isApiResponseFailed = true)
         }
-        is AuthorizedApiResponse.Loading ->
+        is ApiResponse.Loading ->
             LandingPageScreen(isApiResponseFailed = false)
     }
 }

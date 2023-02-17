@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.sbfirebase.kiossku.R
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.route.AllRoute
 import com.sbfirebase.kiossku.ui.navigation.replaceAndNavigate
 import com.sbfirebase.kiossku.ui.theme.GreenKiossku
@@ -113,7 +113,7 @@ private fun ProfileScreen(
         }
 
         when (uiState.getUserResponse){
-            is AuthorizedApiResponse.Success -> {
+            is ApiResponse.Success -> {
                 Button(
                     onClick = openDialog,
                     colors = ButtonDefaults.buttonColors(
@@ -156,12 +156,12 @@ private fun ProfileScreen(
                     }
                 }
             }
-            is AuthorizedApiResponse.Loading ->
+            is ApiResponse.Loading ->
                 CircularProgressIndicator(
                     modifier = Modifier
                         .size(48.dp)
                 )
-            is AuthorizedApiResponse.Failure -> {
+            is ApiResponse.Failure -> {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier

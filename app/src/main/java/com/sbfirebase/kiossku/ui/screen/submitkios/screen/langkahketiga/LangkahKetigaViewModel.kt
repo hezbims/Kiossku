@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sbfirebase.kiossku.data.model.postproduct.PostKiosData
 import com.sbfirebase.kiossku.domain.AuthManager
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.domain.use_case.PostProductUseCase
 import com.sbfirebase.kiossku.ui.utils.ToastDisplayer
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -49,11 +49,11 @@ class LangkahKetigaViewModel @Inject constructor(
         _photoUris.removeIf { it.id == deleteId }
     }
 
-    private val _submitState = MutableStateFlow<AuthorizedApiResponse<Nothing>>(
-        AuthorizedApiResponse.Failure()
+    private val _submitState = MutableStateFlow<ApiResponse<Nothing>>(
+        ApiResponse.Failure()
     )
     val submitState = _submitState.asStateFlow()
-    fun doneNavigating(){ _submitState.update { AuthorizedApiResponse.Failure() } }
+    fun doneNavigating(){ _submitState.update { ApiResponse.Failure() } }
 
     private var submitJob : Job? = null
 
@@ -62,12 +62,12 @@ class LangkahKetigaViewModel @Inject constructor(
     ){
         if (submitJob == null || submitJob?.isCompleted == true)
             submitJob = viewModelScope.launch(Dispatchers.IO){
-                _submitState.update { AuthorizedApiResponse.Loading() }
+                _submitState.update { ApiResponse.Loading() }
 
                 val postProductResponse = postProduct(data = postData)
                 _submitState.update { postProductResponse }
 
-                if (postProductResponse is AuthorizedApiResponse.Failure)
+                if (postProductResponse is ApiResponse.Failure)
                     withContext(Dispatchers.Main){
                         displayToast(
                             message = if (postProductResponse.errorCode == null)

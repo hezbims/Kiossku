@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.domain.model.UserData
 import com.sbfirebase.kiossku.ui.MainActivity
 import com.sbfirebase.kiossku.ui.screen.submitkios.uicomponent.WithError
@@ -42,7 +42,7 @@ fun UpdateProfileDialog(
     val viewModel = getProfileDialogViewModel(initialData = initialData)
     val uiState = viewModel.uiState.collectAsState().value
 
-    if (uiState.updateUserResponse is AuthorizedApiResponse.Success) {
+    if (uiState.updateUserResponse is ApiResponse.Success) {
         viewModel
             .onEvent(ProfileDialogEvent.DoneSubmitting)
         doneUpdatingProfile(
@@ -174,9 +174,9 @@ private fun UpdateProfileDialog(
                         modifier = Modifier
                             .height(48.dp)
                             .fillMaxWidth(),
-                        enabled = uiState.updateUserResponse !is AuthorizedApiResponse.Loading
+                        enabled = uiState.updateUserResponse !is ApiResponse.Loading
                     ) {
-                        if (uiState.updateUserResponse is AuthorizedApiResponse.Loading)
+                        if (uiState.updateUserResponse is ApiResponse.Loading)
                             CircularProgressIndicator()
                         else
                             Text("Kirim")

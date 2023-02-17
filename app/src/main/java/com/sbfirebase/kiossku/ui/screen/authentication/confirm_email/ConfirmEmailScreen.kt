@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.sbfirebase.kiossku.R
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
 
 @Composable
@@ -33,10 +33,10 @@ fun ConfirmEmailScreen(
 ){
     val uiState = viewModel.uiState.collectAsState().value
     when (uiState.submitTokenResponse){
-        is AuthorizedApiResponse.Failure -> {
+        is ApiResponse.Failure -> {
 
         }
-        is AuthorizedApiResponse.Success -> {
+        is ApiResponse.Success -> {
 
         }
         else -> {
@@ -47,7 +47,7 @@ fun ConfirmEmailScreen(
 
 @Composable
 private fun ConfirmEmailScreen(
-    apiResponse: AuthorizedApiResponse<String>,
+    apiResponse: ApiResponse<String>,
     email : String,
     uiState : ConfirmEmailScreenUiState,
     onEvent : (ConfirmEmailScreenEvent) -> Unit
@@ -77,7 +77,7 @@ private fun ConfirmEmailScreen(
 
             val topPadding = Modifier.padding(top = 24.dp)
             when (apiResponse) {
-                is AuthorizedApiResponse.Loading -> {
+                is ApiResponse.Loading -> {
                     CircularProgressIndicator(modifier = topPadding)
                     Text(
                         text = emailAnnotatedString(
@@ -88,7 +88,7 @@ private fun ConfirmEmailScreen(
                         modifier = Modifier.width(250.dp)
                     )
                 }
-                is AuthorizedApiResponse.Success -> {
+                is ApiResponse.Success -> {
                     Text(
                         text = emailAnnotatedString(
                             message = "kode verifikasi telah dikirim di email : ",
@@ -134,7 +134,7 @@ private fun ConfirmEmailScreen(
         }
         Button(
             onClick = { onEvent(ConfirmEmailScreenEvent.OnSubmitToken) },
-            enabled = uiState.submitTokenResponse !is AuthorizedApiResponse.Loading,
+            enabled = uiState.submitTokenResponse !is ApiResponse.Loading,
             shape = RoundedCornerShape(16.dp),
             contentPadding = PaddingValues(0.dp),
             modifier = Modifier
@@ -143,7 +143,7 @@ private fun ConfirmEmailScreen(
                 .height(48.dp)
                 .align(Alignment.BottomCenter)
         ) {
-            if (uiState.submitTokenResponse is AuthorizedApiResponse.Loading)
+            if (uiState.submitTokenResponse is ApiResponse.Loading)
                 CircularProgressIndicator()
             else
                 Text("Kirim")
@@ -183,7 +183,7 @@ private fun ConfirmEmailScreenLoadingPreview(){
             modifier = Modifier.fillMaxSize()
         ) {
             ConfirmEmailScreen(
-                apiResponse = AuthorizedApiResponse.Loading(),
+                apiResponse = ApiResponse.Loading(),
                 email = "hezbisulaiman@gmail.com",
                 uiState = ConfirmEmailScreenUiState(),
                 onEvent = {}
@@ -200,10 +200,10 @@ private fun ConfirmEmailScreenFailedPreview(){
             modifier = Modifier.fillMaxSize()
         ) {
             ConfirmEmailScreen(
-                apiResponse = AuthorizedApiResponse.Failure(),
+                apiResponse = ApiResponse.Failure(),
                 email = "hezbisulaiman@gmail.com",
                 uiState = ConfirmEmailScreenUiState().copy(
-                    sendTokenToEmailResponse = AuthorizedApiResponse.Failure()
+                    sendTokenToEmailResponse = ApiResponse.Failure()
                 ),
                 onEvent = {}
             )

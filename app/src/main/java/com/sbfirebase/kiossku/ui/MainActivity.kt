@@ -1,6 +1,7 @@
 package com.sbfirebase.kiossku.ui
 
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
@@ -34,6 +35,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
         setContent {
             KiosskuTheme {
                 val navController = rememberNavController()
@@ -41,7 +45,9 @@ class MainActivity : ComponentActivity() {
 
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 showBottomBar.value = when (navBackStackEntry?.destination?.route){
-                    AllRoute.SubmitKios.SewaJual.root  , AllRoute.Home.root , AllRoute.Profile.MainProfile.route -> true
+                    AllRoute.SubmitKios.SewaJual.root  ,
+                    AllRoute.Home.root , AllRoute.Profile.MainProfile.route ,
+                    AllRoute.Profile.UpdateProfile.route -> true
                     else -> false
                 }
 

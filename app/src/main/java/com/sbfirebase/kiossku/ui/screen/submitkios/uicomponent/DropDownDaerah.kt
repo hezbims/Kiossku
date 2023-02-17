@@ -12,16 +12,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.sbfirebase.kiossku.data.api.Daerah
-import com.sbfirebase.kiossku.domain.apiresponse.DaerahApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 
 @Composable
 fun DropDownDaerah(
     value : Daerah?,
     onValueChange : (Daerah) -> Unit,
     onLoadData : () -> Unit,
-    response : DaerahApiResponse?,
+    response : ApiResponse<List<Daerah>>?,
     placeholder : String,
     errorMessage : String?,
+
     modifier : Modifier = Modifier
 ){
     Column(
@@ -30,7 +31,7 @@ fun DropDownDaerah(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when (response) {
-            DaerahApiResponse.Failed -> {
+            is ApiResponse.Failure -> {
                 Text(
                     text = "Gagal memuat data $placeholder,\n" +
                             "Tekan untuk memuat ulang",
@@ -47,15 +48,15 @@ fun DropDownDaerah(
                     )
                 }
             }
-            DaerahApiResponse.Loading -> {
+            is ApiResponse.Loading-> {
                 CircularProgressIndicator()
             }
-            is DaerahApiResponse.Success -> {
+            is ApiResponse.Success -> {
                 DropDownTextField(
                     value = value?.nama ?: "",
                     onChangeValue = onValueChange,
                     placeholder = placeholder,
-                    itemList = response.data,
+                    itemList = response.data!!,
                     errorMessage = errorMessage
                 )
             }

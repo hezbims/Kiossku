@@ -21,9 +21,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.sbfirebase.kiossku.R
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.route.AllRoute
 import com.sbfirebase.kiossku.ui.navigation.replaceAndNavigate
+import com.sbfirebase.kiossku.ui.screen.authentication.PasswordTextField
 import com.sbfirebase.kiossku.ui.theme.GreenKiossku
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
 
@@ -34,7 +35,7 @@ fun LoginScreen(
 ){
     val uiState = viewModel.uiState.collectAsState().value
 
-    if (uiState.loginResponse is AuthorizedApiResponse.Success) {
+    if (uiState.loginResponse is ApiResponse.Success) {
         viewModel.doneLoggingIn()
         navController.replaceAndNavigate(route = AllRoute.Home.root)
     }
@@ -54,74 +55,75 @@ private fun LoginScreen(
     onEvent : (LoginScreenEvent) -> Unit,
     navigateToRegister : () -> Unit
 ){
-    Box(
+    Column(
         modifier = Modifier
+            .padding(horizontal = 24.dp)
             .fillMaxSize()
     ) {
-        Column(
+        Image(
+            painter = painterResource(id = R.drawable.kiossku_header),
+            contentDescription = null,
             modifier = Modifier
-                .padding(horizontal = 24.dp)
-                .align(Alignment.TopStart)
+                .padding(top = 56.dp)
+                .width(176.dp)
+                .height(44.dp)
+                .align(Alignment.CenterHorizontally)
+        )
+
+        Text(
+            text = "Hai, kemana aja kamu?",
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            modifier = Modifier
+                .padding(top = 64.dp)
+        )
+        Text(
+            text = "Login untuk mengakses fitur kiossku lagi",
+            fontSize = 12.sp
+        )
+
+        OutlinedTextField(
+            value = uiState.email,
+            onValueChange = { onEvent(LoginScreenEvent.ChangeEmail(it)) },
+            placeholder = {
+                Text("Email")
+            },
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp)
+        )
+
+        PasswordTextField(
+            value = uiState.password,
+            onValueChange = { onEvent(LoginScreenEvent.ChangePassword(it)) },
+            placeholder = {
+                Text("Password")
+            },
+            showPassword = uiState.showPassword,
+            onChangeVisibility = {
+                onEvent(LoginScreenEvent.ChangePasswordVisibility)
+            },
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .fillMaxWidth(),
+        )
+
+        val isLoading = uiState.loginResponse is ApiResponse.Loading
+        
+        Button(
+            onClick = { onEvent(LoginScreenEvent.Authenticate) },
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .height(48.dp)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            enabled = !isLoading
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.kiossku_header),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(top = 56.dp)
-                    .width(176.dp)
-                    .height(44.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-
-            Text(
-                text = "Hai, kemana aja kamu?",
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                modifier = Modifier
-                    .padding(top = 64.dp)
-            )
-            Text(
-                text = "Login untuk mengakses fitur kiossku lagi",
-                fontSize = 12.sp
-            )
-
-            OutlinedTextField(
-                value = uiState.email,
-                onValueChange = { onEvent(LoginScreenEvent.ChangeEmail(it)) },
-                placeholder = {
-                    Text("Email")
-                },
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            )
-
-            OutlinedTextField(
-                value = uiState.password,
-                onValueChange = { onEvent(LoginScreenEvent.ChangePassword(it)) },
-                placeholder = {
-                    Text("Password")
-                },
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            )
-
-            Button(
-                onClick = { onEvent(LoginScreenEvent.Authenticate) },
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .height(48.dp)
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                if (uiState.loginResponse is AuthorizedApiResponse.Loading)
-                    CircularProgressIndicator()
-                else
-                    Text("Login")
-            }
+            if (isLoading)
+                CircularProgressIndicator()
+            else
+                Text("Login")
         }
 
         val gotoRegisterText = remember {
@@ -153,10 +155,14 @@ private fun LoginScreen(
                 }
             },
             modifier = Modifier
-                .padding(bottom = 60.dp)
-                .align(Alignment.BottomCenter)
+                .padding(top = 24.dp , bottom = 48.dp)
+                .align(Alignment.CenterHorizontally)
         )
     }
+
+
+
+
 }
 
 @Composable

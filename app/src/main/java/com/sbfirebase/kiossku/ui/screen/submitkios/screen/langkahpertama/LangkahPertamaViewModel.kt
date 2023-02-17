@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sbfirebase.kiossku.data.api.Daerah
-import com.sbfirebase.kiossku.domain.apiresponse.DaerahApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.domain.repo_interface.IDaerahRepository
 import com.sbfirebase.kiossku.domain.use_case.EmptyValidationUseCases
 import com.sbfirebase.kiossku.ui.screen.submitkios.screen.langkahkedua.isValidNumber
@@ -162,10 +162,10 @@ class LangkahPertamaViewModel @Inject constructor(
 }
 
 data class DaerahUiState(
-    val provinsi : DaerahApiResponse? = DaerahApiResponse.Loading,
-    val kabupaten : DaerahApiResponse? = null,
-    val kecamatan : DaerahApiResponse? = null,
-    val kelurahan : DaerahApiResponse? = null
+    val provinsi : ApiResponse<List<Daerah>>? = ApiResponse.Loading(),
+    val kabupaten : ApiResponse<List<Daerah>>? = null,
+    val kecamatan : ApiResponse<List<Daerah>>? = null,
+    val kelurahan : ApiResponse<List<Daerah>>? = null
 )
 
 sealed class TipeLangkahPertamaData{

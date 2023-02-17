@@ -1,11 +1,12 @@
 package com.sbfirebase.kiossku.ui.screen.home
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,11 +16,12 @@ import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.PinDrop
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.WifiOff
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -33,10 +35,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.sbfirebase.kiossku.R
 import com.sbfirebase.kiossku.data.model.getproduct.KiosDataDto
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.domain.model.KiosData
+import com.sbfirebase.kiossku.route.AllRoute
+import com.sbfirebase.kiossku.ui.screen.home.filter.FilterLayout
 import com.sbfirebase.kiossku.ui.theme.GreenKiossku
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
 import kotlinx.coroutines.launch
@@ -44,82 +52,103 @@ import java.text.DecimalFormat
 
 @Composable
 fun HomeScreen(
+    navController : NavHostController,
+    viewModel : HomeViewModel = hiltViewModel()
+){
+    val uiHomeState = viewModel.uiHomeState.collectAsState().value
+    val filterState = viewModel.filterState.collectAsState().value
+
+    HomeScreen(
+        uiHomeState = uiHomeState,
+        filterState = filterState,
+        onHomeScreenEvent = viewModel::onHomeScreenEvent,
+        onFilterScreenEvent = viewModel::onFilterScreenEvent,
+        onItemClick = { kiosData ->
+            navController.navigate(
+                AllRoute.Detail.formatRouteWithArg(kiosData)
+            ){
+                launchSingleTop = true
+            }
+        }
+    )
+}
+@Composable
+fun HomeScreen(
     uiHomeState: UiHomeState,
-    loadData : () -> Unit,
+    filterState : FilterState,
+    onHomeScreenEvent : (HomeScreenEvent) -> Unit,
+    onFilterScreenEvent : (FilterScreenEvent) -> Unit,
     onItemClick : (KiosData) -> Unit,
     modifier: Modifier = Modifier
 ){
-    Surface {
-        Column(
-            modifier = modifier
-                .padding(top = 24.dp)
-                .padding(horizontal = 24.dp)
-        ) {
-            Image(
-                painterResource(id = R.drawable.kiossku_header),
-                contentDescription = null,
-                modifier = Modifier
-                    .width(94.dp)
-                    .height(24.dp)
-            )
+    ConstraintLayout(
+        modifier = modifier
+            .padding(top = 24.dp)
+            .padding(horizontal = 24.dp)
+            .fillMaxSize()
+    ) {
+        val (imageHeader , filterBar , kiosKios , filterLayout) = createRefs()
 
-            FilterBar(
-                modifier = Modifier
-                    .padding(top = 24.dp)
-                    .fillMaxWidth()
-            )
-
-            Banner(modifier = Modifier.padding(top = 16.dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                when (val response = uiHomeState.getProductApiResponse) {
-                    is AuthorizedApiResponse.Success -> {
-                        KiosKios(
-                            kiosList = response.data,
-                            onItemClick = onItemClick,
-                            modifier = Modifier
-                                .matchParentSize()
-                        )
-                    }
-                    is AuthorizedApiResponse.Loading -> {
-                        CircularProgressIndicator()
-                    }
-                    is AuthorizedApiResponse.Failure -> {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                .clickable{loadData()}
-                        ){
-                            Icon(
-                                imageVector = Icons.Outlined.WifiOff,
-                                contentDescription = null
-                            )
-
-                            Text(
-                                text =
-                                    if (response.errorCode == null)
-                                        "Gagal tersambung ke server,\n" +
-                                                "tekan untuk mencoba kembali"
-                                    else
-                                        "Token expired",
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
+        Image(
+            painterResource(id = R.drawable.kiossku_header),
+            contentDescription = null,
+            modifier = Modifier
+                .constrainAs(imageHeader) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
                 }
-            }
-        }
+                .width(94.dp)
+                .height(24.dp)
+        )
 
+        FilterBar(
+            modifier = Modifier
+                .constrainAs(filterBar) {
+                    top.linkTo(imageHeader.bottom, margin = 16.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    width = Dimension.fillToConstraints
+                }
+                .clickable { onHomeScreenEvent(HomeScreenEvent.OnChangeShowFilter) }
+        )
 
+        KiosKios(
+            response = uiHomeState.getProductApiResponse,
+            onLoadData = { onHomeScreenEvent(HomeScreenEvent.LoadKiosData) },
+            onItemClick = onItemClick,
+            modifier = Modifier
+                .animateContentSize(
+                    animationSpec = tween()
+                )
+                .constrainAs(kiosKios) {
+                    top.linkTo(filterBar.bottom , margin = 16.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(parent.bottom)
+                    width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
+                }
+        )
+
+        if (uiHomeState.showFilter)
+            FilterLayout(
+                filterState = filterState,
+                onEvent = onFilterScreenEvent,
+                modifier = Modifier
+                    .constrainAs(filterLayout){
+                        top.linkTo(filterBar.bottom , margin = 12.dp)
+                        width = Dimension.fillToConstraints
+                    }
+            )
     }
+
+
 }
 
 @Composable
-fun FilterBar(modifier: Modifier = Modifier){
+fun FilterBar(
+    modifier : Modifier = Modifier
+){
     OutlinedTextField(
         value = "",
         placeholder = {
@@ -129,13 +158,14 @@ fun FilterBar(modifier: Modifier = Modifier){
         leadingIcon = {
             Icon(Icons.Outlined.Search, contentDescription = null)
         },
-        modifier = modifier
-            .fillMaxWidth(),
+
         shape = RoundedCornerShape(13.dp),
         trailingIcon = {
             Icon(Icons.Outlined.ExpandMore , contentDescription = null)
         },
-        readOnly = true
+        readOnly = true,
+        enabled = false,
+        modifier = modifier
     )
 }
 
@@ -145,7 +175,7 @@ fun Banner(
 ){
     Box(
         modifier = modifier
-    ) {
+    ){
         Image(
             painterResource(id = R.drawable.banner_kiossku),
             contentDescription = "Banner",
@@ -177,22 +207,72 @@ fun Banner(
 
 @Composable
 fun KiosKios(
-    kiosList : List<KiosDataDto?>?,
+    response : ApiResponse<List<KiosDataDto?>>,
+    onLoadData : () -> Unit,
     onItemClick: (KiosData) -> Unit,
     modifier: Modifier = Modifier
 ){
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = modifier,
-        contentPadding = PaddingValues(top = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ){
-        kiosList?.let {
-            items(items = it) { item ->
-                KiosItem(kiosData = item!! , onItemClick = onItemClick)
+    if (response is ApiResponse.Success)
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = modifier
+        ) {
+            item(
+                span = {
+                    GridItemSpan(maxCurrentLineSpan)
+                }
+            ) {
+                Banner()
+            }
+
+            response.data?.let {
+                items(items = it) { item ->
+                    KiosItem(kiosData = item!!, onItemClick = onItemClick)
+                }
+            }
+
+        }
+    else
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+        ){
+            Banner()
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .fillMaxSize()
+            ) {
+                if (response is ApiResponse.Loading)
+                    CircularProgressIndicator()
+                else
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .clickable { onLoadData() }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.WifiOff,
+                            contentDescription = null
+                        )
+
+                        Text(
+                            text =
+                            if (response.errorCode == null)
+                                "Gagal tersambung ke server,\n" +
+                                        "tekan untuk mencoba kembali"
+                            else
+                                "Token expired",
+                            textAlign = TextAlign.Center
+                        )
+                    }
             }
         }
-    }
+
 }
 
 @Composable
@@ -285,129 +365,21 @@ fun KiosItem(
 }
 
 @Composable
-fun FilterLayout(modifier : Modifier = Modifier){
-    Card(
-        modifier = modifier
-            .padding(24.dp)
-            .padding(top = 16.dp)
-    ){
-        Column{
-            Row{
-                Text(
-                    text = "Dijual",
-                    style = TextStyle(
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = "Disewakan",
-                    style = TextStyle(
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            Canvas(modifier = Modifier
-                .fillMaxWidth()
-                .height(4.dp)){
-                val height = size.height
-                val width = size.width
-                drawLine(
-                    start = Offset(x = 0f , y = height / 2),
-                    end = Offset(x = width , y = height / 2),
-                    color = Color(0x1A118E49),
-                    strokeWidth = height
-                )
-                if (false)
-                    drawLine(
-                        start = Offset(x = 0f , y = height / 2),
-                        end = Offset(x = width / 2 , y = height / 2),
-                        color = GreenKiossku,
-                        strokeWidth = height
-                    )
-                else
-                    drawLine(
-                        start = Offset(x = width / 2 , y = height / 2),
-                        end = Offset(x = width , y = height / 2),
-                        color = GreenKiossku,
-                        strokeWidth = height
-                    )
-            }
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-                horizontalArrangement = Arrangement.spacedBy(17.dp),
-                modifier = Modifier.padding(top = 14.dp)
-            ){
-                items(
-                    listOf("Kios/ruko" , "Lahan" , "Lapak" , "Gudang")
-                ){ tipeProperti ->
-                    TipePropertiCard(
-                        tipeProperti = tipeProperti
-                    )
-                }
-            }
-
-            Text(
-                text = "Rentang Harga",
-                style = TextStyle(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp
-                ),
-                modifier = Modifier.padding(top = 4.dp)
-            )
-            Row{
-                val minimumHarga by remember{ mutableStateOf("") }
-                val maksimumHarga by remember {
-                    mutableStateOf("")
-                }
-                OutlinedTextField(value = "AAAAA", onValueChange = {},
-                    modifier = Modifier.defaultMinSize(minHeight = 10.dp),
-
-                    )
-            }
-        }
-    }
-}
-
-@Composable
-fun TipePropertiCard(
-    modifier: Modifier = Modifier,
-    tipeProperti : String = "Kios"
-){
-    Column(
-        modifier = modifier
-            .width(131.dp)
-            .height(40.dp)
-            .clip(RoundedCornerShape(13.dp))
-            .background(color = Color(0x1A118E49)),
-
-        ) {
-        Text(
-            text = tipeProperti,
-            style = TextStyle(
-                fontSize = 12.sp
-            ),
-            modifier = Modifier
-                .padding(vertical = 12.dp)
-                .padding(start = 16.dp)
-        )
-    }
-}
-
-@Composable
 @Preview
 fun HomeScreenPreview(){
     KiosskuTheme {
-        HomeScreen(
-            uiHomeState = UiHomeState(),
-            loadData = {},
-            onItemClick = {}
-        )
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            HomeScreen(
+                uiHomeState = UiHomeState(),
+                filterState = FilterState(),
+                onHomeScreenEvent = {},
+                onFilterScreenEvent = {},
+                onItemClick = {}
+            )
+        }
     }
 }
 
@@ -415,7 +387,9 @@ fun HomeScreenPreview(){
 @Preview
 fun BannerPreview(){
     KiosskuTheme {
-        Banner()
+        Surface {
+            Banner()
+        }
     }
 }
 
@@ -425,15 +399,18 @@ fun KiosKiosPreview(){
     KiosskuTheme {
         Surface {
             KiosKios(
-                kiosList = List(24){
-                    KiosDataDto(
-                        jenis = "Kios",
-                        alamatLengkap = "Jl Soekarno Hatta",
-                        harga = 300000,
-                        name = "Mega Kuningan",
-                        tipeHarga = "bulan"
-                    )
-                },
+                response = ApiResponse.Success(
+                    data = List(24){
+                        KiosDataDto(
+                            jenis = "Kios",
+                            alamatLengkap = "Jl Soekarno Hatta",
+                            harga = 300000,
+                            name = "Mega Kuningan",
+                            tipeHarga = "bulan"
+                        )
+                    }
+                ),
+                onLoadData = {},
                 onItemClick = {}
             )
         }
@@ -452,16 +429,6 @@ fun KiosItemPreview(){
                 name = "Mega Kuningan",
                 tipeHarga = "bulan"
             ) , onItemClick = {})
-        }
-    }
-}
-
-@Composable
-@Preview
-fun FilterLayoutPreview(){
-    KiosskuTheme {
-        Surface{
-            FilterLayout()
         }
     }
 }

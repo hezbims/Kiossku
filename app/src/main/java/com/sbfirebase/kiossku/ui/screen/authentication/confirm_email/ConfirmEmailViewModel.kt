@@ -3,7 +3,7 @@ package com.sbfirebase.kiossku.ui.screen.authentication.confirm_email
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.domain.repo_interface.IAuthRepository
 import com.sbfirebase.kiossku.ui.utils.ToastDisplayer
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,7 +48,7 @@ class ConfirmEmailViewModel @Inject constructor(
                 authRepository.confirmEmail(token = _uiState.value.verificationCode)
                     .collect{ response ->
                         _uiState.update { it.copy(submitTokenResponse = response) }
-                        if (response is AuthorizedApiResponse.Failure &&
+                        if (response is ApiResponse.Failure &&
                                 response.errorCode == null)
                             withContext(Dispatchers.Main){
                                 toastDisplayer("Gagal mengirim data, periksa internet anda!")
@@ -71,8 +71,8 @@ class ConfirmEmailViewModel @Inject constructor(
 
 data class ConfirmEmailScreenUiState(
     val verificationCode : String = "",
-    val sendTokenToEmailResponse : AuthorizedApiResponse<Nothing> = AuthorizedApiResponse.Loading(),
-    val submitTokenResponse : AuthorizedApiResponse<Nothing>? = null
+    val sendTokenToEmailResponse : ApiResponse<Nothing> = ApiResponse.Loading(),
+    val submitTokenResponse : ApiResponse<Nothing>? = null
 )
 
 sealed class ConfirmEmailScreenEvent{

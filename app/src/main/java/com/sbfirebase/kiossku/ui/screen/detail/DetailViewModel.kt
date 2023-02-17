@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.domain.model.KiosData
 import com.sbfirebase.kiossku.domain.use_case.GetUserUseCase
 import com.sbfirebase.kiossku.domain.use_case.OpenWhatsappUseCase
@@ -53,25 +53,25 @@ class DetailViewModel @Inject constructor(
 
     private fun getNomorTelepon(){
         viewModelScope.launch(Dispatchers.IO) {
-            if (_uiState.value.getTeleponResponse is AuthorizedApiResponse.Success)
+            if (_uiState.value.getTeleponResponse is ApiResponse.Success)
                 _uiState.update { it.copy(shouldOpenWhatsapp = true) }
             else {
-                _uiState.update { it.copy(getTeleponResponse = AuthorizedApiResponse.Loading()) }
+                _uiState.update { it.copy(getTeleponResponse = ApiResponse.Loading()) }
                 when (val getUserDataResponse = getUser()) {
-                    is AuthorizedApiResponse.Success ->
+                    is ApiResponse.Success ->
                         _uiState.update {
                             it.copy(
-                                getTeleponResponse = AuthorizedApiResponse.Success(
+                                getTeleponResponse = ApiResponse.Success(
                                     getUserDataResponse.data!!.nomorTelepon
                                 ),
                                 shouldOpenWhatsapp = true
                             )
                         }
 
-                    is AuthorizedApiResponse.Failure -> {
+                    is ApiResponse.Failure -> {
                         _uiState.update {
                             it.copy(
-                                getTeleponResponse = AuthorizedApiResponse.Failure()
+                                getTeleponResponse = ApiResponse.Failure()
                             )
                         }
                         withContext(Dispatchers.Main) {
@@ -79,7 +79,7 @@ class DetailViewModel @Inject constructor(
                         }
                     }
 
-                    is AuthorizedApiResponse.Loading -> throw IllegalArgumentException("Ada bug di detail view model!!")
+                    is ApiResponse.Loading -> throw IllegalArgumentException("Ada bug di detail view model!!")
                 }
             }
         }
@@ -87,7 +87,7 @@ class DetailViewModel @Inject constructor(
 }
 
 data class DetailScreenUiState(
-    val getTeleponResponse : AuthorizedApiResponse<String>? = null,
+    val getTeleponResponse : ApiResponse<String>? = null,
     val shouldOpenWhatsapp : Boolean = false
 )
 

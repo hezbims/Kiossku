@@ -9,7 +9,7 @@ import android.provider.MediaStore
 import android.util.Log
 import com.sbfirebase.kiossku.data.api.PostProductApi
 import com.sbfirebase.kiossku.data.model.postproduct.PostKiosData
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.domain.repo_interface.IPostProductRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -30,7 +30,7 @@ class PostProductRepositoryImpl @Inject constructor(
     override suspend fun submitProduct(
         postData : PostKiosData,
         token : String
-    ): AuthorizedApiResponse<Nothing> =
+    ): ApiResponse<Nothing> =
         try{
             val images = postData.images.map{ uri ->
                 context.contentResolver.openInputStream(uri)!!.use{
@@ -124,14 +124,14 @@ class PostProductRepositoryImpl @Inject constructor(
             )
 
             if (response.isSuccessful)
-                AuthorizedApiResponse.Success()
+                ApiResponse.Success()
             else{
                 Log.e("qqqPostData" ,  response.errorBody()!!.string())
-                AuthorizedApiResponse.Failure(errorCode = response.code())
+                ApiResponse.Failure(errorCode = response.code())
             }
         }catch (e : Exception){
             Log.e("qqqPostData" , e.localizedMessage?.toString() ?: "Unknown Error Muncul")
-            AuthorizedApiResponse.Failure()
+            ApiResponse.Failure()
         }
 
     private fun Uri.toBitmap() : Bitmap =

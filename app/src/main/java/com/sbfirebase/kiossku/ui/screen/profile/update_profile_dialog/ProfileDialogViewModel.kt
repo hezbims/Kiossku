@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.sbfirebase.kiossku.constant.ApiMessage
 import com.sbfirebase.kiossku.data.model.user.UpdateUserDto
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.domain.model.UserData
 import com.sbfirebase.kiossku.domain.use_case.UpdateUserUseCase
 import com.sbfirebase.kiossku.domain.use_case.validation.ValidationUseCase
@@ -55,7 +55,7 @@ class ProfileDialogViewModel @AssistedInject constructor(
 
             if (emailError == null && teleponError == null){
                 _uiState.update {
-                    it.copy(updateUserResponse = AuthorizedApiResponse.Loading())
+                    it.copy(updateUserResponse = ApiResponse.Loading())
                 }
 
                 val response = updateUser(
@@ -115,7 +115,7 @@ data class ProfileDialogUiState(
     val nomorTelepon : String,
     val nomorTeleponError : String? = null,
     val namaLengkap : String,
-    val updateUserResponse : AuthorizedApiResponse<Nothing>? = null
+    val updateUserResponse : ApiResponse<Nothing>? = null
 )
 
 sealed class ProfileDialogEvent {

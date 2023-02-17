@@ -7,7 +7,7 @@ import com.sbfirebase.kiossku.data.model.login.LoginDto
 import com.sbfirebase.kiossku.data.model.logout.LogoutResponse
 import com.sbfirebase.kiossku.data.model.refresh.SuccessfulRefreshTokenResponse
 import com.sbfirebase.kiossku.data.model.register.RegisterPost
-import com.sbfirebase.kiossku.domain.apiresponse.AuthorizedApiResponse
+import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.domain.mapper.Mapper
 import com.sbfirebase.kiossku.domain.repo_interface.IAuthRepository
 import kotlinx.coroutines.flow.Flow
@@ -24,9 +24,9 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun login(
         email : String,
         password : String
-    ): Flow<AuthorizedApiResponse<LoginDto>> =
+    ): Flow<ApiResponse<LoginDto>> =
         flow {
-            emit(AuthorizedApiResponse.Loading())
+            emit(ApiResponse.Loading())
             try{
                 val response = authApiClient.login(
                     email = email,
@@ -34,30 +34,30 @@ class AuthRepositoryImpl @Inject constructor(
                 )
 
                 if (response.isSuccessful)
-                    emit(AuthorizedApiResponse.Success(data = response.body()!!))
+                    emit(ApiResponse.Success(data = response.body()!!))
                 else
-                    emit(AuthorizedApiResponse.Failure(errorMessage = "Password dan email tidak cocok!"))
+                    emit(ApiResponse.Failure(errorMessage = "Password dan email tidak cocok!"))
             }catch (e : Exception){
-                emit(AuthorizedApiResponse.Failure(errorMessage = "Login gagal, cek internet anda!"))
+                emit(ApiResponse.Failure(errorMessage = "Login gagal, cek internet anda!"))
             }
         }
 
     override suspend fun register(
         registerBody : RegisterPost
-    ): Flow<AuthorizedApiResponse<Nothing>> =
+    ): Flow<ApiResponse<Nothing>> =
         flow {
-            emit(AuthorizedApiResponse.Loading())
+            emit(ApiResponse.Loading())
             try{
                 val response = authApiClient.register(registerBody)
 
                 if (response.isSuccessful)
-                    emit(AuthorizedApiResponse.Success())
+                    emit(ApiResponse.Success())
                 else {
                     val message = errorBodyToMessage.from(
                         data = response.errorBody()!!.string()
                     )
                     emit(
-                        AuthorizedApiResponse.Failure(
+                        ApiResponse.Failure(
                             errorMessage = message
                         )
                     )
@@ -68,47 +68,47 @@ class AuthRepositoryImpl @Inject constructor(
             catch (e : Exception){
                 Log.e("qqq" , "Register error : ${e.localizedMessage}")
                 emit(
-                    AuthorizedApiResponse.Failure(
+                    ApiResponse.Failure(
                         errorMessage = ApiMessage.INTERNET_FAILED
                     )
                 )
             }
         }
 
-    override suspend fun sendEmailTokenConfirmation(email: String) : Flow<AuthorizedApiResponse<Nothing>> =
+    override suspend fun sendEmailTokenConfirmation(email: String) : Flow<ApiResponse<Nothing>> =
         flow{
-            emit(AuthorizedApiResponse.Loading())
+            emit(ApiResponse.Loading())
             try{
                 val response = authApiClient.sendEmailTokenConfirmation(email)
                 if (response.isSuccessful)
-                    emit(AuthorizedApiResponse.Success())
+                    emit(ApiResponse.Success())
                 else{
                     Log.e("qqqSendEmailTokenFailed" , "${response.errorBody()?.string()}")
-                    emit(AuthorizedApiResponse.Failure())
+                    emit(ApiResponse.Failure())
                 }
             }catch (e : Exception){
                 Log.e("qqqSendEmailError" , e.localizedMessage ?: "Unknown error")
-                emit(AuthorizedApiResponse.Failure())
+                emit(ApiResponse.Failure())
             }
         }
 
-    override suspend fun confirmEmail(token: String): Flow<AuthorizedApiResponse<Nothing>> =
+    override suspend fun confirmEmail(token: String): Flow<ApiResponse<Nothing>> =
         flow {
-            emit(AuthorizedApiResponse.Loading())
+            emit(ApiResponse.Loading())
             try{
                 val response = authApiClient.confirmEmail(token)
                 if (response.isSuccessful)
-                    emit(AuthorizedApiResponse.Success())
+                    emit(ApiResponse.Success())
                 else{
                     Log.e(
                         "qqqConfirmEmailFailed" ,
                         response.errorBody()?.string() ?: "Unknown error"
                     )
-                    emit(AuthorizedApiResponse.Failure(errorCode = response.code()))
+                    emit(ApiResponse.Failure(errorCode = response.code()))
                 }
             }catch (e : Exception){
                 Log.e("qqqConfirmEmailError" , e.localizedMessage ?: "Unknown error")
-                emit(AuthorizedApiResponse.Failure())
+                emit(ApiResponse.Failure())
             }
         }
 
