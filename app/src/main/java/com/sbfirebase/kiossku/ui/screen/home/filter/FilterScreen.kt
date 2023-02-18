@@ -12,11 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ExpandLess
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.WifiOff
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -32,6 +29,7 @@ import com.sbfirebase.kiossku.data.api.Daerah
 import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.ui.screen.home.FilterScreenEvent
 import com.sbfirebase.kiossku.ui.screen.home.FilterState
+import com.sbfirebase.kiossku.ui.theme.Green200
 import com.sbfirebase.kiossku.ui.theme.GreenKiossku
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
 
@@ -45,21 +43,21 @@ fun FilterLayout(
         elevation = 16.dp,
         shape = RoundedCornerShape(13.dp),
         modifier = modifier
-    ){
+    ) {
         Column(
             modifier = Modifier
+                .verticalScroll(rememberScrollState())
                 .padding(
                     vertical = 20.dp,
                     horizontal = 24.dp
                 )
-                .verticalScroll(rememberScrollState())
-        ){
-            Row{
+        ) {
+            Row {
                 Column(
                     modifier = Modifier
                         .weight(1f)
                         .clickable {
-                            onEvent(FilterScreenEvent.OnChangeIsDijual(true))
+                            onEvent(FilterScreenEvent.OnChangeIsDijual("jual"))
                         }
                 ) {
                     Text(
@@ -75,14 +73,14 @@ fun FilterLayout(
                             .padding(top = 4.dp)
                             .fillMaxWidth()
                             .height(4.dp)
-                    ){
+                    ) {
                         val color =
-                            if (filterState.isDijual) GreenKiossku
+                            if ("jual" in filterState.sewaJual) GreenKiossku
                             else Color(0x1A118E49)
                         drawLine(
                             color = color,
-                            start = Offset(x = 0f , y = size.height / 2),
-                            end = Offset(x = size.width , y = size.height / 2),
+                            start = Offset(x = 0f, y = size.height / 2),
+                            end = Offset(x = size.width, y = size.height / 2),
                             strokeWidth = size.height
                         )
                     }
@@ -92,7 +90,7 @@ fun FilterLayout(
                     modifier = Modifier
                         .weight(1f)
                         .clickable {
-                            onEvent(FilterScreenEvent.OnChangeIsDijual(false))
+                            onEvent(FilterScreenEvent.OnChangeIsDijual("sewa"))
                         }
                 ) {
                     Text(
@@ -108,14 +106,14 @@ fun FilterLayout(
                             .padding(top = 4.dp)
                             .fillMaxWidth()
                             .height(4.dp)
-                    ){
+                    ) {
                         val color =
-                            if (!filterState.isDijual) GreenKiossku
+                            if ("sewa" in filterState.sewaJual) GreenKiossku
                             else Color(0x1A118E49)
                         drawLine(
                             color = color,
-                            start = Offset(x = 0f , y = size.height / 2),
-                            end = Offset(x = size.width , y = size.height / 2),
+                            start = Offset(x = 0f, y = size.height / 2),
+                            end = Offset(x = size.width, y = size.height / 2),
                             strokeWidth = size.height
                         )
                     }
@@ -123,16 +121,17 @@ fun FilterLayout(
             }
 
             LazyVerticalGrid(
+                userScrollEnabled = false,
                 columns = GridCells.Fixed(2),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
                 horizontalArrangement = Arrangement.spacedBy(17.dp),
                 modifier = Modifier
                     .padding(top = 14.dp)
                     .height(150.dp)
-            ){
+            ) {
                 items(
-                    listOf("kios" , "lahan" , "lapak" , "gudang" , "ruko")
-                ){ tipeProperti ->
+                    listOf("kios", "lahan", "lapak", "gudang", "ruko")
+                ) { tipeProperti ->
                     val isChoosen = tipeProperti in filterState.tipeProperti
                     TipePropertiCard(
                         tipeProperti = tipeProperti,
@@ -161,7 +160,7 @@ fun FilterLayout(
                 horizontalArrangement = Arrangement.spacedBy(17.dp)
             ) {
                 OutlinedTextField(
-                    value = "",
+                    value = filterState.minHarga?.toString() ?: "",
                     onValueChange = {
                         onEvent(FilterScreenEvent.OnChangeMinHarga(it))
                     },
@@ -175,7 +174,7 @@ fun FilterLayout(
                 )
 
                 OutlinedTextField(
-                    value = "",
+                    value = filterState.maxHarga?.toString() ?: "",
                     onValueChange = {
                         onEvent(FilterScreenEvent.OnChangeMaxHarga(it))
                     },
@@ -188,6 +187,112 @@ fun FilterLayout(
                         .weight(1f)
                 )
             }
+
+            DaerahFilter(
+                label = "Provinsi",
+                requiredField = null,
+                selectedDaerah = filterState.provinsi,
+                onChangeSelectedDaerah = {
+                    onEvent(FilterScreenEvent.OnChangeProvinsi(it))
+                },
+                apiResponse = filterState.provinsiResponse,
+                onRefreshData = {
+                    onEvent(FilterScreenEvent.OnLoadProvinsi)
+                },
+                modifier = Modifier
+                    .padding(top = 16.dp)
+            )
+
+            DaerahFilter(
+                label = "Kabupaten",
+                requiredField =
+                if (filterState.provinsi == null) "Provinsi"
+                else null,
+                selectedDaerah = filterState.kabupaten,
+                onChangeSelectedDaerah = {
+                    onEvent(FilterScreenEvent.OnChangeKabupaten(it))
+                },
+                apiResponse = filterState.kabupatenResponse,
+                onRefreshData = {
+                    onEvent(FilterScreenEvent.OnLoadKabupaten)
+                },
+                modifier = Modifier
+                    .padding(top = 16.dp)
+            )
+
+            DaerahFilter(
+                label = "Kecamatan",
+                requiredField =
+                if (filterState.kabupaten == null) "Kabupaten"
+                else null,
+                selectedDaerah = filterState.kecamatan,
+                onChangeSelectedDaerah = {
+                    onEvent(FilterScreenEvent.OnChangeKecamatan(it))
+                },
+                apiResponse = filterState.kecamatanResponse,
+                onRefreshData = {
+                    onEvent(FilterScreenEvent.OnLoadKecamatan)
+                },
+                modifier = Modifier
+                    .padding(top = 16.dp)
+            )
+
+            DaerahFilter(
+                label = "Kelurahan",
+                requiredField =
+                if (filterState.kecamatan == null) "Kecamatan"
+                else null,
+                selectedDaerah = filterState.kelurahan,
+                onChangeSelectedDaerah = {
+                    onEvent(FilterScreenEvent.OnChangeKelurahan(it))
+                },
+                apiResponse = filterState.kelurahanResponse,
+                onRefreshData = {
+                    onEvent(FilterScreenEvent.OnLoadKelurahan)
+                },
+                modifier = Modifier
+                    .padding(top = 16.dp)
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .padding(top = 24.dp)
+            ){
+                Button(
+                    onClick = {
+                        onEvent(FilterScreenEvent.OnResetFilterState)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.White
+                    ),
+                    border = BorderStroke(
+                        width = 0.5.dp,
+                        color = Color.Black
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(40.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ){
+                    Text("Reset")
+                }
+                Button(
+                    onClick = {
+                        onEvent(FilterScreenEvent.OnApplyFilterState)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = GreenKiossku,
+                        contentColor = Color.White
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(40.dp),
+                    shape = RoundedCornerShape(16.dp),
+                ){
+                    Text("Cari")
+                }
+            }
         }
     }
 }
@@ -196,7 +301,10 @@ fun FilterLayout(
 private fun DaerahFilter(
     label : String,
     requiredField : String?,
-    apiResponse : ApiResponse<List<Daerah>>,
+    selectedDaerah : Daerah?,
+    onChangeSelectedDaerah : (Daerah?) -> Unit,
+    apiResponse : ApiResponse<List<Daerah?>>,
+    onRefreshData: () -> Unit,
     modifier : Modifier = Modifier
 ){
     Column(
@@ -232,60 +340,88 @@ private fun DaerahFilter(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .padding(top = 16.dp)
                     .fillMaxWidth()
             ) {
                 if (requiredField != null) {
                     Text(
-                        text = "Tolong isi $requiredField terlebih dahulu",
-                        textAlign = TextAlign.Center
+                        text = "Tolong isi $requiredField terlebih dahulu!",
+                        fontSize = 12.sp,
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .fillMaxWidth()
                     )
                 } else {
                     DropDownDaerahText(
                         namaField = label,
-                        apiResponse = apiResponse
+                        apiResponse = apiResponse,
+                        selectedDaerah = selectedDaerah,
+                        onChangeSelectedDaerah = onChangeSelectedDaerah,
+                        onRefreshData = onRefreshData
                     )
                 }
             }
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun DropDownDaerahText(
     namaField : String,
-    apiResponse: ApiResponse<List<Daerah>>
+    selectedDaerah : Daerah?,
+    onChangeSelectedDaerah : (Daerah?) -> Unit,
+    apiResponse: ApiResponse<List<Daerah?>>,
+    onRefreshData : () -> Unit,
 ){
     Box(
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
     ) {
         when (apiResponse) {
-            is ApiResponse.Success ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(
-                            vertical = 11.dp,
-                            horizontal = 16.dp
-                        )
+            is ApiResponse.Success -> {
+                var expanded by remember { mutableStateOf(false) }
+
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded },
                 ) {
-                    Text(
-                        text = "--Pilih $namaField--",
-                        fontSize = 12.sp,
-                        modifier = Modifier
-                            .weight(1f)
-                    )
-                    Icon(
-                        imageVector = Icons.Outlined.ExpandMore,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(18.dp)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text =
+                            selectedDaerah?.nama ?: "--Pilih $namaField--",
+                            fontSize = 12.sp,
+                            modifier = Modifier
+                                .weight(1f)
+                        )
+
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    }
+
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = !expanded }
+                    ) {
+                        apiResponse.data?.forEach{ item ->
+                            DropdownMenuItem(
+                                onClick = {
+                                    onChangeSelectedDaerah(item)
+                                }
+                            ) {
+                                Text(item?.nama ?: "Semua $namaField")
+                            }
+                        }
+                    }
                 }
+            }
             is ApiResponse.Loading ->
                 CircularProgressIndicator()
             is ApiResponse.Failure ->
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clickable { onRefreshData() }
                 ){
                     Icon(
                         imageVector = Icons.Outlined.WifiOff,
@@ -320,8 +456,8 @@ fun TipePropertiCard(
                 .fillMaxWidth()
                 .background(
                     color =
-                        if (isChoosen) Color(0x1A118E49)
-                        else MaterialTheme.colors.surface
+                    if (isChoosen) Green200
+                    else MaterialTheme.colors.surface
                 )
         ) {
             Text(
@@ -351,6 +487,27 @@ fun FilterLayoutPreview(){
 }
 
 @Composable
+@Preview(name = "Daerah Filter Success")
+fun DaerahFilterPreviewSuccess(){
+    KiosskuTheme {
+        Surface {
+            DaerahFilter(
+                label = "Provinsi",
+                apiResponse = ApiResponse.Success(
+                    data = listOf(
+                        Daerah(id = "" , nama = "Bali"),
+                        Daerah(id = "" , nama = "Jawa Timur")
+                    )
+                ),
+                selectedDaerah = null,
+                onChangeSelectedDaerah = {},
+                onRefreshData = {},
+                requiredField = null
+            )
+        }
+    }
+}
+@Composable
 @Preview(name = "Daerah Filter Loading")
 fun DaerahFilterPreviewLoading(){
     KiosskuTheme {
@@ -358,6 +515,9 @@ fun DaerahFilterPreviewLoading(){
             DaerahFilter(
                 label = "Provinsi",
                 apiResponse = ApiResponse.Loading(),
+                selectedDaerah = null,
+                onChangeSelectedDaerah = {},
+                onRefreshData = {},
                 requiredField = null
             )
         }
@@ -372,6 +532,9 @@ fun DaerahFilterPreviewInternetFailed(){
             DaerahFilter(
                 label = "Provinsi",
                 apiResponse = ApiResponse.Failure(),
+                selectedDaerah = null,
+                onChangeSelectedDaerah = {},
+                onRefreshData = {},
                 requiredField = null
             )
         }

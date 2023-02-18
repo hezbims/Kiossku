@@ -162,10 +162,10 @@ class LangkahPertamaViewModel @Inject constructor(
 }
 
 data class DaerahUiState(
-    val provinsi : ApiResponse<List<Daerah>>? = ApiResponse.Loading(),
-    val kabupaten : ApiResponse<List<Daerah>>? = null,
-    val kecamatan : ApiResponse<List<Daerah>>? = null,
-    val kelurahan : ApiResponse<List<Daerah>>? = null
+    val provinsi : ApiResponse<List<Daerah?>>? = ApiResponse.Loading(),
+    val kabupaten : ApiResponse<List<Daerah?>>? = null,
+    val kecamatan : ApiResponse<List<Daerah?>>? = null,
+    val kelurahan : ApiResponse<List<Daerah?>>? = null
 )
 
 sealed class TipeLangkahPertamaData{

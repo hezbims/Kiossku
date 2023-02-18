@@ -27,7 +27,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -113,7 +112,7 @@ fun HomeScreen(
         )
 
         KiosKios(
-            response = uiHomeState.getProductApiResponse,
+            response = uiHomeState.filteredData,
             onLoadData = { onHomeScreenEvent(HomeScreenEvent.LoadKiosData) },
             onItemClick = onItemClick,
             modifier = Modifier
@@ -136,9 +135,14 @@ fun HomeScreen(
                 onEvent = onFilterScreenEvent,
                 modifier = Modifier
                     .constrainAs(filterLayout){
-                        top.linkTo(filterBar.bottom , margin = 12.dp)
+                        linkTo(
+                            top = filterBar.bottom,
+                            bottom = parent.bottom,
+                            bias = 0f,
+                            topMargin = 12.dp
+                        )
                         width = Dimension.fillToConstraints
-                    }
+                    }.height(300.dp)
             )
     }
 
@@ -347,11 +351,11 @@ fun KiosItem(
 
                 Text(
                     text =
-                    stringResource(
-                        id = R.string.format_harga_compose,
-                        DecimalFormat("#,###").format(kiosData.harga!!),
-                        kiosData.tipeHarga ?: ""
-                    ),
+                        "Rp" +
+                        DecimalFormat("#,###").format(kiosData.harga!!) +
+                        if (kiosData.sistem == "sewa") "/${kiosData.tipeHarga}"
+                        else ""
+                    ,
                     style = TextStyle(
                         fontWeight = FontWeight.Bold,
                         color = GreenKiossku,

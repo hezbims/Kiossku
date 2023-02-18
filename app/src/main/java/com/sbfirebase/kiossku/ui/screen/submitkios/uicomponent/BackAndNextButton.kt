@@ -21,7 +21,8 @@ fun BackAndNextButton(
     onClickNext : () -> Unit,
     modifier: Modifier = Modifier,
     nextText : String = "Lanjut",
-    backText : String = "Kembali"
+    backText : String = "Kembali",
+    isLoading : Boolean = false
 
 ){
     Row(
@@ -57,14 +58,19 @@ fun BackAndNextButton(
             modifier = Modifier
                 .weight(1f)
                 .height(50.dp),
-            shape = RoundedCornerShape(16.dp)
+            shape = RoundedCornerShape(16.dp),
+            enabled = !isLoading
         ){
-            Text(nextText)
-            Icon(
-                imageVector = Icons.Outlined.NavigateNext,
-                contentDescription = null,
-                modifier = Modifier.padding(start = 10.dp)
-            )
+            if (!isLoading) {
+                Text(nextText)
+                Icon(
+                    imageVector = Icons.Outlined.NavigateNext,
+                    contentDescription = null,
+                    modifier = Modifier.padding(start = 10.dp)
+                )
+            }
+            else
+                CircularProgressIndicator()
         }
     }
 }

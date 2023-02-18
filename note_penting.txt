@@ -47,3 +47,17 @@ error_code = 400
 {
 	"message" : "Telepon already exists"
 }
+
+
+todolist filter :
+**1**. Tombol cari 
+2. klik di luar hilang
+**3**. lebih di hijaukan lagi
+4. harga atas bawah
+**5**. dijual / disewakan bisa dua-duanya (gak papa)
+**6**. Tombol reset 
+**7**. Item Semua untuk daerah filter **DONE**
+**8**. Refresh daerah klo internet gagal
+
+Todo :
+Pull to refresh

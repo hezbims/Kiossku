@@ -17,9 +17,9 @@ import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 @Composable
 fun DropDownDaerah(
     value : Daerah?,
-    onValueChange : (Daerah) -> Unit,
+    onValueChange : (Daerah?) -> Unit,
     onLoadData : () -> Unit,
-    response : ApiResponse<List<Daerah>>?,
+    response : ApiResponse<List<Daerah?>>?,
     placeholder : String,
     errorMessage : String?,
 

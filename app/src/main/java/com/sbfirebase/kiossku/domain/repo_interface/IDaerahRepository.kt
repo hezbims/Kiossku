@@ -5,11 +5,11 @@ import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import kotlinx.coroutines.flow.Flow
 
 interface IDaerahRepository {
-    suspend fun getProvinsi() : Flow<ApiResponse<List<Daerah>>>
+    suspend fun getProvinsi() : Flow<ApiResponse<List<Daerah?>>>
 
-    suspend fun getKabupaten(idProvinsi : String) : Flow<ApiResponse<List<Daerah>>>
+    suspend fun getKabupaten(idProvinsi : String) : Flow<ApiResponse<List<Daerah?>>>
 
-    suspend fun getKecamatan(idKabupaten : String) : Flow<ApiResponse<List<Daerah>>>
+    suspend fun getKecamatan(idKabupaten : String) : Flow<ApiResponse<List<Daerah?>>>
 
-    suspend fun getKelurahan(idKecamatan : String) : Flow<ApiResponse<List<Daerah>>>
+    suspend fun getKelurahan(idKecamatan : String) : Flow<ApiResponse<List<Daerah?>>>
 }

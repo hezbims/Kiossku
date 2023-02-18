@@ -49,7 +49,8 @@ fun LangkahKetiga(
     navigateNext : () -> Unit,
     navigateBack : () -> Unit
 ){
-    if (viewModel3.submitState.collectAsState().value is ApiResponse.Success) {
+    val submitState = viewModel3.submitState.collectAsState().value
+    if (submitState is ApiResponse.Success) {
         viewModel3.doneNavigating()
         navigateNext()
     }
@@ -111,7 +112,8 @@ fun LangkahKetiga(
         ) {
             BackAndNextButton(
                 onClickNext = { if (photoUris.isNotEmpty()) shouldSubmit = true },
-                onClickBack = navigateBack
+                onClickBack = navigateBack,
+                isLoading = submitState is ApiResponse.Loading
             )
         }
     }
