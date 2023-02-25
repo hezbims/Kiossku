@@ -1,5 +1,8 @@
 package com.sbfirebase.kiossku.ui.screen.home.filter
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -32,265 +35,284 @@ import com.sbfirebase.kiossku.ui.screen.home.FilterState
 import com.sbfirebase.kiossku.ui.theme.Green200
 import com.sbfirebase.kiossku.ui.theme.GreenKiossku
 import com.sbfirebase.kiossku.ui.theme.KiosskuTheme
+import com.sbfirebase.kiossku.ui.utils.rupiahVisualTransformation
 
 @Composable
 fun FilterLayout(
+    showFilter : Boolean,
     filterState : FilterState,
     onEvent : (FilterScreenEvent) -> Unit,
     modifier : Modifier = Modifier
 ){
-    Card(
-        elevation = 16.dp,
-        shape = RoundedCornerShape(13.dp),
+    AnimatedVisibility(
+        visible = showFilter,
+        enter = expandVertically(expandFrom = Alignment.Top),
+        exit = shrinkVertically(shrinkTowards = Alignment.Top),
         modifier = modifier
     ) {
-        Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .padding(
-                    vertical = 20.dp,
-                    horizontal = 24.dp
-                )
+        Card(
+            shape = RoundedCornerShape(13.dp),
+            elevation = 30.dp
         ) {
-            Row {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable {
-                            onEvent(FilterScreenEvent.OnChangeIsDijual("jual"))
-                        }
-                ) {
-                    Text(
-                        text = "Dijual",
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-
-                    Canvas(
-                        modifier = Modifier
-                            .padding(top = 4.dp)
-                            .fillMaxWidth()
-                            .height(4.dp)
-                    ) {
-                        val color =
-                            if ("jual" in filterState.sewaJual) GreenKiossku
-                            else Color(0x1A118E49)
-                        drawLine(
-                            color = color,
-                            start = Offset(x = 0f, y = size.height / 2),
-                            end = Offset(x = size.width, y = size.height / 2),
-                            strokeWidth = size.height
-                        )
-                    }
-                }
-
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable {
-                            onEvent(FilterScreenEvent.OnChangeIsDijual("sewa"))
-                        }
-                ) {
-                    Text(
-                        text = "Disewakan",
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-
-                    Canvas(
-                        modifier = Modifier
-                            .padding(top = 4.dp)
-                            .fillMaxWidth()
-                            .height(4.dp)
-                    ) {
-                        val color =
-                            if ("sewa" in filterState.sewaJual) GreenKiossku
-                            else Color(0x1A118E49)
-                        drawLine(
-                            color = color,
-                            start = Offset(x = 0f, y = size.height / 2),
-                            end = Offset(x = size.width, y = size.height / 2),
-                            strokeWidth = size.height
-                        )
-                    }
-                }
-            }
-
-            LazyVerticalGrid(
-                userScrollEnabled = false,
-                columns = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-                horizontalArrangement = Arrangement.spacedBy(17.dp),
+            Column(
                 modifier = Modifier
-                    .padding(top = 14.dp)
-                    .height(150.dp)
+                    .verticalScroll(rememberScrollState())
+                    .padding(
+                        vertical = 20.dp,
+                        horizontal = 24.dp
+                    )
             ) {
-                items(
-                    listOf("kios", "lahan", "lapak", "gudang", "ruko")
-                ) { tipeProperti ->
-                    val isChoosen = tipeProperti in filterState.tipeProperti
-                    TipePropertiCard(
-                        tipeProperti = tipeProperti,
-                        isChoosen = isChoosen,
+                Row {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                onEvent(FilterScreenEvent.OnChangeIsDijual("jual"))
+                            }
+                    ) {
+                        Text(
+                            text = "Dijual",
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+
+                        Canvas(
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .fillMaxWidth()
+                                .height(4.dp)
+                        ) {
+                            val color =
+                                if ("jual" in filterState.sewaJual) GreenKiossku
+                                else Color(0x1A118E49)
+                            drawLine(
+                                color = color,
+                                start = Offset(x = 0f, y = size.height / 2),
+                                end = Offset(x = size.width, y = size.height / 2),
+                                strokeWidth = size.height
+                            )
+                        }
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                onEvent(FilterScreenEvent.OnChangeIsDijual("sewa"))
+                            }
+                    ) {
+                        Text(
+                            text = "Disewakan",
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+
+                        Canvas(
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .fillMaxWidth()
+                                .height(4.dp)
+                        ) {
+                            val color =
+                                if ("sewa" in filterState.sewaJual) GreenKiossku
+                                else Color(0x1A118E49)
+                            drawLine(
+                                color = color,
+                                start = Offset(x = 0f, y = size.height / 2),
+                                end = Offset(x = size.width, y = size.height / 2),
+                                strokeWidth = size.height
+                            )
+                        }
+                    }
+                }
+
+                LazyVerticalGrid(
+                    userScrollEnabled = false,
+                    columns = GridCells.Fixed(2),
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                    horizontalArrangement = Arrangement.spacedBy(17.dp),
+                    modifier = Modifier
+                        .padding(top = 14.dp)
+                        .height(150.dp)
+                ) {
+                    items(
+                        listOf("kios", "lahan", "lapak", "gudang", "ruko")
+                    ) { tipeProperti ->
+                        val isChoosen = tipeProperti in filterState.tipeProperti
+                        TipePropertiCard(
+                            tipeProperti = tipeProperti,
+                            isChoosen = isChoosen,
+                            onClick = {
+                                if (isChoosen)
+                                    onEvent(FilterScreenEvent.OnRemoveTipeProperti(tipeProperti))
+                                else
+                                    onEvent(FilterScreenEvent.OnAddTipeProperti(tipeProperti))
+                            }
+
+                        )
+                    }
+                }
+
+                Text(
+                    text = "Rentang Harga",
+                    style = TextStyle(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp
+                    ),
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    OutlinedTextField(
+                        value = filterState.minHarga?.toString() ?: "",
+                        onValueChange = {
+                            onEvent(FilterScreenEvent.OnChangeMinHarga(it))
+                        },
+                        label = {
+                            Text(
+                                text = "Min.",
+                                fontSize = 12.sp
+                            )
+                        },
+                        textStyle = TextStyle(fontSize = 12.sp),
+                        shape = RoundedCornerShape(13.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        visualTransformation = { rupiahVisualTransformation(it.toString()) },
+                        modifier = Modifier
+                            .weight(1f)
+                    )
+
+                    OutlinedTextField(
+                        value = filterState.maxHarga?.toString() ?: "",
+                        onValueChange = {
+                            onEvent(FilterScreenEvent.OnChangeMaxHarga(it))
+                        },
+                        label = {
+                            Text(
+                                text = "Max.",
+                                fontSize = 12.sp
+                            )
+                        },
+                        textStyle = TextStyle(fontSize = 12.sp),
+                        shape = RoundedCornerShape(13.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        visualTransformation = { rupiahVisualTransformation(it.toString()) },
+                        modifier = Modifier
+                            .weight(1f)
+                    )
+                }
+
+
+                DaerahFilter(
+                    label = "Provinsi",
+                    requiredField = null,
+                    selectedDaerah = filterState.provinsi,
+                    onChangeSelectedDaerah = {
+                        onEvent(FilterScreenEvent.OnChangeProvinsi(it))
+                    },
+                    apiResponse = filterState.provinsiResponse,
+                    onRefreshData = {
+                        onEvent(FilterScreenEvent.OnLoadProvinsi)
+                    },
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                )
+
+                DaerahFilter(
+                    label = "Kabupaten",
+                    requiredField =
+                    if (filterState.provinsi == null) "Provinsi"
+                    else null,
+                    selectedDaerah = filterState.kabupaten,
+                    onChangeSelectedDaerah = {
+                        onEvent(FilterScreenEvent.OnChangeKabupaten(it))
+                    },
+                    apiResponse = filterState.kabupatenResponse,
+                    onRefreshData = {
+                        onEvent(FilterScreenEvent.OnLoadKabupaten)
+                    },
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                )
+
+                DaerahFilter(
+                    label = "Kecamatan",
+                    requiredField =
+                    if (filterState.kabupaten == null) "Kabupaten"
+                    else null,
+                    selectedDaerah = filterState.kecamatan,
+                    onChangeSelectedDaerah = {
+                        onEvent(FilterScreenEvent.OnChangeKecamatan(it))
+                    },
+                    apiResponse = filterState.kecamatanResponse,
+                    onRefreshData = {
+                        onEvent(FilterScreenEvent.OnLoadKecamatan)
+                    },
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                )
+
+                DaerahFilter(
+                    label = "Kelurahan",
+                    requiredField =
+                    if (filterState.kecamatan == null) "Kecamatan"
+                    else null,
+                    selectedDaerah = filterState.kelurahan,
+                    onChangeSelectedDaerah = {
+                        onEvent(FilterScreenEvent.OnChangeKelurahan(it))
+                    },
+                    apiResponse = filterState.kelurahanResponse,
+                    onRefreshData = {
+                        onEvent(FilterScreenEvent.OnLoadKelurahan)
+                    },
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier
+                        .padding(top = 24.dp)
+                ) {
+                    Button(
                         onClick = {
-                            if (isChoosen)
-                                onEvent(FilterScreenEvent.OnRemoveTipeProperti(tipeProperti))
-                            else
-                                onEvent(FilterScreenEvent.OnAddTipeProperti(tipeProperti))
-                        }
-
-                    )
-                }
-            }
-
-            Text(
-                text = "Rentang Harga",
-                style = TextStyle(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp
-                ),
-                modifier = Modifier.padding(top = 16.dp)
-            )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(17.dp)
-            ) {
-                OutlinedTextField(
-                    value = filterState.minHarga?.toString() ?: "",
-                    onValueChange = {
-                        onEvent(FilterScreenEvent.OnChangeMinHarga(it))
-                    },
-                    label = {
-                        Text("Min.")
-                    },
-                    shape = RoundedCornerShape(13.dp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier
-                        .weight(1f)
-                )
-
-                OutlinedTextField(
-                    value = filterState.maxHarga?.toString() ?: "",
-                    onValueChange = {
-                        onEvent(FilterScreenEvent.OnChangeMaxHarga(it))
-                    },
-                    label = {
-                        Text("Max.")
-                    },
-                    shape = RoundedCornerShape(13.dp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier
-                        .weight(1f)
-                )
-            }
-
-            DaerahFilter(
-                label = "Provinsi",
-                requiredField = null,
-                selectedDaerah = filterState.provinsi,
-                onChangeSelectedDaerah = {
-                    onEvent(FilterScreenEvent.OnChangeProvinsi(it))
-                },
-                apiResponse = filterState.provinsiResponse,
-                onRefreshData = {
-                    onEvent(FilterScreenEvent.OnLoadProvinsi)
-                },
-                modifier = Modifier
-                    .padding(top = 16.dp)
-            )
-
-            DaerahFilter(
-                label = "Kabupaten",
-                requiredField =
-                if (filterState.provinsi == null) "Provinsi"
-                else null,
-                selectedDaerah = filterState.kabupaten,
-                onChangeSelectedDaerah = {
-                    onEvent(FilterScreenEvent.OnChangeKabupaten(it))
-                },
-                apiResponse = filterState.kabupatenResponse,
-                onRefreshData = {
-                    onEvent(FilterScreenEvent.OnLoadKabupaten)
-                },
-                modifier = Modifier
-                    .padding(top = 16.dp)
-            )
-
-            DaerahFilter(
-                label = "Kecamatan",
-                requiredField =
-                if (filterState.kabupaten == null) "Kabupaten"
-                else null,
-                selectedDaerah = filterState.kecamatan,
-                onChangeSelectedDaerah = {
-                    onEvent(FilterScreenEvent.OnChangeKecamatan(it))
-                },
-                apiResponse = filterState.kecamatanResponse,
-                onRefreshData = {
-                    onEvent(FilterScreenEvent.OnLoadKecamatan)
-                },
-                modifier = Modifier
-                    .padding(top = 16.dp)
-            )
-
-            DaerahFilter(
-                label = "Kelurahan",
-                requiredField =
-                if (filterState.kecamatan == null) "Kecamatan"
-                else null,
-                selectedDaerah = filterState.kelurahan,
-                onChangeSelectedDaerah = {
-                    onEvent(FilterScreenEvent.OnChangeKelurahan(it))
-                },
-                apiResponse = filterState.kelurahanResponse,
-                onRefreshData = {
-                    onEvent(FilterScreenEvent.OnLoadKelurahan)
-                },
-                modifier = Modifier
-                    .padding(top = 16.dp)
-            )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier
-                    .padding(top = 24.dp)
-            ){
-                Button(
-                    onClick = {
-                        onEvent(FilterScreenEvent.OnResetFilterState)
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color.White
-                    ),
-                    border = BorderStroke(
-                        width = 0.5.dp,
-                        color = Color.Black
-                    ),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(40.dp),
-                    shape = RoundedCornerShape(16.dp)
-                ){
-                    Text("Reset")
-                }
-                Button(
-                    onClick = {
-                        onEvent(FilterScreenEvent.OnApplyFilterState)
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = GreenKiossku,
-                        contentColor = Color.White
-                    ),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(40.dp),
-                    shape = RoundedCornerShape(16.dp),
-                ){
-                    Text("Cari")
+                            onEvent(FilterScreenEvent.OnResetFilterState)
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = Color.White
+                        ),
+                        border = BorderStroke(
+                            width = 0.5.dp,
+                            color = Color.Black
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(40.dp),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text("Reset")
+                    }
+                    Button(
+                        onClick = {
+                            onEvent(FilterScreenEvent.OnApplyFilterState)
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = GreenKiossku,
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(40.dp),
+                        shape = RoundedCornerShape(16.dp),
+                    ) {
+                        Text("Cari")
+                    }
                 }
             }
         }
@@ -311,7 +333,7 @@ private fun DaerahFilter(
         modifier = modifier
     ) {
         var expanded by rememberSaveable {
-            mutableStateOf(true)
+            mutableStateOf(false)
         }
 
         Row(
@@ -479,6 +501,7 @@ fun FilterLayoutPreview(){
     KiosskuTheme {
         Surface{
             FilterLayout(
+                showFilter = true,
                 filterState = FilterState(),
                 onEvent = {}
             )

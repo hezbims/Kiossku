@@ -28,17 +28,22 @@ class HomeViewModel @Inject constructor(
     val uiHomeState = _uiHomeState.asStateFlow()
 
     fun onHomeScreenEvent(event : HomeScreenEvent){
-        when (event){
-            HomeScreenEvent.LoadKiosData ->
-                loadData()
-            HomeScreenEvent.OnChangeShowFilter ->
-                _uiHomeState.update {
-                    it.copy(showFilter = !it.showFilter)
+        viewModelScope.launch(Dispatchers.IO) {
+            when (event) {
+                is HomeScreenEvent.LoadKiosData -> {
+                    if (event.fromRefresh)
+                        _uiHomeState.update { it.copy(isRefreshing = true) }
+                    loadRawData()
                 }
+                HomeScreenEvent.OnChangeShowFilter ->
+                    _uiHomeState.update {
+                        it.copy(showFilter = !it.showFilter)
+                    }
+            }
         }
     }
 
-    private fun loadData(){
+    private fun loadRawData(){
         viewModelScope.launch(Dispatchers.IO) {
             rawKiosData.update { ApiResponse.Loading() }
             rawKiosData.update { getAllProduct() }
@@ -46,13 +51,10 @@ class HomeViewModel @Inject constructor(
     }
 
     init {
-        loadData()
+        loadRawData()
         viewModelScope.launch(Dispatchers.IO){
             rawKiosData.collectLatest { response ->
-                if (response is ApiResponse.Success)
-                    onFilterScreenEvent(FilterScreenEvent.OnApplyFilterState)
-                else
-                    _uiHomeState.update { it.copy(filteredData = response) }
+                _uiHomeState.update { it.copy(filteredData = response) }
             }
         }
     }
@@ -177,12 +179,21 @@ class HomeViewModel @Inject constructor(
                         FilterState()
                     }
                     onFilterScreenEvent(FilterScreenEvent.OnLoadProvinsi)
+
+                    _uiHomeState.update {
+                        it.copy(filteredData = ApiResponse.Loading())
+                    }
+
                     _uiHomeState.update {
                         it.copy(filteredData = rawKiosData.value)
                     }
                 }
                 FilterScreenEvent.OnApplyFilterState -> {
                     if (rawKiosData.value !is ApiResponse.Success) return@launch
+
+                    _uiHomeState.update {
+                        it.copy(filteredData = ApiResponse.Loading())
+                    }
 
                     _filterState.value.let { filterState ->
                         val filteredData = rawKiosData.value.data!!.filter {
@@ -236,13 +247,13 @@ data class UiHomeState(
 )
 
 sealed class HomeScreenEvent {
-    object LoadKiosData : HomeScreenEvent()
+    class LoadKiosData(val fromRefresh : Boolean = false) : HomeScreenEvent()
     object OnChangeShowFilter : HomeScreenEvent()
 }
 
 data class FilterState(
-    val sewaJual : List<String> = listOf("sewa" , "jual"),
-    val tipeProperti : List<String> = listOf("kios" , "lapak" , "lahan" , "gudang" , "ruko"),
+    val sewaJual : List<String> = listOf("jual"),
+    val tipeProperti : List<String> = emptyList(),
     val minHarga : Int? = null,
     val maxHarga : Int? = null,
     val provinsi : Daerah? = null,

@@ -13,7 +13,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,18 +23,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.sbfirebase.kiossku.R
-import com.sbfirebase.kiossku.data.model.postproduct.PostKiosData
 import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
-import com.sbfirebase.kiossku.ui.screen.submitkios.screen.langkahkedua.LangkahKeduaUiState
+import com.sbfirebase.kiossku.route.AllRoute
+import com.sbfirebase.kiossku.ui.screen.submitkios.screen.finalsubmit.FinalSubmitEvent
+import com.sbfirebase.kiossku.ui.screen.submitkios.screen.finalsubmit.FinalSubmitViewModel
 import com.sbfirebase.kiossku.ui.screen.submitkios.screen.langkahkedua.LangkahKeduaViewModel
-import com.sbfirebase.kiossku.ui.screen.submitkios.screen.langkahpertama.LangkahPertamaUiState
 import com.sbfirebase.kiossku.ui.screen.submitkios.screen.langkahpertama.LangkahPertamaViewModel
 import com.sbfirebase.kiossku.ui.screen.submitkios.uicomponent.BackAndNextButton
 import com.sbfirebase.kiossku.ui.screen.submitkios.uicomponent.SubmitHeader
@@ -46,22 +46,57 @@ fun LangkahKetiga(
     viewModel1 : LangkahPertamaViewModel,
     viewModel2 : LangkahKeduaViewModel,
     viewModel3 : LangkahKetigaViewModel,
-    navigateNext : () -> Unit,
-    navigateBack : () -> Unit
+    navController : NavHostController,
+    finalSubmitViewModel : FinalSubmitViewModel = hiltViewModel()
 ){
-    val submitState = viewModel3.submitState.collectAsState().value
+    val uiState1 = viewModel1.uiState.collectAsState().value
+    val uiState2 = viewModel2.uiState.collectAsState().value
+    val uriWithIds = viewModel3.photoUriWithId
+
+    val submitState = finalSubmitViewModel.submitState.collectAsState().value
+
     if (submitState is ApiResponse.Success) {
-        viewModel3.doneNavigating()
-        navigateNext()
+        navController.navigate(AllRoute.SubmitKios.SubmitDataSucceed.root){
+            popUpTo(0){
+                inclusive = true
+            }
+        }
+        finalSubmitViewModel.onEvent(FinalSubmitEvent.OnDoneNavigating)
     }
 
+    else
+        LangkahKetiga(
+            uriWithIds = viewModel3.photoUriWithId,
+            onPhotoEvent = viewModel3::onEvent,
+            onStartSubmit = {
+                finalSubmitViewModel.onEvent(
+                    FinalSubmitEvent.OnStartSubmitData(
+                        data1 = uiState1,
+                        data2 = uiState2,
+                        uriWithIds = uriWithIds
+                    )
+                )
+            },
+            isSubmitting = submitState is ApiResponse.Loading,
+            navigateBack = {
+                navController.popBackStack()
+            }
+        )
+}
+@Composable
+fun LangkahKetiga(
+    uriWithIds : List<UriWithId>,
+    onPhotoEvent : (LangkahKetigaScreenEvent) -> Unit,
+    onStartSubmit : () -> Unit,
+    isSubmitting : Boolean,
+    navigateBack : () -> Unit
+){
     val pickPhotoLauncher = rememberLauncherForActivityResult(
         contract = PickMultiplePhotoContract(),
         onResult = {
-            viewModel3.addPhotoUris(it)
+            onPhotoEvent(LangkahKetigaScreenEvent.AddPhotoUris(it))
         }
     )
-    val photoUris = viewModel3.photoUris
 
     Column(
         modifier = Modifier
@@ -89,31 +124,27 @@ fun LangkahKetiga(
                     pickPhotoLauncher.launch("image/*")
                 })
             }
-            items(photoUris){ item ->
-                DeletableGambar(item , viewModel3::deletePhotoUri)
+            items(items = uriWithIds){ item ->
+                DeletableGambar(
+                    item = item ,
+                    onDeletePhoto = {
+                        onPhotoEvent(LangkahKetigaScreenEvent.DeletePhotoUri(it))
+                    }
+                )
             }
         }
 
-        var shouldSubmit by remember { mutableStateOf(false) }
-        if (shouldSubmit){
-            shouldSubmit = false
-            SubmitData(
-                data1 = viewModel1.uiState.collectAsState().value,
-                data2 = viewModel2.uiState.collectAsState().value,
-                data3 = photoUris,
-                submitData = viewModel3::submitData
-            )
-        }
+        val isPhotoEmpty = uriWithIds.isEmpty()
 
         WithError(
-            errorMessage = if (photoUris.isEmpty()) "Upload minimal 1 foto" else null,
+            errorMessage = if (isPhotoEmpty) "Upload minimal 1 foto" else null,
             modifier = Modifier
                 .fillMaxWidth()
         ) {
             BackAndNextButton(
-                onClickNext = { if (photoUris.isNotEmpty()) shouldSubmit = true },
+                onClickNext = { if (!isPhotoEmpty) onStartSubmit() },
                 onClickBack = navigateBack,
-                isLoading = submitState is ApiResponse.Loading
+                isLoading = isSubmitting
             )
         }
     }
@@ -169,7 +200,7 @@ fun TambahGambar(
 @Composable
 fun DeletableGambar(
     item : UriWithId,
-    deletePhoto: (Int) -> Unit,
+    onDeletePhoto: (Int) -> Unit,
     modifier: Modifier = Modifier
 ){
     Box(
@@ -187,7 +218,7 @@ fun DeletableGambar(
         )
         Button(
             onClick = {
-                deletePhoto(item.id)
+                onDeletePhoto(item.id)
             },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = Color.DarkGray
@@ -219,56 +250,16 @@ fun DeletableGambar(
 }
 
 @Composable
-private fun SubmitData(
-    data1 : LangkahPertamaUiState,
-    data2 : LangkahKeduaUiState,
-    data3 : List<UriWithId>,
-    submitData : (PostKiosData) -> Unit
-){
-    submitData(
-        PostKiosData(
-            judulPromosi = data1.judulPromosi,
-            tipeProperti = data1.jenisProperti,
-            harga = data1.harga.toInt(),
-            waktuPembayaran = data1.waktuPembayaran,
-            fixNego = data1.tipePenawaran,
-            sewaJual = if (data1.isSewa) "sewa" else "jual",
-            lokasi = stringResource(
-                R.string.format_lokasi,
-                data1.provinsi!!.nama,
-                data1.kabupaten!!.nama,
-                data1.kecamatan!!.nama,
-                data1.kelurahan!!.nama
-            ),
-            luasLahan = data2.luasLahan.toInt(),
-            luasBangunan = data2.luasBangunan.toInt(),
-            tingkat = data2.jumlahLantai.toInt(),
-            kapasitasListrik = data2.kapasitasListrik.toInt(),
-            alamat = "Field alamat tidak ada",
-            deskripsi = data2.deskripsi,
-            fasilitas = "air",
-            panjang = data2.panjang.toInt(),
-            lebar = data2.lebar.toInt(),
-            images = data3.map{ it.uri }
-        )
-    )
-}
-
-@Composable
 @Preview
 fun LangkahKetigaPreview(){
     KiosskuTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
             LangkahKetiga(
-                viewModel1 = hiltViewModel(),
-                viewModel2 = hiltViewModel(),
-                viewModel3 = hiltViewModel(),
-                navigateNext = {
-
-                },
-                navigateBack = {
-
-                }
+                uriWithIds = emptyList(),
+                onPhotoEvent = {},
+                isSubmitting = false,
+                navigateBack = {},
+                onStartSubmit = {}
             )
         }
     }

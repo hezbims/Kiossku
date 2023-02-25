@@ -17,5 +17,5 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="home_label">Home</string>
     <string name="profile_label">Profile</string>
-    <string name="format_lokasi">%1$s, %2$s, %3$s, %4$s</string>
+    <string name="format_lokasi">%1$s;%2$s;%3$s;%4$s</string>
 </resources>

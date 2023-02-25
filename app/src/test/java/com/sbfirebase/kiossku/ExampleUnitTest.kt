@@ -20,7 +20,7 @@ class ExampleUnitTest {
         val jsonObject = JsonParser().parse(jsonString).asJsonObject
 
         val message = jsonObject.get("message").asString
-        message
+        assertEquals("Password or email not match" , message)
     }
 
     @Test

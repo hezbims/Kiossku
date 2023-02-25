@@ -1,6 +1,6 @@
 jenis : kios, ruko, lapak, lahan, gudang (done)
 tipe_harga : tahunan, bulanan (done)
-tipe_pembayaran : nego, fix
+tipe_pembayaran : nego, fix (done)
 sistem : sewa, jual (done)
 fasilitas : air, listrik (done, incomplete, ada di bagian function submit langkah ketiga)
 
@@ -53,7 +53,7 @@ todolist filter :
 **1**. Tombol cari 
 2. klik di luar hilang
 **3**. lebih di hijaukan lagi
-4. harga atas bawah
+**4**. harga atas bawah
 **5**. dijual / disewakan bisa dua-duanya (gak papa)
 **6**. Tombol reset 
 **7**. Item Semua untuk daerah filter **DONE**
@@ -61,3 +61,7 @@ todolist filter :
 
 Todo :
 Pull to refresh
+
+COMPLAIN BACKEND :
+- form mengharuskan ngisi tahunan atau bulanan
+- fasilitas hanya boleh air atau listrik

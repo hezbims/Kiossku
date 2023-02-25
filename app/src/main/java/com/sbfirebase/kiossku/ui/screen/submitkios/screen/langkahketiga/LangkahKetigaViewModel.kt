@@ -7,75 +7,44 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sbfirebase.kiossku.data.model.postproduct.PostKiosData
-import com.sbfirebase.kiossku.domain.AuthManager
-import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
-import com.sbfirebase.kiossku.domain.use_case.PostProductUseCase
-import com.sbfirebase.kiossku.ui.utils.ToastDisplayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class LangkahKetigaViewModel @Inject constructor(
-    private val postProduct : PostProductUseCase,
-    private val authManager : AuthManager,
-    private val displayToast : ToastDisplayer
-): ViewModel() {
+class LangkahKetigaViewModel @Inject constructor(): ViewModel() {
+
+    private val _photosUriWithId = mutableStateListOf<UriWithId>()
+    val photoUriWithId : List<UriWithId>
+        get() = _photosUriWithId
+
+
     private var photoId = 0
-    private val _photoUris = mutableStateListOf<UriWithId>()
-    val photoUris : List<UriWithId>
-        get() = _photoUris
-
-
-    fun addPhotoUris(newPhotoUris : Collection<Uri>){
-        _photoUris.addAll(
-            newPhotoUris.map {
-                    uri ->
+    fun onEvent(event : LangkahKetigaScreenEvent){
+        when (event){
+            is LangkahKetigaScreenEvent.AddPhotoUris ->
+                addPhotoUris(event.photoUris)
+            is LangkahKetigaScreenEvent.DeletePhotoUri ->
+                deletePhotoUri(event.id)
+        }
+    }
+    private fun addPhotoUris(newPhotoUris : Collection<Uri>){
+        viewModelScope.launch(Dispatchers.IO) {
+            val newPhotosUriWithId = newPhotoUris.map { uri ->
                 UriWithId(
                     uri = uri,
                     id = photoId++
                 )
             }
-        )
+
+            _photosUriWithId.addAll(newPhotosUriWithId)
+        }
     }
-    fun deletePhotoUri(deleteId : Int){
-        _photoUris.removeIf { it.id == deleteId }
-    }
-
-    private val _submitState = MutableStateFlow<ApiResponse<Nothing>>(
-        ApiResponse.Failure()
-    )
-    val submitState = _submitState.asStateFlow()
-    fun doneNavigating(){ _submitState.update { ApiResponse.Failure() } }
-
-    private var submitJob : Job? = null
-
-    fun submitData(
-        postData : PostKiosData
-    ){
-        if (submitJob == null || submitJob?.isCompleted == true)
-            submitJob = viewModelScope.launch(Dispatchers.IO){
-                _submitState.update { ApiResponse.Loading() }
-
-                val postProductResponse = postProduct(data = postData)
-                _submitState.update { postProductResponse }
-
-                if (postProductResponse is ApiResponse.Failure)
-                    withContext(Dispatchers.Main){
-                        displayToast(
-                            message = if (postProductResponse.errorCode == null)
-                                "Gagal tersambung ke server, periksa internet anda!"
-                            else "Token expired"
-                        )
-                    }
-            }
+    private fun deletePhotoUri(deleteId : Int){
+        viewModelScope.launch(Dispatchers.IO) {
+            _photosUriWithId.removeIf { it.id == deleteId }
+        }
     }
 }
 
@@ -110,4 +79,9 @@ class PickMultiplePhotoContract : ActivityResultContract<String, List<Uri>>(){
         }
         return result
     }
+}
+
+sealed class LangkahKetigaScreenEvent{
+    class AddPhotoUris(val photoUris : Collection<Uri>) : LangkahKetigaScreenEvent()
+    class DeletePhotoUri(val id : Int) : LangkahKetigaScreenEvent()
 }

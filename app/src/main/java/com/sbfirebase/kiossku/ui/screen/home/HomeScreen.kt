@@ -12,10 +12,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ExpandMore
-import androidx.compose.material.icons.outlined.PinDrop
-import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.WifiOff
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -82,9 +81,9 @@ fun HomeScreen(
 ){
     ConstraintLayout(
         modifier = modifier
+            .fillMaxSize()
             .padding(top = 24.dp)
             .padding(horizontal = 24.dp)
-            .fillMaxSize()
     ) {
         val (imageHeader , filterBar , kiosKios , filterLayout) = createRefs()
 
@@ -101,6 +100,7 @@ fun HomeScreen(
         )
 
         FilterBar(
+            expanded = uiHomeState.showFilter,
             modifier = Modifier
                 .constrainAs(filterBar) {
                     top.linkTo(imageHeader.bottom, margin = 16.dp)
@@ -113,14 +113,15 @@ fun HomeScreen(
 
         KiosKios(
             response = uiHomeState.filteredData,
-            onLoadData = { onHomeScreenEvent(HomeScreenEvent.LoadKiosData) },
+            isRefreshing = uiHomeState.isRefreshing,
+            onLoadData = { onHomeScreenEvent(HomeScreenEvent.LoadKiosData(it)) },
             onItemClick = onItemClick,
             modifier = Modifier
                 .animateContentSize(
                     animationSpec = tween()
                 )
                 .constrainAs(kiosKios) {
-                    top.linkTo(filterBar.bottom , margin = 16.dp)
+                    top.linkTo(filterBar.bottom, margin = 16.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     bottom.linkTo(parent.bottom)
@@ -129,21 +130,22 @@ fun HomeScreen(
                 }
         )
 
-        if (uiHomeState.showFilter)
-            FilterLayout(
-                filterState = filterState,
-                onEvent = onFilterScreenEvent,
-                modifier = Modifier
-                    .constrainAs(filterLayout){
-                        linkTo(
-                            top = filterBar.bottom,
-                            bottom = parent.bottom,
-                            bias = 0f,
-                            topMargin = 12.dp
-                        )
-                        width = Dimension.fillToConstraints
-                    }.height(300.dp)
-            )
+        FilterLayout(
+            showFilter = uiHomeState.showFilter,
+            filterState = filterState,
+            onEvent = onFilterScreenEvent,
+            modifier = Modifier
+                .constrainAs(filterLayout) {
+                    linkTo(
+                        top = filterBar.bottom,
+                        bottom = parent.bottom,
+                        bias = 0f,
+                        topMargin = 12.dp
+                    )
+                    width = Dimension.fillToConstraints
+                }
+                .height(300.dp)
+        )
     }
 
 
@@ -151,12 +153,17 @@ fun HomeScreen(
 
 @Composable
 fun FilterBar(
+    expanded : Boolean,
     modifier : Modifier = Modifier
 ){
     OutlinedTextField(
         value = "",
         placeholder = {
-            Text("Cari properti disini")
+            Text(
+                text =
+                    if (!expanded) "Cari properti disini"
+                    else "Tutup filter"
+            )
         },
         onValueChange = {},
         leadingIcon = {
@@ -165,7 +172,12 @@ fun FilterBar(
 
         shape = RoundedCornerShape(13.dp),
         trailingIcon = {
-            Icon(Icons.Outlined.ExpandMore , contentDescription = null)
+            Icon(
+                imageVector =
+                    if (!expanded) Icons.Outlined.ExpandMore
+                    else Icons.Outlined.ExpandLess,
+                contentDescription = null
+            )
         },
         readOnly = true,
         enabled = false,
@@ -209,35 +221,52 @@ fun Banner(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun KiosKios(
     response : ApiResponse<List<KiosDataDto?>>,
-    onLoadData : () -> Unit,
+    isRefreshing : Boolean,
+    onLoadData : (Boolean) -> Unit,
     onItemClick: (KiosData) -> Unit,
     modifier: Modifier = Modifier
 ){
-    if (response is ApiResponse.Success)
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+    if (response is ApiResponse.Success) {
+        Box(
             modifier = modifier
         ) {
-            item(
-                span = {
-                    GridItemSpan(maxCurrentLineSpan)
-                }
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Banner()
-            }
+                item(
+                    span = {
+                        GridItemSpan(maxCurrentLineSpan)
+                    }
+                ) {
+                    Banner()
+                }
 
-            response.data?.let {
-                items(items = it) { item ->
-                    KiosItem(kiosData = item!!, onItemClick = onItemClick)
+                response.data?.let {
+                    items(items = it) { item ->
+                        KiosItem(kiosData = item!!, onItemClick = onItemClick)
+                    }
                 }
             }
 
+            val refreshState = rememberPullRefreshState(
+                refreshing = isRefreshing,
+                onRefresh = { onLoadData(true) }
+            )
+
+            PullRefreshIndicator(
+                refreshing = isRefreshing,
+                state = refreshState,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+            )
         }
+    }
     else
         Column(
             modifier = modifier
@@ -257,7 +286,7 @@ fun KiosKios(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
-                            .clickable { onLoadData() }
+                            .clickable { onLoadData(false) }
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.WifiOff,
@@ -414,6 +443,7 @@ fun KiosKiosPreview(){
                         )
                     }
                 ),
+                isRefreshing = false,
                 onLoadData = {},
                 onItemClick = {}
             )
