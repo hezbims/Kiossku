@@ -1,0 +1,1 @@
+<img src="github_resources/clay_kiossku.png" style="align:center">
