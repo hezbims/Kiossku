@@ -4,27 +4,24 @@ import android.util.Log
 import com.sbfirebase.kiossku.data.model.login.LoginDto
 import com.sbfirebase.kiossku.data.model.register.RegisterPost
 import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
-import com.sbfirebase.kiossku.domain.apiresponse.LogoutApiResponse
 import com.sbfirebase.kiossku.domain.repo_interface.IAuthRepository
-import com.sbfirebase.kiossku.domain.use_case.LogoutUseCases
 import com.sbfirebase.kiossku.domain.use_case.RefreshTokenUseCases
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 import javax.inject.Singleton
+
 
 @Singleton
 class AuthManager @Inject constructor(
     private val tokenManager: TokenManager,
     private val refreshTokenUseCases: RefreshTokenUseCases,
-    private val authRepository : IAuthRepository,
-    private val logoutUseCases: LogoutUseCases
-) {
-    fun getUserId() : Int = tokenManager.getUserId()
+    private val authRepository : IAuthRepository
+) : IAuthManager {
+    override fun getUserId() : Int = tokenManager.getUserId()
 
-    fun isLoggedIn() : Boolean = tokenManager.getToken() != null
+    override fun isLoggedIn() : Boolean = tokenManager.getToken() != null
 
-    suspend fun getToken() : ApiResponse<String> {
+    override suspend fun getToken() : ApiResponse<String> {
         return try {
             val savedToken = tokenManager.getToken()
             if (savedToken != null)
@@ -38,25 +35,25 @@ class AuthManager @Inject constructor(
     }
 
 
-    suspend fun logOut() : LogoutApiResponse =
-        logoutUseCases().apply {
-            if (this is LogoutApiResponse.Success)
-                tokenManager.setTokenSync(token = null)
+    override suspend fun logOut() : ApiResponse<Nothing> =
+        authRepository.logout().apply {
+            if (this is ApiResponse.Success)
+                tokenManager.setTokenSync(null)
         }
 
-    suspend fun login(email : String , password : String) : Flow<ApiResponse<LoginDto>> =
+    override suspend fun login(email : String, password : String) : ApiResponse<LoginDto> =
         authRepository.login(
             email = email,
             password = password
-        ).onEach { response ->
-            if (response is ApiResponse.Success) {
+        ).apply {
+            if (this is ApiResponse.Success) {
                 tokenManager.setTokenSync(
-                    token = response.data!!.loginData.token,
+                    token = data!!.loginData.token,
                 )
-                tokenManager.setUserId(response.data.loginData.id)
+                tokenManager.setUserId(data.loginData.id)
             }
         }
 
-    suspend fun register(registerBody : RegisterPost) : Flow<ApiResponse<Nothing>> =
+    override suspend fun register(registerBody : RegisterPost) : Flow<ApiResponse<Nothing>> =
         authRepository.register(registerBody = registerBody)
 }

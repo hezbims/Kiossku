@@ -36,7 +36,7 @@ fun ProfileScreen(
     viewModel : ProfileViewModel
 ){
     val uiState = viewModel.uiState.collectAsState().value
-    if (uiState.isLoggedOut){
+    if (uiState.logoutResponse is ApiResponse.Success){
         viewModel.onEvent(ProfileScreenEvent.DoneLoggingOut)
         navController.replaceAndNavigate(AllRoute.Auth.root)
     }
@@ -182,6 +182,7 @@ private fun ProfileScreen(
             }
         }
 
+        val isLoggingOut = uiState.logoutResponse is ApiResponse.Loading
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -201,9 +202,9 @@ private fun ProfileScreen(
                     .height(48.dp)
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                enabled = !uiState.sedangLogout
+                enabled = !isLoggingOut
             ) {
-                if (uiState.sedangLogout)
+                if (isLoggingOut)
                     CircularProgressIndicator()
                 else
                     Text(

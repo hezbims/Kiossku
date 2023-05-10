@@ -5,12 +5,13 @@ import com.sbfirebase.kiossku.domain.AuthManager
 import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.domain.repo_interface.IGetProductRepository
 import javax.inject.Inject
-
+import javax.inject.Singleton
+@Singleton
 class GetAllProductUseCases @Inject constructor(
     private val getProductRepository : IGetProductRepository,
     private val authManager: AuthManager
-) {
-    suspend operator fun invoke() : ApiResponse<List<KiosDataDto?>> {
+) : IUseCases<ApiResponse<@JvmSuppressWildcards List<KiosDataDto?>>> {
+    override suspend operator fun invoke() : ApiResponse<List<KiosDataDto?>> {
         val getTokenResponse = authManager.getToken()
 
         return when (getTokenResponse) {

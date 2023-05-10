@@ -14,7 +14,7 @@ import com.sbfirebase.kiossku.domain.repo_interface.IPostProductRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -33,9 +33,11 @@ class PostProductRepositoryImpl @Inject constructor(
     ): ApiResponse<Nothing> =
         try{
             val images = postData.images.map{ uri ->
-                context.contentResolver.openInputStream(uri)!!.use{
+                /*context.contentResolver.openInputStream(uri)!!.use{
+                    Log.e("qqqpostData" , "${it.readBytes()}")
                     it.readBytes()
-                }
+                }*/
+                uri.toBitmap().toFile()
             }
 
             /*
@@ -108,11 +110,11 @@ class PostProductRepositoryImpl @Inject constructor(
                 .addFormDataPart("panjang" , postData.panjang.toString())
                 .addFormDataPart("lebar" , postData.lebar.toString())
                 .apply {
-                    images.forEachIndexed{ _ , it ->
+                    images.forEachIndexed{ index , it ->
                         addFormDataPart(
-                            name = "images" ,
+                            name = "images[$index]" ,
                             filename = "${fileCounter++}" ,
-                            body = it.toRequestBody("image/*".toMediaType())
+                            body = it.asRequestBody("image/*".toMediaType())
                         )
                     }
                 }
@@ -126,8 +128,10 @@ class PostProductRepositoryImpl @Inject constructor(
             if (response.isSuccessful)
                 ApiResponse.Success()
             else{
+                val code = response.code()
+                Log.e("qqqPostData" , "Error code : $code")
                 Log.e("qqqPostData" ,  response.errorBody()!!.string())
-                ApiResponse.Failure(errorCode = response.code())
+                ApiResponse.Failure(errorCode = code)
             }
         }catch (e : Exception){
             Log.e("qqqPostData" , e.localizedMessage?.toString() ?: "Unknown Error Muncul")

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AndroidTestResultsUserPreferences">
+    <option name="androidTestResultsTableState">
+      <map>
+        <entry key="34819487">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="063e908a0411" value="120" />
+                  <entry key="Duration" value="90" />
+                  <entry key="KZO7R8JFCYTGYTDM" value="120" />
+                  <entry key="OPPO&#10; CPH1911" value="120" />
+                  <entry key="Pixel_2_XL_API_29_Android_10.0" value="120" />
+                  <entry key="RR8M30J6ZPD" value="120" />
+                  <entry key="Tests" value="360" />
+                  <entry key="Xiaomi&#10; M2004J19C" value="120" />
+                  <entry key="Xiaomi&#10; Redmi Note 9 Pro" value="120" />
+                  <entry key="adc45c74" value="120" />
+                  <entry key="samsung&#10; SM-A305F" value="120" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

@@ -2,6 +2,7 @@ package com.sbfirebase.kiossku.ui.screen.authentication
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Surface
@@ -11,6 +12,7 @@ import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,6 +54,7 @@ fun PasswordTextField(
             if (showPassword) VisualTransformation.None
             else PasswordVisualTransformation(),
         shape = RoundedCornerShape(16.dp),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         modifier = modifier
     )
 }

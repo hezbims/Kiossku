@@ -29,8 +29,8 @@ fun LandingPageScreen(
     val apiResponse = viewModel.apiResponse.collectAsState().value
     when (apiResponse){
         is ApiResponse.Success -> {
-            viewModel.doneNavigating()
             navController.replaceAndNavigate(AllRoute.Home.root)
+            viewModel.doneNavigating()
         }
         is ApiResponse.Failure -> {
             if (apiResponse.errorCode != null){

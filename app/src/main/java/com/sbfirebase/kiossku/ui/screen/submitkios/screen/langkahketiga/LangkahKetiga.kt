@@ -122,7 +122,8 @@ fun LangkahKetiga(
             item {
                 TambahGambar(getPhotoUri = {
                     pickPhotoLauncher.launch("image/*")
-                })
+                    }
+                )
             }
             items(items = uriWithIds){ item ->
                 DeletableGambar(

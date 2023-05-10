@@ -8,7 +8,6 @@ import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.ui.utils.ToastDisplayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -41,24 +40,28 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private var loginJob : Job? = null
 
     private fun authenticate() {
-        if (loginJob == null || loginJob?.isCompleted == true)
-            loginJob = viewModelScope.launch(Dispatchers.IO) {
-                authManager.login(
+        if (_uiState.value.loginResponse !is ApiResponse.Loading) {
+            _uiState.update {
+                it.copy(loginResponse = ApiResponse.Loading())
+            }
+
+            viewModelScope.launch(Dispatchers.IO) {
+                val response = authManager.login(
                     email = _uiState.value.email,
                     password = _uiState.value.password
-                ).collect{ loginResponse ->
-                    _uiState.update {
-                        it.copy(loginResponse = loginResponse)
+                )
+
+                _uiState.update { it.copy(loginResponse = response) }
+
+                if (response is ApiResponse.Failure)
+                    withContext(Dispatchers.Main) {
+                        toastDisplayer(response.errorMessage ?: "Unknown error")
                     }
-                    if (loginResponse is ApiResponse.Failure)
-                        withContext(Dispatchers.Main){
-                            toastDisplayer(loginResponse.errorMessage ?: "Unknown error")
-                        }
-                }
             }
+        }
+
     }
 
     fun doneLoggingIn() =

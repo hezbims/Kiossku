@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sbfirebase.kiossku.domain.AuthManager
 import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
-import com.sbfirebase.kiossku.domain.apiresponse.LogoutApiResponse
 import com.sbfirebase.kiossku.domain.model.UserData
 import com.sbfirebase.kiossku.domain.use_case.GetUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,19 +42,15 @@ class ProfileViewModel @Inject constructor(
     }
 
     private fun logout(){
-        if (!uiState.value.sedangLogout) {
+        if (uiState.value.logoutResponse !is ApiResponse.Loading) {
             _uiState.update {
-                _uiState.value.copy(
-                    sedangLogout = true
-                )
+                _uiState.value.copy(logoutResponse = ApiResponse.Loading())
             }
 
             viewModelScope.launch(Dispatchers.IO) {
-                val logoutResult = authManager.logOut()
                 _uiState.update {
                     _uiState.value.copy(
-                        sedangLogout = false,
-                        isLoggedOut = logoutResult is LogoutApiResponse.Success
+                        logoutResponse = authManager.logOut()
                     )
                 }
             }
@@ -64,7 +59,7 @@ class ProfileViewModel @Inject constructor(
 
     private fun doneLoggingOut(){
         _uiState.update {
-            it.copy(isLoggedOut = false)
+            it.copy(logoutResponse = null)
         }
     }
 
@@ -80,8 +75,7 @@ class ProfileViewModel @Inject constructor(
 }
 
 data class ProfileUIState(
-    val sedangLogout : Boolean = false,
-    val isLoggedOut : Boolean = false,
+    val logoutResponse : ApiResponse<Nothing>? = null,
     val getUserResponse : ApiResponse<UserData> = ApiResponse.Loading(),
     val displayDialog : Boolean = false
 )

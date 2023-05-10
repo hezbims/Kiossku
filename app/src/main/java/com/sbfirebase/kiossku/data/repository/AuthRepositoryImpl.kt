@@ -4,7 +4,6 @@ import android.util.Log
 import com.sbfirebase.kiossku.constant.ApiMessage
 import com.sbfirebase.kiossku.data.api.AuthApi
 import com.sbfirebase.kiossku.data.model.login.LoginDto
-import com.sbfirebase.kiossku.data.model.logout.LogoutResponse
 import com.sbfirebase.kiossku.data.model.refresh.SuccessfulRefreshTokenResponse
 import com.sbfirebase.kiossku.data.model.register.RegisterPost
 import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
@@ -24,22 +23,20 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun login(
         email : String,
         password : String
-    ): Flow<ApiResponse<LoginDto>> =
-        flow {
-            emit(ApiResponse.Loading())
-            try{
-                val response = authApiClient.login(
-                    email = email,
-                    password = password
-                )
+    ): ApiResponse<LoginDto> =
+        try{
+            val response = authApiClient.login(
+                email = email,
+                password = password
+            )
 
-                if (response.isSuccessful)
-                    emit(ApiResponse.Success(data = response.body()!!))
-                else
-                    emit(ApiResponse.Failure(errorMessage = "Password dan email tidak cocok!"))
-            }catch (e : Exception){
-                emit(ApiResponse.Failure(errorMessage = "Login gagal, cek internet anda!"))
-            }
+            if (response.isSuccessful)
+                ApiResponse.Success(data = response.body()!!)
+            else
+                ApiResponse.Failure(errorMessage = "Password dan email tidak cocok!")
+        }catch (e : Exception){
+            Log.e("qqqLoginError" , e.localizedMessage ?: "Unknown Error")
+            ApiResponse.Failure(errorMessage = "Login gagal, cek internet anda!")
         }
 
     override suspend fun register(
@@ -115,8 +112,18 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun refreshToken(): Response<SuccessfulRefreshTokenResponse> =
         authApiClient.refreshToken().execute()
 
-    override suspend fun logout(): Response<LogoutResponse> =
-        authApiClient.logout().execute()
+    override suspend fun logout() : ApiResponse<Nothing> =
+        try{
+            val response = authApiClient.logout()
+            if (response.isSuccessful)
+                ApiResponse.Success()
+            else
+                ApiResponse.Failure(errorCode = response.code())
+        }catch (e : Exception){
+            Log.e("qqqLogoutError" , e.localizedMessage ?: "Unknown Error")
+            ApiResponse.Failure()
+        }
+
 
 
 }

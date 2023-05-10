@@ -3,6 +3,7 @@ package com.sbfirebase.kiossku.ui.screen.submitkios.screen.langkahketiga
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
@@ -39,6 +40,8 @@ class LangkahKetigaViewModel @Inject constructor(): ViewModel() {
             }
 
             _photosUriWithId.addAll(newPhotosUriWithId)
+
+            Log.e("qqq" , "${_photosUriWithId.size}")
         }
     }
     private fun deletePhotoUri(deleteId : Int){

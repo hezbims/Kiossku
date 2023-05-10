@@ -6,7 +6,7 @@ import com.sbfirebase.kiossku.data.api.Daerah
 import com.sbfirebase.kiossku.data.model.getproduct.KiosDataDto
 import com.sbfirebase.kiossku.domain.apiresponse.ApiResponse
 import com.sbfirebase.kiossku.domain.repo_interface.IDaerahRepository
-import com.sbfirebase.kiossku.domain.use_case.GetAllProductUseCases
+import com.sbfirebase.kiossku.domain.use_case.IUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getAllProduct: GetAllProductUseCases,
+    private val getAllProduct: IUseCases<ApiResponse<List<KiosDataDto?>>>,
     private val daerahRepository : IDaerahRepository
 ) : ViewModel() {
 

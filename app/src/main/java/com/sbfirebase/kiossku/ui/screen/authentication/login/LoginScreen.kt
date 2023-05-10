@@ -36,8 +36,8 @@ fun LoginScreen(
     val uiState = viewModel.uiState.collectAsState().value
 
     if (uiState.loginResponse is ApiResponse.Success) {
-        viewModel.doneLoggingIn()
         navController.replaceAndNavigate(route = AllRoute.Home.root)
+        viewModel.doneLoggingIn()
     }
     else
         LoginScreen(

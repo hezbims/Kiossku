@@ -1,7 +1,6 @@
 package com.sbfirebase.kiossku.data.api
 
 import com.sbfirebase.kiossku.data.model.login.LoginDto
-import com.sbfirebase.kiossku.data.model.logout.LogoutResponse
 import com.sbfirebase.kiossku.data.model.refresh.SuccessfulRefreshTokenResponse
 import com.sbfirebase.kiossku.data.model.register.RegisterPost
 import okhttp3.ResponseBody
@@ -16,7 +15,7 @@ interface AuthApi {
     ) : Response<ResponseBody>
 
     @DELETE("logout")
-    fun logout() : Call<LogoutResponse>
+    suspend fun logout() : Response<ResponseBody>
 
     @GET("token/")
     fun refreshToken() : Call<SuccessfulRefreshTokenResponse>
