@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -7,11 +9,21 @@ plugins {
     id("com.google.dagger.hilt.android")
 }
 
+// Baca local.properties untuk mendapatkan base URL environment "local".
+// File ini tidak ikut ter-commit (.gitignore), jadi tiap developer mengisi sendiri.
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+val localKiosskuBaseUrl: String = localProperties.getProperty("kiosskuBackendBaseUrl") ?: ""
+val localRegionBaseUrl: String = localProperties.getProperty("indonesiaRegionApiBaseUrl") ?: ""
+
 android {
     namespace = "com.itpens.kiossku"
     compileSdk = 33
 
     buildFeatures {
+        buildConfig = true
         viewBinding = true
         dataBinding = true
         compose = true
@@ -35,12 +47,24 @@ android {
     }
 
     buildTypes {
-        release {
+        create("staging") {
+            buildConfigField("String", "KIOSSSKU_BASE_URL", "\"https://dev.kiossku.com/be-api/v1/\"")
+            buildConfigField("String", "INDONESIA_REGION_BASE_URL", "\"https://ibnux.github.io/data-indonesia/\"")
+        }
+
+        getByName("release") {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "KIOSSSKU_BASE_URL", "\"https://kiossku.com/be-api/v1/\"")
+            buildConfigField("String", "INDONESIA_REGION_BASE_URL", "\"https://ibnux.github.io/data-indonesia/\"")
+        }
+
+        getByName("debug") {
+            buildConfigField("String", "KIOSSSKU_BASE_URL", localKiosskuBaseUrl)
+            buildConfigField("String", "INDONESIA_REGION_BASE_URL", localRegionBaseUrl)
         }
     }
     compileOptions {

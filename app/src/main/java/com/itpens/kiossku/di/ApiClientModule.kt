@@ -1,5 +1,6 @@
 package com.itpens.kiossku.di
 
+import com.itpens.kiossku.BuildConfig
 import com.itpens.kiossku.data.api.*
 import dagger.Module
 import dagger.Provides
@@ -14,11 +15,14 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object ApiClientModule {
 
+    private const val AUTH_BASE_URL = "${BuildConfig.KIOSSSKU_BASE_URL}auth/"
+    private const val PRODUCT_BASE_URL = "${BuildConfig.KIOSSSKU_BASE_URL}product/"
+
     @Singleton
     @Provides
     fun provideAuthApiClient() =
         Retrofit.Builder()
-            .baseUrl("https://kiossku.com/be-api/v1/auth/")
+            .baseUrl(AUTH_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create<AuthApi>()
@@ -28,7 +32,7 @@ object ApiClientModule {
     fun provideDaerahApiClient() =
         Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl("https://ibnux.github.io/data-indonesia/")
+            .baseUrl(BuildConfig.INDONESIA_REGION_BASE_URL)
             .build()
             .create<DaerahApi>()
 
@@ -37,7 +41,7 @@ object ApiClientModule {
     fun provideGetProductApiClient() =
         Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl("https://kiossku.com/be-api/v1/product/")
+            .baseUrl(PRODUCT_BASE_URL)
             .build()
             .create<GetProductApi>()
 
@@ -46,7 +50,7 @@ object ApiClientModule {
     fun providePostProductApiClient() =
         Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl("https://kiossku.com/be-api/v1/product/")
+            .baseUrl(PRODUCT_BASE_URL)
             .build()
             .create<PostProductApi>()
 
@@ -54,7 +58,7 @@ object ApiClientModule {
     @Provides
     fun provideUserApiClient() =
         Retrofit.Builder()
-            .baseUrl("https://kiossku.com/be-api/v1/auth/")
+            .baseUrl(AUTH_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create<UserApi>()
