@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Kiossku"
-include ':app'
+include(":app")
