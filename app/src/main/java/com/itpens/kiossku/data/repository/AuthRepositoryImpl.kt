@@ -3,22 +3,28 @@ package com.itpens.kiossku.data.repository
 import android.util.Log
 import com.itpens.kiossku.constant.ApiMessage
 import com.itpens.kiossku.data.api.AuthApi
+import com.itpens.kiossku.data.model.ApiError
+import com.itpens.kiossku.data.model.auth.FailedRefreshTokenError
+import com.itpens.kiossku.data.model.auth.TokenData
 import com.itpens.kiossku.data.model.login.LoginDto
-import com.itpens.kiossku.data.model.refresh.SuccessfulRefreshTokenResponse
 import com.itpens.kiossku.data.model.register.RegisterPost
+import com.itpens.kiossku.data.utils.safeApiCall
 import com.itpens.kiossku.domain.apiresponse.ApiResponse
+import com.itpens.kiossku.domain.ITokenManager
 import com.itpens.kiossku.domain.mapper.Mapper
+import com.itpens.kiossku.domain.model.ResultWrapper
 import com.itpens.kiossku.domain.repo_interface.IAuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import retrofit2.Response
+import java.net.HttpURLConnection
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
     private val authApiClient : AuthApi,
-    private val errorBodyToMessage : Mapper<String , String>
+    private val errorBodyToMessage : Mapper<String , String>,
+    private val tokenManager : ITokenManager
 ) : IAuthRepository {
     override suspend fun login(
         email : String,
@@ -109,8 +115,31 @@ class AuthRepositoryImpl @Inject constructor(
             }
         }
 
-    override suspend fun refreshToken(): Response<SuccessfulRefreshTokenResponse> =
-        authApiClient.refreshToken().execute()
+    override suspend fun refreshToken() : ResultWrapper<TokenData, FailedRefreshTokenError> {
+        val refreshTokenResponse = safeApiCall { authApiClient.refreshToken() }
+
+        if (refreshTokenResponse is ResultWrapper.Failure) {
+            val error = refreshTokenResponse.error
+            if (error is ApiError.Http && (
+                error.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED ||
+                error.statusCode == HttpURLConnection.HTTP_BAD_REQUEST
+            )){
+                return ResultWrapper.Failure(FailedRefreshTokenError.InvalidRefreshToken)
+            }
+
+            return ResultWrapper.Failure(FailedRefreshTokenError.Other(error.toDomain()))
+        }
+
+        val tokenResponse = (refreshTokenResponse as ResultWrapper.Success).data.data
+        val tokenData = TokenData(
+            accessToken = tokenResponse.token,
+            refreshToken = tokenResponse.refreshToken
+        )
+
+        tokenManager.setUserProfile(tokenData)
+
+        return ResultWrapper.Success(tokenData)
+    }
 
     override suspend fun logout() : ApiResponse<Nothing> =
         try{

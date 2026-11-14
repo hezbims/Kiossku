@@ -16,12 +16,6 @@ class GetUserUseCase @Inject constructor(
         val userId = authManager.getUserId()
         assert(userId != -1)
 
-        return when (val tokenResponse = authManager.getToken()) {
-            is ApiResponse.Success ->
-                userRepository.getUser(userId = userId, token = tokenResponse.data!!)
-            is ApiResponse.Failure ->
-                ApiResponse.Failure(errorCode = tokenResponse.errorCode)
-            else -> throw IllegalArgumentException("GetUserUseCase token mereturn loading...")
-        }
+        return userRepository.getUser(userId = userId)
     }
 }

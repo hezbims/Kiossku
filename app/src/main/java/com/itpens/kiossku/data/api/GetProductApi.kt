@@ -8,8 +8,8 @@ import retrofit2.http.Header
 import retrofit2.http.Path
 
 interface GetProductApi {
-    @GET("all")
-    suspend fun getAllProduct(@Header("Authorization") token : String) : Response<GetAllProductDto>
+    @GET("")
+    suspend fun getAllProduct() : Response<GetAllProductDto>
 
     @GET("{product_id}")
     suspend fun getProductById(

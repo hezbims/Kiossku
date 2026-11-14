@@ -1,11 +1,12 @@
 package com.itpens.kiossku.domain
 
 import android.util.Log
+import com.itpens.kiossku.data.model.auth.FailedRefreshTokenError
 import com.itpens.kiossku.data.model.login.LoginDto
 import com.itpens.kiossku.data.model.register.RegisterPost
 import com.itpens.kiossku.domain.apiresponse.ApiResponse
+import com.itpens.kiossku.domain.model.ResultWrapper
 import com.itpens.kiossku.domain.repo_interface.IAuthRepository
-import com.itpens.kiossku.domain.use_case.RefreshTokenUseCases
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -13,8 +14,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AuthManager @Inject constructor(
-    private val tokenManager: TokenManager,
-    private val refreshTokenUseCases: RefreshTokenUseCases,
+    private val tokenManager: ITokenManager,
     private val authRepository : IAuthRepository
 ) : IAuthManager {
     override fun getUserId() : Int = tokenManager.getUserId()
@@ -27,9 +27,17 @@ class AuthManager @Inject constructor(
             if (savedToken != null)
                 ApiResponse.Success(data = savedToken)
             else
-                refreshTokenUseCases()
+                when (val result = authRepository.refreshToken()) {
+                    is ResultWrapper.Success ->
+                        ApiResponse.Success(data = result.data.accessToken)
+                    is ResultWrapper.Failure -> {
+                        if (result.error == FailedRefreshTokenError.InvalidRefreshToken)
+                            tokenManager.setTokenSync(null)
+                        ApiResponse.Failure()
+                    }
+                }
         } catch (e: Exception) {
-            Log.e("qqqAuthGetToken", e.localizedMessage?.toString() ?: "Unknown Error")
+            Log.e("qqqAuthGetToken", e.localizedMessage ?: "Unknown Error")
             ApiResponse.Failure()
         }
     }

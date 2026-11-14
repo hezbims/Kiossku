@@ -7,6 +7,7 @@ plugins {
     id("kotlin-kapt")
     id("kotlin-parcelize")
     id("com.google.dagger.hilt.android")
+    id("de.mannodermaus.android-junit5") version "1.10.0.0"
 }
 
 // Baca local.properties untuk mendapatkan base URL environment "local".
@@ -83,7 +84,10 @@ android {
     }
 
     testOptions {
-        unitTests.isReturnDefaultValues = true
+        unitTests {
+            isIncludeAndroidResources = true
+            isReturnDefaultValues = true
+        }
     }
 }
 
@@ -116,7 +120,25 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
     implementation("androidx.activity:activity-compose:1.6.1")
 
+    // JUnit 4 (dipertahankan untuk kompatibilitas Robolectric)
     testImplementation("junit:junit:4.13.2")
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
+
+    // Robolectric: unit test Android di JVM (masih berbasis JUnit 4, jalan via vintage engine)
+    testImplementation("org.robolectric:robolectric:4.10.3")
+
+    // JUnit 5 (Jupiter)
+    testImplementation(platform("org.junit:junit-bom:5.10.2"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+
+    // MockK untuk mocking di unit test JVM
+    testImplementation("io.mockk:mockk:1.13.2")
+
+    // Coroutines test
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_ui_version"]}")

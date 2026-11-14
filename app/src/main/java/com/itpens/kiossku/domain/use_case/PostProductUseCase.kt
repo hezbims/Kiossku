@@ -9,18 +9,9 @@ import javax.inject.Singleton
 
 @Singleton
 class PostProductUseCase @Inject constructor(
-    private val authManager: AuthManager,
     private val postProductRepository : IPostProductRepository
 ) {
     suspend operator fun invoke(data : PostKiosData) : ApiResponse<Nothing>{
-        val tokenResponse = authManager.getToken()
-        return when (tokenResponse){
-            is ApiResponse.Success ->
-               postProductRepository.submitProduct(postData = data , token = tokenResponse.data!!)
-            is ApiResponse.Failure ->
-                ApiResponse.Failure()
-            else -> throw IllegalArgumentException("Get token mengembalikan loading...")
-        }
-
+        return postProductRepository.submitProduct(postData = data)
     }
 }

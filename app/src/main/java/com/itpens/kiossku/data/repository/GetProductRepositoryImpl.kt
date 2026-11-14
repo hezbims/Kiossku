@@ -11,14 +11,14 @@ import javax.inject.Inject
 class GetProductRepositoryImpl @Inject constructor(
     private val getProductApiClient : GetProductApi
 ) : IGetProductRepository{
-    override suspend fun getAllProduct(token : String) : ApiResponse<List<KiosDataDto?>>{
+    override suspend fun getAllProduct() : ApiResponse<List<KiosDataDto?>>{
         return try{
-            val response = getProductApiClient.getAllProduct(token = "Bearer $token")
+            val response = getProductApiClient.getAllProduct()
             if (response.isSuccessful)
                ApiResponse.Success(data = response.body()?.data!!)
             else
                 ApiResponse.Failure(errorCode = response.code())
-        }catch (e : Exception){
+        }catch (_ : Exception){
             ApiResponse.Failure()
         }
     }
@@ -30,7 +30,7 @@ class GetProductRepositoryImpl @Inject constructor(
             try{
                 val product = getProductApiClient.getProductById(id , token)
                 emit(ApiResponse.Success(product))
-            }catch (e : Exception){
+            }catch (_ : Exception){
                 emit(ApiResponse.Failure(null))
             }
         }

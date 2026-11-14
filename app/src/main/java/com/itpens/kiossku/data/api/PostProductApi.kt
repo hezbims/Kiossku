@@ -10,6 +10,5 @@ interface PostProductApi {
     @POST("add")
     suspend fun postProduct(
         @Body body : MultipartBody,
-        @Header("Authorization") token : String
     ) : Response<PostProductDto>
 }

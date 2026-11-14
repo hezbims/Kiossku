@@ -6,7 +6,6 @@ import com.itpens.kiossku.domain.apiresponse.ApiResponse
 interface IPostProductRepository {
     suspend fun submitProduct(
         postData : PostKiosData,
-        token : String
     ) : ApiResponse<Nothing>
 
 }

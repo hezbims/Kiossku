@@ -25,11 +25,10 @@ import javax.inject.Singleton
 @Singleton
 class PostProductRepositoryImpl @Inject constructor(
     private val postProductApiClient : PostProductApi,
-    @ApplicationContext private val context : Context
+    @param:ApplicationContext private val context : Context
 ) : IPostProductRepository {
     override suspend fun submitProduct(
         postData : PostKiosData,
-        token : String
     ): ApiResponse<Nothing> =
         try{
             val images = postData.images.map{ uri ->
@@ -122,7 +121,6 @@ class PostProductRepositoryImpl @Inject constructor(
 
             val response = postProductApiClient.postProduct(
                 body = multipartBody,
-                token = "Bearer $token"
             )
 
             if (response.isSuccessful)
@@ -134,7 +132,7 @@ class PostProductRepositoryImpl @Inject constructor(
                 ApiResponse.Failure(errorCode = code)
             }
         }catch (e : Exception){
-            Log.e("qqqPostData" , e.localizedMessage?.toString() ?: "Unknown Error Muncul")
+            Log.e("qqqPostData" , e.localizedMessage ?: "Unknown Error Muncul")
             ApiResponse.Failure()
         }
 

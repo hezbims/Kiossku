@@ -13,19 +13,9 @@ class UpdateUserUseCase @Inject constructor(
     suspend operator fun invoke(
         userNewData : UpdateUserDto
     ) : ApiResponse<Nothing>{
-        return when (val tokenResponse = authManager.getToken()) {
-            is ApiResponse.Success ->
-                userRepository.updateUser(
-                    userId = authManager.getUserId(),
-                    userNewData = userNewData,
-                    token = tokenResponse.data!!
-                )
-            is ApiResponse.Failure ->
-                ApiResponse.Failure(
-                    errorCode = tokenResponse.errorCode,
-                    errorMessage = tokenResponse.errorMessage,
-                )
-            else -> throw IllegalArgumentException("GetToken Mereturn Loading")
-        }
+        return userRepository.updateUser(
+            userId = authManager.getUserId(),
+            userNewData = userNewData,
+        )
     }
 }

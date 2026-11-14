@@ -4,7 +4,6 @@ import com.itpens.kiossku.data.model.login.LoginDto
 import com.itpens.kiossku.data.model.refresh.SuccessfulRefreshTokenResponse
 import com.itpens.kiossku.data.model.register.RegisterPost
 import okhttp3.ResponseBody
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -17,8 +16,8 @@ interface AuthApi {
     @DELETE("logout")
     suspend fun logout() : Response<ResponseBody>
 
-    @GET("token/")
-    fun refreshToken() : Call<SuccessfulRefreshTokenResponse>
+    @GET("token")
+    suspend fun refreshToken() : Response<SuccessfulRefreshTokenResponse>
 
     @FormUrlEncoded
     @POST("login")
