@@ -3,6 +3,7 @@ package com.itpens.kiossku.data.api
 import com.itpens.kiossku.data.model.auth.TokenData
 import com.itpens.kiossku.di.RefreshTokenClient
 import com.itpens.kiossku.domain.ITokenManager
+import com.itpens.kiossku.domain.SessionManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -20,6 +21,8 @@ import javax.inject.Singleton
  * - Retry: maksimal [MAX_ATTEMPTS] percobaan dengan backoff eksponensial
  *   (500ms -> 1s -> 2s), hanya untuk kegagalan sementara (IOException / 5xx).
  * - 401/400 saat refresh berarti refresh token tidak valid lagi, tidak di-retry.
+ * - Refresh gagal permanen -> [SessionManager.markSessionInvalid] sehingga UI
+ *   bisa redirect ke halaman login.
  *
  * Memakai AuthApi yang dibangun tanpa interceptor ([RefreshTokenClient])
  * supaya refresh tidak ikut lewat AuthHeaderInterceptor (menghindari
@@ -28,7 +31,8 @@ import javax.inject.Singleton
 @Singleton
 class TokenRefresher @Inject constructor(
     @param:RefreshTokenClient private val refreshAuthApi : AuthApi,
-    private val tokenManager : ITokenManager
+    private val tokenManager : ITokenManager,
+    private val sessionManager : SessionManager
 ) {
     private val refreshMutex = Mutex()
 
@@ -66,14 +70,23 @@ class TokenRefresher @Inject constructor(
 
         repeat(MAX_ATTEMPTS){ attempt ->
             when(val outcome = attemptRefresh()){
-                is RefreshOutcome.Success -> return outcome.token
+                is RefreshOutcome.Success -> {
+                    sessionManager.markSessionValid()
+                    return outcome.token
+                }
                 RefreshOutcome.Retryable ->
                     if (attempt < MAX_ATTEMPTS - 1)
                         delay(backoffMillis.also { backoffMillis *= 2 })
-                RefreshOutcome.Fatal -> return null
+                RefreshOutcome.Fatal -> {
+                    sessionManager.markSessionInvalid()
+                    return null
+                }
             }
         }
 
+        // Retry habis tanpa kegagalan fatal (semua retryable), sesi tetap
+        // tidak bisa dipulihkan
+        sessionManager.markSessionInvalid()
         return null
     }
 

@@ -13,6 +13,7 @@ import com.itpens.kiossku.domain.apiresponse.ApiResponse
 import com.itpens.kiossku.domain.ITokenManager
 import com.itpens.kiossku.domain.mapper.Mapper
 import com.itpens.kiossku.domain.model.ResultWrapper
+import com.itpens.kiossku.domain.SessionManager
 import com.itpens.kiossku.domain.repo_interface.IAuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -24,7 +25,8 @@ import javax.inject.Singleton
 class AuthRepositoryImpl @Inject constructor(
     private val authApiClient : AuthApi,
     private val errorBodyToMessage : Mapper<String , String>,
-    private val tokenManager : ITokenManager
+    private val tokenManager : ITokenManager,
+    private val sessionManager : SessionManager,
 ) : IAuthRepository {
     override suspend fun login(
         email : String,
@@ -36,8 +38,24 @@ class AuthRepositoryImpl @Inject constructor(
                 password = password
             )
 
-            if (response.isSuccessful)
+            if (response.isSuccessful){
+                response.body()!!.loginData.let{ loginData ->
+                    // Persist token ke USER_PROFILE_KEY supaya terbaca oleh
+                    // AuthHeaderInterceptor (cek expiry JWT) dan di-link
+                    // dengan userId untuk pemakaian API lain.
+                    tokenManager.setUserProfile(
+                        TokenData(
+                            accessToken = loginData.token,
+                            refreshToken = loginData.token
+                        )
+                    )
+                    tokenManager.setUserId(loginData.id)
+                }
+
+                sessionManager.markSessionValid()
+
                 ApiResponse.Success(data = response.body()!!)
+            }
             else
                 ApiResponse.Failure(errorMessage = "Password dan email tidak cocok!")
         }catch (e : Exception){

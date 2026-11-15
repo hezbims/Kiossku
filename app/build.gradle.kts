@@ -173,6 +173,14 @@ dependencies {
     implementation("com.google.accompanist:accompanist-appcompat-theme:0.25.1")
     debugImplementation("androidx.compose.ui:ui-test-manifest:${rootProject.extra["compose_ui_version"]}")
 
+    // Compose UI test di JVM via Robolectric (unit test)
+    testImplementation(composeBom)
+    testImplementation("androidx.compose.ui:ui-test-junit4")
+    testImplementation("androidx.navigation:navigation-testing:2.5.3")
+    // Espresso 3.5.x: versi 3.4.0 bermasalah dengan Robolectric
+    // (IllegalAccessException di ThreadPoolExecutorExtractor)
+    testImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
     // Coil Compose
     implementation("io.coil-kt:coil-compose:2.2.2")
 

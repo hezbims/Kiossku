@@ -17,7 +17,7 @@ fun NavigationHost(
 ){
     NavHost(
         navController = navController,
-        startDestination = AllRoute.LandingPage.route,
+        startDestination = AllRoute.Home.root,
         modifier = modifier
     ) {
         composable(

@@ -8,6 +8,7 @@ import com.itpens.kiossku.data.model.auth.TokenData
 import com.itpens.kiossku.data.model.refresh.SuccessfulRefreshTokenResponse
 import com.itpens.kiossku.data.model.refresh.TokenResponseData
 import com.itpens.kiossku.domain.ITokenManager
+import com.itpens.kiossku.domain.SessionManager
 import com.itpens.kiossku.domain.model.ExternalSystemError
 import com.itpens.kiossku.domain.model.ResultWrapper
 import io.mockk.coEvery
@@ -43,7 +44,8 @@ class AuthRepositoryImplRefreshTokenTest {
         sut = AuthRepositoryImpl(
             authApiClient = authApiClient,
             errorBodyToMessage = mockk(),
-            tokenManager = tokenManager
+            tokenManager = tokenManager,
+            sessionManager = SessionManager()
         )
     }
 

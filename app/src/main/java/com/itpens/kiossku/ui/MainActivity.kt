@@ -13,19 +13,25 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.itpens.kiossku.domain.SessionManager
 import com.itpens.kiossku.route.AllRoute
 import com.itpens.kiossku.ui.navigation.BottomNavBar
 import com.itpens.kiossku.ui.navigation.BottomNavBarActionButton
 import com.itpens.kiossku.ui.navigation.NavigationHost
+import com.itpens.kiossku.ui.navigation.SessionRedirectEffect
 import com.itpens.kiossku.ui.screen.profile.update_profile_dialog.ProfileDialogViewModel
 import com.itpens.kiossku.ui.theme.KiosskuTheme
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.components.ActivityComponent
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var sessionManager : SessionManager
 
     @EntryPoint
     @InstallIn(ActivityComponent::class)
@@ -42,6 +48,11 @@ class MainActivity : ComponentActivity() {
             KiosskuTheme {
                 val navController = rememberNavController()
                 val showBottomBar = rememberSaveable { mutableStateOf(true) }
+
+                SessionRedirectEffect(
+                    navController = navController,
+                    sessionManager = sessionManager
+                )
 
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 showBottomBar.value = when (navBackStackEntry?.destination?.route){
