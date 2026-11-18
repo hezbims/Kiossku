@@ -1,3 +1,7 @@
+> For UI tests based on the Compose Test Rule (Robolectric in `src/test` or
+> instrumented tests in `androidTest`), also read
+> [skills/page-object-model.md](skills/page-object-model.md).
+
 # 1. How to Organize Test
 ## 1.1 Group tests by When, not Then
 
