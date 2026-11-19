@@ -33,9 +33,11 @@ JVM via Robolectric (`src/test`) or as instrumented tests (`androidTest`).
 Basic rules:
 
 1. One Page Object may use several Component Objects.
-2. All access to `ComposeTestRule`, matchers, `performXxx` actions, and
-   `assertXxx` verifications is encapsulated inside the Page/Component
-   Object. Test cases MUST NOT call Compose Test APIs directly.
+2. All node lookup, `performXxx` actions, and `assertXxx` verifications are
+   encapsulated inside the Page/Component Object. Test classes MAY call
+   `composeRule.setContent(...)` in setup and `composeRule.waitForIdle()` for
+   synchronization, but MUST NOT call matchers, actions, or assertions
+   directly.
 3. When the UI changes (text, node structure, testTag), the fix only needs
    to happen in one place: the Page/Component Object.
 
@@ -77,13 +79,26 @@ Basic rules:
 
    This is safe because `onNodeWithText` does not search the UI immediately
    — the lookup only runs when `performXxx` or `assertXxx` is called.
-   Construct the Page Object inside the test method (after the rule is
-   applied), never as a field initializer of the test class.
 
-5. Actions that trigger a state change (navigation, data load, UI change)
+5. Declare each Page Object once as a test class property. Use `by lazy` and
+   access the property only after the Compose rule is applied and the test
+   content has been set:
+
+   ```kotlin
+   private val homePom by lazy { HomePom(composeRule) }
+   private val loginPom by lazy { LoginPom(composeRule) }
+   ```
+
+   Do NOT instantiate the same Page Object repeatedly inside individual test
+   methods. Access lazy Page Objects only after `composeRule.setContent(...)`
+   has run. Do NOT share Page Object instances across test class instances;
+   JUnit 4 creates a new test instance for each test method, so lazy properties
+   are re-created for every test.
+
+6. Actions that trigger a state change (navigation, data load, UI change)
    must call `composeRule.waitForIdle()` before the method returns.
 
-6. Find nodes in the following order of priority. Use the first option
+7. Find nodes in the following order of priority. Use the first option
    that identifies the target node:
 
    1. `onNode(hasRole(role) and hasText(text))`
@@ -96,7 +111,7 @@ Basic rules:
    via semantics (e.g. Button does it implicitly). If the node has no
    role, fall through to the next option.
 
-7. File and class names: `<ScreenName>Pom.kt` (class `<ScreenName>Pom`)
+8. File and class names: `<ScreenName>Pom.kt` (class `<ScreenName>Pom`)
    for Page Objects, `<WidgetName>Com.kt` (class `<WidgetName>Com`) for
    Component Objects. Put them in the `pageobject` package under the same
    feature as the tests that use them:
@@ -194,6 +209,8 @@ class SessionRedirectTest {
     val composeRule = createComposeRule()
 
     private lateinit var sessionManager : SessionManager
+    private val homePom by lazy { HomePom(composeRule) }
+    private val loginPom by lazy { LoginPom(composeRule) }
 
     @Before
     fun setup() {
@@ -205,7 +222,7 @@ class SessionRedirectTest {
 
     @Test
     fun `When the session stays valid then the home screen is displayed`() {
-        HomePom(composeRule).assertIsDisplayed()
+        homePom.assertIsDisplayed()
     }
 
     @Test
@@ -213,7 +230,7 @@ class SessionRedirectTest {
         sessionManager.markSessionInvalid()
         composeRule.waitForIdle()
 
-        LoginPom(composeRule).assertIsDisplayed()
+        loginPom.assertIsDisplayed()
     }
 
     @Test
@@ -224,8 +241,8 @@ class SessionRedirectTest {
         sessionManager.markSessionValid()
         composeRule.waitForIdle()
 
-        LoginPom(composeRule).assertIsDisplayed()
-        HomePom(composeRule).assertDoesNotExist()
+        loginPom.assertIsDisplayed()
+        homePom.assertDoesNotExist()
     }
 }
 ```

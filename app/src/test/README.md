@@ -346,6 +346,17 @@ The encapsulation rule applies to node lookup, actions, and assertions:
   delegate synchronization to an assertion method in a Page Object.
 - Test classes MUST NOT call matchers such as `onNodeWithText`,
   `performClick`, `assertIsDisplayed`, or other Compose Test APIs directly.
+- Each Page Object MUST be declared once as a test class property. Use
+  `by lazy` and access the property only after `composeRule.setContent(...)`
+  has run:
+
+  ```kotlin
+  private val homePom by lazy { HomePom(composeRule) }
+  private val loginPom by lazy { LoginPom(composeRule) }
+  ```
+
+  Do NOT instantiate the same Page Object repeatedly inside individual test
+  methods.
 
 # 4. Checklist
 
@@ -364,3 +375,5 @@ The encapsulation rule applies to node lookup, actions, and assertions:
 - [ ] Test classes end with `Test`.
 - [ ] Compose UI tests use Page Objects and do not call Compose matchers,
       actions, or assertions directly.
+- [ ] Each Page Object is declared once as a test class property using
+      `by lazy` and is not instantiated repeatedly in test methods.

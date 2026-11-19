@@ -1,7 +1,9 @@
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
-package com.itpens.kiossku.data.api
+package com.itpens.kiossku.data.api.token_refresher
 
+import com.itpens.kiossku.data.api.AuthApi
+import com.itpens.kiossku.data.api.TokenRefresher
 import com.itpens.kiossku.data.model.auth.TokenData
 import com.itpens.kiossku.data.model.refresh.SuccessfulRefreshTokenResponse
 import com.itpens.kiossku.data.model.refresh.TokenResponseData
@@ -24,7 +26,7 @@ import org.junit.jupiter.api.Test
 import retrofit2.Response
 import java.io.IOException
 
-@DisplayName("TokenRefresher")
+@DisplayName("TokenRefresher - getValidToken")
 class TokenRefresherTest {
 
     private lateinit var refreshAuthApi : AuthApi
@@ -33,7 +35,7 @@ class TokenRefresherTest {
     private lateinit var sut : TokenRefresher
 
     @BeforeEach
-    fun setup(){
+    fun setup() {
         refreshAuthApi = mockk()
         tokenManager = mockk(relaxed = true)
         sessionManager = SessionManager()
@@ -62,8 +64,8 @@ class TokenRefresherTest {
     )
 
     @Test
-    @DisplayName("getValidToken: token tersimpan masih valid -> dipakai tanpa refresh")
-    fun validStoredTokenUsedDirectly() = runTest {
+    @DisplayName("When getValidToken is called and the stored token is still valid then it returns the stored token without refreshing")
+    fun returnsStoredTokenWhenStoredTokenIsStillValid() = runTest {
         coEvery { tokenManager.getValidProfileToken() } returns "stillValidToken"
 
         val token = sut.getValidToken()
@@ -73,8 +75,8 @@ class TokenRefresherTest {
     }
 
     @Test
-    @DisplayName("getValidToken: token tidak ada, refresh sukses -> token baru tersimpan & sesi valid")
-    fun refreshSuccessStoresNewToken() = runTest {
+    @DisplayName("When getValidToken is called and the token refresh succeeds then it returns the new access token, stores it, and marks the session valid")
+    fun returnsNewAccessTokenWhenRefreshSucceeds() = runTest {
         coEvery { tokenManager.getValidProfileToken() } returns null
         coEvery { refreshAuthApi.refreshToken() } returns successfulRefreshResponse()
 
@@ -93,8 +95,8 @@ class TokenRefresherTest {
     }
 
     @Test
-    @DisplayName("getValidToken: refresh 401 permanen -> return null & sesi invalid")
-    fun refreshUnauthorizedMarksSessionInvalid() = runTest {
+    @DisplayName("When getValidToken is called and the refresh token is rejected then it returns null, does not store a token, and marks the session invalid")
+    fun returnsNullWhenRefreshTokenIsRejected() = runTest {
         coEvery { tokenManager.getValidProfileToken() } returns null
         coEvery { refreshAuthApi.refreshToken() } returns unauthorizedResponse()
 
@@ -107,15 +109,14 @@ class TokenRefresherTest {
     }
 
     @Test
-    @DisplayName("getValidToken: semua percobaan retryable (IOException) -> sesi invalid")
-    fun exhaustedRetriesMarkSessionInvalid() = runTest {
+    @DisplayName("When getValidToken is called and all refresh attempts fail with retryable errors then it returns null after three attempts and marks the session invalid")
+    fun returnsNullWhenAllRefreshAttemptsFail() = runTest {
         coEvery { tokenManager.getValidProfileToken() } returns null
         coEvery { refreshAuthApi.refreshToken() } throws IOException("no internet")
 
         val token = sut.getValidToken()
 
         assertNull(token)
-        // 3x percobaan (MAX_ATTEMPTS)
         coVerify(exactly = 3) { refreshAuthApi.refreshToken() }
         assertFalse(sessionManager.isSessionValid.value)
     }

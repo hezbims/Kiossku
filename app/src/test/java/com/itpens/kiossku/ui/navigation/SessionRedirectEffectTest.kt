@@ -1,16 +1,18 @@
+@file:Suppress("FunctionName")
+
 package com.itpens.kiossku.ui.navigation
 
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.itpens.kiossku.domain.SessionManager
 import com.itpens.kiossku.route.AllRoute
+import com.itpens.kiossku.ui.navigation.pageobject.HomePom
+import com.itpens.kiossku.ui.navigation.pageobject.LoginPom
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -36,9 +38,11 @@ class SessionRedirectEffectTest {
     val composeRule = createComposeRule()
 
     private lateinit var sessionManager : SessionManager
+    private val homePom by lazy { HomePom(composeRule) }
+    private val loginPom by lazy { LoginPom(composeRule) }
 
     @Before
-    fun setup(){
+    fun setup() {
         sessionManager = SessionManager()
 
         composeRule.setContent {
@@ -49,15 +53,15 @@ class SessionRedirectEffectTest {
     }
 
     @Composable
-    private fun TestGraph(){
+    private fun TestGraph() {
         val navController : NavHostController = rememberNavController()
 
         NavHost(
             navController = navController,
             startDestination = AllRoute.Home.root
-        ){
-            composable(AllRoute.Home.root){ Text("Home") }
-            composable(AllRoute.Auth.Login.route){ Text("Login") }
+        ) {
+            composable(AllRoute.Home.root) { Text("Home") }
+            composable(AllRoute.Auth.Login.route) { Text("Login") }
         }
 
         // SessionRedirectEffect dipasang seperti di MainActivity
@@ -68,29 +72,27 @@ class SessionRedirectEffectTest {
     }
 
     @Test
-    fun sessionValid_staysOnHome(){
-        composeRule.onNodeWithText("Home").assertIsDisplayed()
+    fun `When the session is valid then the home screen is displayed`() {
+        homePom.assertIsDisplayed()
     }
 
     @Test
-    fun sessionInvalid_navigatesToLogin(){
+    fun `When the session becomes invalid then the login screen is displayed`() {
         sessionManager.markSessionInvalid()
 
-        composeRule.waitForIdle()
-
-        composeRule.onNodeWithText("Login").assertIsDisplayed()
+        loginPom.assertIsDisplayed()
     }
 
     @Test
-    fun sessionRestoredWhileOnLogin_staysOnLogin(){
+    fun `When the session is restored while on the login screen then the login screen remains displayed and the home screen is hidden`() {
         sessionManager.markSessionInvalid()
-        composeRule.waitForIdle()
 
-        // User login lagi -> sesi valid kembali -> tidak ada navigasi tambahan
+        loginPom.assertIsDisplayed()
+
+        // User logs in again -> session becomes valid -> no additional navigation
         sessionManager.markSessionValid()
-        composeRule.waitForIdle()
 
-        composeRule.onNodeWithText("Login").assertIsDisplayed()
-        composeRule.onNodeWithText("Home").assertDoesNotExist()
+        loginPom.assertIsDisplayed()
+        homePom.assertDoesNotExist()
     }
 }

@@ -1,7 +1,8 @@
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
-package com.itpens.kiossku.domain
+package com.itpens.kiossku.domain.session_manager
 
+import com.itpens.kiossku.domain.SessionManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -20,27 +21,27 @@ class SessionManagerTest {
     private lateinit var sut : SessionManager
 
     @BeforeEach
-    fun setup(){
+    fun setup() {
         sut = SessionManager()
     }
 
     @Test
-    @DisplayName("isSessionValid default true (app baru dibuka dianggap sesi valid)")
-    fun defaultSessionIsValid(){
+    @DisplayName("When a new SessionManager is created then the session is valid")
+    fun isSessionValidWhenCreated() {
         assertTrue(sut.isSessionValid.value)
     }
 
     @Test
-    @DisplayName("markSessionInvalid membuat isSessionValid menjadi false")
-    fun markSessionInvalid(){
+    @DisplayName("When markSessionInvalid is called then the session becomes invalid")
+    fun marksSessionInvalidWhenMarkSessionInvalidIsCalled() {
         sut.markSessionInvalid()
 
         assertFalse(sut.isSessionValid.value)
     }
 
     @Test
-    @DisplayName("markSessionValid mengembalikan isSessionValid menjadi true setelah invalid")
-    fun markSessionValidRestores(){
+    @DisplayName("When markSessionValid is called after the session was marked invalid then the session becomes valid again")
+    fun restoresSessionWhenMarkSessionValidIsCalledAfterInvalid() {
         sut.markSessionInvalid()
         assertFalse(sut.isSessionValid.value)
 
@@ -50,12 +51,12 @@ class SessionManagerTest {
     }
 
     @Test
-    @DisplayName("StateFlow skip emisi nilai sama (idempotent, tidak emisi ulang)")
-    fun idempotentMarksDoNotReEmit() = runTest {
+    @DisplayName("When session marks are repeated with the same value then duplicate states are not re-emitted")
+    fun doesNotReEmitDuplicateStatesWhenMarksAreRepeated() = runTest {
         val emissions = mutableListOf<Boolean>()
 
-        val job = launch(UnconfinedTestDispatcher(testScheduler)){
-            sut.isSessionValid.collect{ emissions.add(it) }
+        val job = launch(UnconfinedTestDispatcher(testScheduler)) {
+            sut.isSessionValid.collect { emissions.add(it) }
         }
 
         sut.markSessionInvalid()
@@ -67,16 +68,16 @@ class SessionManagerTest {
 
         job.cancel()
 
-        // 1 initial + 1 saat berubah ke false + 1 saat berubah ke true.
-        // Pemanggilan berulang dengan nilai sama tidak mengemisi ulang.
+        // 1 initial + 1 when it changes to false + 1 when it changes to true.
+        // Repeated calls with the same value do not re-emit.
         assertEquals(listOf(true, false, true), emissions)
     }
 
     @Test
-    @DisplayName("Collector menerima state terakhir walau baru subscribe kemudian")
-    fun lateCollectorGetsLatestState() = runTest {
+    @DisplayName("When a collector subscribes after the session was marked invalid then it receives the latest invalid state")
+    fun receivesLatestStateWhenCollectorSubscribesAfterInvalid() = runTest {
         sut.markSessionInvalid()
 
-        assertEquals(false, sut.isSessionValid.first())
+        assertFalse(sut.isSessionValid.first())
     }
 }
