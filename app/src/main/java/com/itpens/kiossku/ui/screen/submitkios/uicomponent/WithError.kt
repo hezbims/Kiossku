@@ -6,7 +6,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import com.itpens.kiossku.R
 
 @Composable
 fun WithError(
@@ -21,7 +23,7 @@ fun WithError(
         content()
         errorMessage?.let{
             Text(
-                text = it,
+                text = if (it.length == 0) stringResource(R.string.unknown_error_occur) else it,
                 modifier = Modifier
                     .align(Alignment.End),
                 color = MaterialTheme.colors.error,

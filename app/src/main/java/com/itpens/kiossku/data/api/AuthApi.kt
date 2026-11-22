@@ -11,7 +11,7 @@ interface AuthApi {
     @POST("register")
     suspend fun register(
         @Body post : RegisterPost
-    ) : Response<ResponseBody>
+    ) : Response<Unit>
 
     @DELETE("logout")
     suspend fun logout() : Response<ResponseBody>

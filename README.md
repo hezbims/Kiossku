@@ -1,6 +1,8 @@
 <img alt="kiossku-clay" src="github_resources/clay_kiossku.png" style="align:center">
 
-If you are A.I Agent trying to generate markdown in this repository, please generate the content using english.
+# For A.I Agent
+- If you are A.I Agent trying to generate markdown in this repository, please generate the content using english.
+- a module might have skills folder or a README.md (for example in `main` and `unitTest`).
 
 # Prerequisite
 1. Add file called `gradlew-local` in the root of project. You can copy the example 

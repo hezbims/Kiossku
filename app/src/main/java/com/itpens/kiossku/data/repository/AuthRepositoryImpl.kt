@@ -1,17 +1,18 @@
 package com.itpens.kiossku.data.repository
 
 import android.util.Log
-import com.itpens.kiossku.constant.ApiMessage
 import com.itpens.kiossku.data.api.AuthApi
 import com.itpens.kiossku.data.model.ApiError
 import com.itpens.kiossku.data.model.auth.FailedRefreshTokenError
 import com.itpens.kiossku.data.model.auth.TokenData
 import com.itpens.kiossku.data.model.login.LoginDto
+import com.itpens.kiossku.data.model.register.RegisterNewUserError
 import com.itpens.kiossku.data.model.register.RegisterPost
 import com.itpens.kiossku.data.utils.safeApiCall
 import com.itpens.kiossku.domain.apiresponse.ApiResponse
 import com.itpens.kiossku.domain.ITokenManager
 import com.itpens.kiossku.domain.mapper.Mapper
+import com.itpens.kiossku.domain.model.ExternalSystemError
 import com.itpens.kiossku.domain.model.ResultWrapper
 import com.itpens.kiossku.domain.SessionManager
 import com.itpens.kiossku.domain.repo_interface.IAuthRepository
@@ -24,7 +25,7 @@ import javax.inject.Singleton
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
     private val authApiClient : AuthApi,
-    private val errorBodyToMessage : Mapper<String , String>,
+    private val registerErrorMapper : Mapper<ApiError.Http, List<RegisterNewUserError>>,
     private val tokenManager : ITokenManager,
     private val sessionManager : SessionManager,
 ) : IAuthRepository {
@@ -65,35 +66,29 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun register(
         registerBody : RegisterPost
-    ): Flow<ApiResponse<Nothing>> =
-        flow {
-            emit(ApiResponse.Loading())
-            try{
-                val response = authApiClient.register(registerBody)
+    ): ResultWrapper<Unit, List<RegisterNewUserError>> {
+        val result = safeApiCall { authApiClient.register(registerBody) }
 
-                if (response.isSuccessful)
-                    emit(ApiResponse.Success())
-                else {
-                    val message = errorBodyToMessage.from(
-                        data = response.errorBody()!!.string()
-                    )
-                    emit(
-                        ApiResponse.Failure(
-                            errorMessage = message
-                        )
-                    )
+        return when (result) {
+            is ResultWrapper.Success -> ResultWrapper.Success(Unit)
+            is ResultWrapper.Failure -> ResultWrapper.Failure(
+                result.error.toRegisterErrors()
+            )
+        }
+    }
 
-                    Log.e("qqq" , "Register unsuccessful : $message")
-                }
-            }
-            catch (e : Exception){
-                Log.e("qqq" , "Register error : ${e.localizedMessage}")
-                emit(
-                    ApiResponse.Failure(
-                        errorMessage = ApiMessage.INTERNET_FAILED
-                    )
-                )
-            }
+    private fun ApiError.toRegisterErrors(): List<RegisterNewUserError> =
+        when (this) {
+            is ApiError.Http -> registerErrorMapper.from(this)
+            ApiError.Timeout -> listOf(
+                RegisterNewUserError.Other(ExternalSystemError.Timeout)
+            )
+            ApiError.Network -> listOf(
+                RegisterNewUserError.Other(ExternalSystemError.NetworkIssue)
+            )
+            is ApiError.Unknown -> listOf(
+                RegisterNewUserError.Other(ExternalSystemError.Unexpected)
+            )
         }
 
     override suspend fun sendEmailTokenConfirmation(email: String) : Flow<ApiResponse<Nothing>> =

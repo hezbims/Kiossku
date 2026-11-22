@@ -34,7 +34,7 @@ class RefreshTokenWhenNetworkErrorOccursTest {
         tokenManager = mockk(relaxed = true)
         sut = AuthRepositoryImpl(
             authApiClient = authApiClient,
-            errorBodyToMessage = mockk(),
+            registerErrorMapper = mockk(),
             tokenManager = tokenManager,
             sessionManager = SessionManager()
         )

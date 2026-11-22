@@ -3,11 +3,9 @@ package com.itpens.kiossku.domain
 import android.util.Log
 import com.itpens.kiossku.data.model.auth.FailedRefreshTokenError
 import com.itpens.kiossku.data.model.login.LoginDto
-import com.itpens.kiossku.data.model.register.RegisterPost
 import com.itpens.kiossku.domain.apiresponse.ApiResponse
 import com.itpens.kiossku.domain.model.ResultWrapper
 import com.itpens.kiossku.domain.repo_interface.IAuthRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -61,7 +59,4 @@ class AuthManager @Inject constructor(
                 tokenManager.setUserId(data.loginData.id)
             }
         }
-
-    override suspend fun register(registerBody : RegisterPost) : Flow<ApiResponse<Nothing>> =
-        authRepository.register(registerBody = registerBody)
 }

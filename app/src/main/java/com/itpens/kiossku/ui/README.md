@@ -1,0 +1,2 @@
+- always use string resource for UI display text, don't use hardcoded string to display message to user
+  (altought it might have hardcoded string because this is legacy project). You can use `app/src/main/res/values/strings.xml` for string resource.

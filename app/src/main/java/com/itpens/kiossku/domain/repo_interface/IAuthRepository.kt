@@ -3,6 +3,7 @@ package com.itpens.kiossku.domain.repo_interface
 import com.itpens.kiossku.data.model.auth.FailedRefreshTokenError
 import com.itpens.kiossku.data.model.auth.TokenData
 import com.itpens.kiossku.data.model.login.LoginDto
+import com.itpens.kiossku.data.model.register.RegisterNewUserError
 import com.itpens.kiossku.data.model.register.RegisterPost
 import com.itpens.kiossku.domain.apiresponse.ApiResponse
 import com.itpens.kiossku.domain.model.ResultWrapper
@@ -13,7 +14,7 @@ interface IAuthRepository {
 
     suspend fun register(
         registerBody: RegisterPost
-    ) : Flow<ApiResponse<Nothing>>
+    ) : ResultWrapper<Unit, List<RegisterNewUserError>>
 
     suspend fun sendEmailTokenConfirmation(email : String) : Flow<ApiResponse<Nothing>>
 

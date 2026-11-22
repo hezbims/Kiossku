@@ -6,13 +6,13 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class ToastDisplayer @Inject constructor(
-    @ApplicationContext private val context : Context
-) {
-    operator fun invoke(message : String , duration : Int = Toast.LENGTH_SHORT) {
-        Toast.makeText(
-            context,
-            message,
-            duration
-        ).show()
+    @ApplicationContext private val context: Context
+) : IToastDisplayer {
+    override fun invoke(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun invoke(message: UiText) {
+        invoke(message.asString(context))
     }
 }

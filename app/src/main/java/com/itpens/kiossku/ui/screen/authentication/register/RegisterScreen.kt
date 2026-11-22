@@ -1,6 +1,5 @@
 package com.itpens.kiossku.ui.screen.authentication.register
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,12 +15,14 @@ import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -31,14 +32,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.itpens.kiossku.constant.ApiMessage
-import com.itpens.kiossku.domain.apiresponse.ApiResponse
 import com.itpens.kiossku.route.AllRoute
 import com.itpens.kiossku.ui.navigation.replaceAndNavigate
 import com.itpens.kiossku.ui.screen.authentication.PasswordTextField
 import com.itpens.kiossku.ui.screen.submitkios.uicomponent.WithError
 import com.itpens.kiossku.ui.theme.GreenKiossku
 import com.itpens.kiossku.ui.theme.KiosskuTheme
+import com.itpens.kiossku.ui.utils.asString
 import com.itpens.kiossku.ui.utils.phoneVisualTransformation
 import com.itpens.kiossku.R
 
@@ -52,33 +52,19 @@ fun RegisterScreen(
         navController.replaceAndNavigate(AllRoute.Auth.Login.route)
     }
 
-    when (uiState.apiResponse){
-        is ApiResponse.Success -> {
-            viewModel.resetApiState()
-            Toast.makeText(
-                LocalContext.current,
-                "Berhasil mendaftarkan akun!",
-                Toast.LENGTH_SHORT
-            ).show()
+    LaunchedEffect(uiState.isRegistrationSuccessful) {
+        if (uiState.isRegistrationSuccessful) {
+            // TODO(next iteration): navigate to ConfirmEmail with the registered email
             goToLogin()
-        }
-        else -> {
-            if (uiState.apiResponse?.errorMessage == ApiMessage.INTERNET_FAILED){
-                viewModel.resetApiState()
-                Toast.makeText(
-                    LocalContext.current ,
-                    "Gagal mengirim data, periksa internet anda!",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            RegisterScreen(
-                uiState = uiState,
-                onEvent = viewModel::onEvent,
-                goToLogin = goToLogin
-            )
+            viewModel.onEvent(RegisterScreenEvent.OnRegistrationSuccessHandled)
         }
     }
 
+    RegisterScreen(
+        uiState = uiState,
+        onEvent = viewModel::onEvent,
+        goToLogin = goToLogin
+    )
 }
 
 @Composable
@@ -112,24 +98,35 @@ private fun RegisterScreen(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                OutlinedTextField(
-                    value = uiState.fullName,
-                    onValueChange = { onEvent(RegisterScreenEvent.OnChangeFullName(it)) },
+                WithError(
+                    errorMessage = uiState.fullNameError,
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.Person,
-                            contentDescription = null
-                        )
-                    },
-                    placeholder = { Text("Nama lengkap") },
-                    shape = RoundedCornerShape(16.dp)
-                )
+                        .fillMaxWidth()
+                        .testTag(RegisterTestTags.FULL_NAME_FIELD_CONTAINER)
+                ) {
+                    OutlinedTextField(
+                        value = uiState.fullName,
+                        onValueChange = { onEvent(RegisterScreenEvent.OnChangeFullName(it)) },
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Person,
+                                contentDescription = null
+                            )
+                        },
+                        placeholder = {
+                            Text(stringResource(R.string.register_full_name_placeholder))
+                        },
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                }
 
                 WithError(
                     errorMessage = uiState.emailError,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(RegisterTestTags.EMAIL_FIELD_CONTAINER)
                 ) {
                     OutlinedTextField(
                         value = uiState.email,
@@ -142,7 +139,9 @@ private fun RegisterScreen(
                         },
                         modifier = Modifier
                             .fillMaxWidth(),
-                        placeholder = { Text("Email") },
+                        placeholder = {
+                            Text(stringResource(R.string.register_email_placeholder))
+                        },
                         shape = RoundedCornerShape(16.dp)
                     )
                 }
@@ -150,7 +149,9 @@ private fun RegisterScreen(
 
                 WithError(
                     errorMessage = uiState.teleponError,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(RegisterTestTags.TELEPON_FIELD_CONTAINER)
                 ) {
                     OutlinedTextField(
                         value = uiState.telepon,
@@ -166,9 +167,10 @@ private fun RegisterScreen(
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number
                         ),
-                        // placeholder = { Text("Nomor telepon") },
                         visualTransformation = { phoneVisualTransformation(it) },
-                        label = { Text("Nomor telepon ") },
+                        label = {
+                            Text(stringResource(R.string.register_phone_label))
+                        },
                         shape = RoundedCornerShape(16.dp)
                     )
                 }
@@ -176,12 +178,16 @@ private fun RegisterScreen(
 
                 WithError(
                     errorMessage = uiState.passwordError,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(RegisterTestTags.PASSWORD_FIELD_CONTAINER)
                 ) {
                     PasswordTextField(
                         value = uiState.password,
                         onValueChange = { onEvent(RegisterScreenEvent.OnChangePassword(it)) },
-                        placeholder = { Text("Password") },
+                        placeholder = {
+                            Text(stringResource(R.string.register_password_placeholder))
+                        },
                         showPassword = uiState.showPassword,
                         onChangeVisibility = {
                             onEvent(RegisterScreenEvent.OnChangePasswordVisibility)
@@ -192,20 +198,41 @@ private fun RegisterScreen(
                 }
 
 
-                PasswordTextField(
-                    value = uiState.confirmPassword,
-                    onValueChange = { onEvent(RegisterScreenEvent.OnChangeConfirmPassword(it)) },
-                    placeholder = { Text("Konfirmasi password") },
-                    showPassword = uiState.showConfirmPassword,
-                    onChangeVisibility = {
-                        onEvent(RegisterScreenEvent.OnChangeConfirmPasswordVisibility)
-                    },
+                WithError(
+                    errorMessage = uiState.confirmPasswordError?.asString(),
                     modifier = Modifier
                         .fillMaxWidth()
-                )
+                        .testTag(RegisterTestTags.CONFIRM_PASSWORD_FIELD_CONTAINER)
+                ) {
+                    PasswordTextField(
+                        value = uiState.confirmPassword,
+                        onValueChange = { onEvent(RegisterScreenEvent.OnChangeConfirmPassword(it)) },
+                        placeholder = {
+                            Text(
+                                stringResource(
+                                    R.string.register_confirm_password_placeholder
+                                )
+                            )
+                        },
+                        showPassword = uiState.showConfirmPassword,
+                        onChangeVisibility = {
+                            onEvent(RegisterScreenEvent.OnChangeConfirmPasswordVisibility)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
             }
 
-            val isLoading = uiState.apiResponse is ApiResponse.Loading
+            uiState.generalError?.let { generalError ->
+                Text(
+                    text = generalError.asString(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    color = MaterialTheme.colors.error
+                )
+            }
 
             Button(
                 onClick = { onEvent(RegisterScreenEvent.OnSubmitData) },
@@ -213,14 +240,14 @@ private fun RegisterScreen(
                     .padding(top = 24.dp)
                     .height(48.dp)
                     .fillMaxWidth(),
-                enabled = !isLoading,
+                enabled = !uiState.isSubmitting,
                 contentPadding = PaddingValues(0.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                if (isLoading)
+                if (uiState.isSubmitting)
                     CircularProgressIndicator()
                 else
-                    Text("Daftar")
+                    Text(stringResource(R.string.register_submit_button))
             }
 
             AnnotatedGoToLoginText(
@@ -240,7 +267,7 @@ private fun RegisterScreen(
             Row {
                 Icon(
                     imageVector = Icons.Outlined.ArrowBack,
-                    contentDescription = "Back to login",
+                    contentDescription = stringResource(R.string.register_back_to_login),
                     modifier = Modifier
                         .clickable { goToLogin() }
                         .padding(
@@ -258,9 +285,12 @@ fun AnnotatedGoToLoginText(
     goToLogin: () -> Unit,
     modifier: Modifier = Modifier
 ){
-    val annotatedText = remember {
+    val haveAccountPrefix = stringResource(R.string.register_have_account_prefix)
+    val goToLoginText = stringResource(R.string.register_go_to_login)
+
+    val annotatedText = remember(haveAccountPrefix, goToLoginText) {
         buildAnnotatedString {
-            append("Sudah punya akun? ")
+            append(haveAccountPrefix)
 
             pushStringAnnotation("goToLogin", "")
 
@@ -270,7 +300,7 @@ fun AnnotatedGoToLoginText(
                     fontWeight = FontWeight.Bold
                 )
             ) {
-                append("Yuk masuk")
+                append(goToLoginText)
             }
             pop()
         }
@@ -307,4 +337,3 @@ private fun RegisterScreenPreview(){
         }
     }
 }
-

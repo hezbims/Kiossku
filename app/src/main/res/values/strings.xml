@@ -18,4 +18,21 @@
     <string name="home_label">Home</string>
     <string name="profile_label">Profile</string>
     <string name="format_lokasi">%1$s;%2$s;%3$s;%4$s</string>
+    <string name="external_system_error_timeout">Waktu permintaan habis, silakan coba lagi</string>
+    <string name="external_system_error_network_issue">Gagal mengirim data, periksa internet anda!</string>
+    <string name="external_system_error_unexpected">Terjadi kesalahan, silakan coba lagi</string>
+    <string name="external_system_error_service_unavailable">Server sedang tidak tersedia, silakan coba lagi</string>
+    <string name="external_system_error_unauthorized_access">Sesi anda tidak valid</string>
+    <string name="register_password_mismatch">Password tidak sama</string>
+    <string name="register_success">Berhasil mendaftarkan akun!</string>
+    <string name="register_full_name_placeholder">Nama lengkap</string>
+    <string name="register_email_placeholder">Email</string>
+    <string name="register_phone_label">Nomor telepon</string>
+    <string name="register_password_placeholder">Password</string>
+    <string name="register_confirm_password_placeholder">Konfirmasi password</string>
+    <string name="register_submit_button">Daftar</string>
+    <string name="register_back_to_login">Back to login</string>
+    <string name="register_have_account_prefix">"Sudah punya akun? "</string>
+    <string name="register_go_to_login">Yuk masuk</string>
+    <string name="unknown_error_occur">Terjadi kesalahan tidak diketahui</string>
 </resources>

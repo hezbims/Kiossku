@@ -1,0 +1,1 @@
+There is layer in this app such as ui, data, domain, etc. Each layer might have rules in it README.md
